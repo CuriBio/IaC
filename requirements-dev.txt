@@ -1,0 +1,1 @@
+pre-commit==2.4.0 # run 'pre-commit install' initially to install the git hooks

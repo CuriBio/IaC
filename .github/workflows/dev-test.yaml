@@ -1,0 +1,54 @@
+# Based on https://github.com/prettier/prettier/blob/master/.github/workflows/dev-test.yml
+name: Dev
+
+on:
+#   schedule:
+#   - cron: "0 0 7 1/1 * ? *"
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - "ubuntu-latest"
+        python-version:
+            - 3.8
+    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+
+      - name: Create virtual python environment
+        run: python -m venv venv
+
+      - name: Activate virtual environment (Linux/MacOS)
+        run: . venv/bin/activate
+
+
+      - name: Display Pip Version
+        run: pip -V
+      - name: Install Dev Dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Log full installed packages
+        run: pip freeze
+      - name: Install pre-commit hooks
+        run: pre-commit install
+
+      - name: Run pre-commit hooks
+        # only enable pre-commit on the fastest job
+        run: pre-commit run -a
