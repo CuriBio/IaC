@@ -1,0 +1,65 @@
+# aws cloudformation package --template-file build-resources.yaml --output-template-file build-resources.packaged.yaml --s3-bucket cf-templates-curibioprod-us-east-1
+# aws cloudformation deploy --stack-name=build-resources --template-file=build-resources.packaged.yaml --parameter-overrides Stage=prod
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates a bucket for caches and other resources. Also relevant SSM Parameters (for now generic strings are created and then manually need to be changed to SecureStrings...hopefully soon AWS will figure out how to create SecureStrings via CloudFormation)
+Parameters:
+  Stage:
+    Type: String
+    Description: The stage for deployment
+    AllowedValues:
+    - test
+    - modl
+    - prod
+    ConstraintDescription: Must be a valid stage name (test, modl, or prod).
+
+Resources:
+  TheBucket:
+      Type: AWS::CloudFormation::Stack
+      Properties:
+        TemplateURL: ../templates/s3/generic-bucket-with-exported-name.yaml
+        Parameters:
+          RootStackName:
+            Ref: "AWS::StackName"
+          TheBucketName:
+            Fn::Join:
+              - "-"
+              - - "curibio-build-resources"
+                - Ref: "AWS::Region"
+                - Ref: Stage
+  VcnNotarizationPasswordParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Password to perform VCN notarization / code signing
+      Name:
+        Fn::Join:
+          - "/"
+          - - "/CodeBuild/general"
+            - Ref: Stage
+            - "vcn-password"
+      Type: "String"
+      Value: "must be edited manually in the Systems Manager"
+  VcnNotarizationNotarizationPasswordParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Extra password needed to perform VCN notarization / code signing
+      Name:
+        Fn::Join:
+          - "/"
+          - - "/CodeBuild/general"
+            - Ref: Stage
+            - "vcn-notarization-password"
+      Type: "String"
+      Value: "must be edited manually in the Systems Manager"
+  VcnNotarizationUsernameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Username to perform VCN notarization / code signing
+      Name:
+        Fn::Join:
+          - "/"
+          - - "/CodeBuild/general"
+            - Ref: Stage
+            - "vcn-username"
+      Type: "String"
+      Value: "must be edited manually in the Systems Manager"

@@ -41,6 +41,6 @@ pipeline_outputs/
 *.gz
 *.tsv
 *.csv
-
+*.packaged.yaml
 
 secrets.json
