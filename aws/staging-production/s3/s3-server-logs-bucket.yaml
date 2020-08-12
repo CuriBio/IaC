@@ -1,0 +1,48 @@
+# aws cloudformation package --template-file s3-server-logs-bucket.yaml --output-template-file s3-server-logs-bucket.packaged.yaml --s3-bucket cf-templates-curi-bio-prod-us-east-1
+# aws cloudformation deploy --stack-name=s3-server-logs-bucket-us-east-1 --template-file=s3-server-logs-bucket.packaged.yaml --parameter-overrides Stage=prod
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates a bucket to host server access logs
+Parameters:
+  Stage:
+    Type: String
+    Description: The stage for deployment
+    AllowedValues:
+    - modl
+    - prod
+    ConstraintDescription: Must be a valid stage name (modl, or prod).
+  BucketNameUniquifier:
+    Type: String
+    Description: A piece of unique characters to be included in the bucket name, since bucket names must be unique across all of AWS. Typically the organization name
+    Default: curi-bio
+
+Resources:
+  TheBucket:
+      Type: AWS::CloudFormation::Stack
+      Properties:
+        TemplateURL: ../../templates/s3/generic-bucket.yaml
+        Parameters:
+          ExportedBucketNamePrefix:
+            Ref: "AWS::StackName"
+          TheBucketName:
+            Fn::Join:
+              - "-"
+              - - Ref: BucketNameUniquifier
+                - "server-access-logs"
+                - Ref: "AWS::Region"
+                - Ref: Stage
+          EnableServerAccessLogging: no
+          AllowServerAccessLogDelivery: yes
+
+
+Outputs:
+  BuildArtifactBucketName:
+    Description: The name of the bucket
+    Value:
+      Fn::GetAtt:
+        TheBucket.Outputs.BucketName
+  BucketNameUniquifier:
+    Description: A piece of unique characters to be included in the bucket name, since bucket names must be unique across all of AWS. Typically the organization name
+    Value:
+      Ref: BucketNameUniquifier
+    Export:
+      Name: "BucketNameUniquifier"

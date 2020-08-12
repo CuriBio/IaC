@@ -1,6 +1,5 @@
 # adapted from: https://github.com/sjevs/cloudformation-s3-static-website-with-cloudfront-and-route-53/blob/master/s3-static-website-with-cloudfront-and-route-53.yaml
-# to create: aws cloudformation deploy --stack-name=software-downloads-bucket --parameter-overrides FullDomainName=software.curibio.com --template-file=software-downloads-bucket.yaml
-# aws cloudformation package --template-file software-downloads-bucket.yaml --output-template-file software-downloads-bucket.packaged.yaml --s3-bucket cf-templates-curibioprod-us-east-1
+# aws cloudformation package --template-file software-downloads-bucket.yaml --output-template-file software-downloads-bucket.packaged.yaml --s3-bucket cf-templates-curi-bio-prod-us-east-1
 # aws cloudformation deploy --stack-name=software-downloads-bucket --template-file=software-downloads-bucket.packaged.yaml
 
 

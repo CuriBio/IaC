@@ -1,5 +1,5 @@
 # adapted from: https://github.com/sjevs/cloudformation-s3-static-website-with-cloudfront-and-route-53/blob/master/s3-static-website-with-cloudfront-and-route-53.yaml
-# to create: aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates-curibioprod-us-east-1 --template-file=generic-bucket.yaml
+# to create: aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates-curi-bio-prod-us-east-1 --template-file=generic-bucket.yaml
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Creates an S3 bucket
@@ -8,20 +8,130 @@ Parameters:
     Type: String
     Description: The name for the bucket
     AllowedPattern: (?!-)[a-zA-Z0-9-.]{1,63}(?<!-)
+  AllowServerAccessLogDelivery:
+    Type: String
+    Default: no
+    AllowedValues:
+    - yes
+    - no
+    ConstraintDescription: Must be yes/no
+  EnableServerAccessLogging:
+    Type: String
+    Default: yes
+    AllowedValues:
+    - yes
+    - no
+    ConstraintDescription: Must be yes/no
+  BlockPublicAcls:
+    Type: String
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    ConstraintDescription: Must be true/false
+  BlockPublicPolicy:
+    Type: String
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    ConstraintDescription: Must be true/false
+  IgnorePublicAcls:
+    Type: String
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    ConstraintDescription: Must be true/false
+  RestrictPublicBuckets:
+    Type: String
+    Default: true
+    AllowedValues:
+    - true
+    - false
+    ConstraintDescription: Must be true/false
+  VersioningStatus:
+    Type: String
+    Default: Suspended
+    AllowedValues:
+    - Enabled
+    - Suspended
+    ConstraintDescription: Must be Enabled/Suspended
+  ExportedBucketNamePrefix:
+    Type: String
+    Description: Used for naming the exported bucket name. Typically the name of the Root Stack. Leave blank to not export the name
+    Default: ""
+
+Conditions:
+  ExportBucketName:
+    Fn::Not:
+      - Fn::Equals:
+        - Ref: ExportedBucketNamePrefix
+        - ""
+  ConditionAllowServerAccessLogDelivery:
+    Fn::Equals:
+      - Ref: AllowServerAccessLogDelivery
+      - yes
+  ConditionEnableServerAccessLogging:
+    Fn::Equals:
+      - Ref: EnableServerAccessLogging
+      - yes
+
 Resources:
   GenericBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName:
         Ref: "TheBucketName"
+      VersioningConfiguration:
+        Status:
+          Ref: "VersioningStatus"
       PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
+        BlockPublicAcls:
+          Ref: "BlockPublicAcls"
+        BlockPublicPolicy:
+          Ref: "BlockPublicPolicy"
+        IgnorePublicAcls:
+          Ref: "IgnorePublicAcls"
+        RestrictPublicBuckets:
+          Ref: "RestrictPublicBuckets"
+      AccessControl:
+        Fn::If:
+          - ConditionAllowServerAccessLogDelivery
+          - "LogDeliveryWrite"
+          - Ref: AWS::NoValue
+      LoggingConfiguration:
+        Fn::If:
+          - ConditionEnableServerAccessLogging
+          - DestinationBucketName:
+              Fn::ImportValue:
+                Fn::Join:
+                  - "-"
+                  - - "s3-server-logs-bucket"
+                    - Ref: "AWS::Region"
+                    - "-bucket-name"
+            LogFilePrefix:
+              Fn::Join:
+                - ""
+                - - Ref: TheBucketName
+                  - "/"
+          - Ref: AWS::NoValue
     DeletionPolicy: Delete
 Outputs:
   BucketName:
     Value:
       Ref: "GenericBucket"
     Description: Name of S3 bucket
+
+  ExportedBucketName:
+    Value:
+      Ref: "GenericBucket"
+    Description: Exported Name of S3 bucket # Eli (8/11/20) was unable to figure out a way to conditionally export the name as part of the same output, so had to duplicate it
+    Condition: ExportBucketName
+    Export:
+      Name:
+        Fn::Join:
+          - "--"
+          - - Ref: ExportedBucketNamePrefix
+            - "bucket-name"
+

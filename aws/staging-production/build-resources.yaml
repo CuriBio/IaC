@@ -1,4 +1,4 @@
-# aws cloudformation package --template-file build-resources.yaml --output-template-file build-resources.packaged.yaml --s3-bucket cf-templates-curibioprod-us-east-1
+# aws cloudformation package --template-file build-resources.yaml --output-template-file build-resources.packaged.yaml --s3-bucket cf-templates-curi-bio-prod-us-east-1
 # aws cloudformation deploy --stack-name=build-resources --template-file=build-resources.packaged.yaml --parameter-overrides Stage=prod
 
 AWSTemplateFormatVersion: "2010-09-09"

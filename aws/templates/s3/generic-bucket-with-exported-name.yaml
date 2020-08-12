@@ -1,5 +1,5 @@
 # adapted from: https://github.com/sjevs/cloudformation-s3-static-website-with-cloudfront-and-route-53/blob/master/s3-static-website-with-cloudfront-and-route-53.yaml
-# to create: aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates-curibioprod-us-east-1 --template-file=generic-bucket.yaml
+# to create: aws cloudformation deploy --stack-name=s3-server-logs-bucket-us-east-1 --parameter-overrides RootStackName=s3-server-logs-bucket-us-east-1 AllowServerAccessLogDelivery=yes EnableServerAccessLogging=no TheBucketName=s3-server-logs-curibioprod-us-east-1 --template-file=generic-bucket-with-exported-name.yaml
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Creates a bucket that has its name exported for use in cross-stack references
@@ -11,6 +11,20 @@ Parameters:
   RootStackName:
     Type: String
     Description: Used for naming the exported bucket name
+  AllowServerAccessLogDelivery:
+    Type: String
+    Default: no
+    AllowedValues:
+    - yes
+    - no
+    ConstraintDescription: Must be yes/no
+  EnableServerAccessLogging:
+    Type: String
+    Default: yes
+    AllowedValues:
+    - yes
+    - no
+    ConstraintDescription: Must be yes/no
 
 Resources:
   TheBucket:
@@ -20,6 +34,10 @@ Resources:
         Parameters:
           TheBucketName:
             Ref: TheBucketName
+          EnableServerAccessLogging:
+            Ref: EnableServerAccessLogging
+          AllowServerAccessLogDelivery:
+            Ref: AllowServerAccessLogDelivery
 
 Outputs:
   BucketName:

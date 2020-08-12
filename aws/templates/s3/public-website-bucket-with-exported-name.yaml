@@ -1,5 +1,5 @@
 # adapted from: https://github.com/sjevs/cloudformation-s3-static-website-with-cloudfront-and-route-53/blob/master/s3-static-website-with-cloudfront-and-route-53.yaml
-# to create: aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates-curibioprod-us-east-1 --template-file=generic-bucket.yaml
+# to create: aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates-curi-bio-prod-us-east-1 --template-file=generic-bucket.yaml
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Creates a public bucket to host a website that has its name exported for use in cross-stack references
