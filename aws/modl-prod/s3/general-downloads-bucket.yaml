@@ -9,6 +9,6 @@ Resources:
       Properties:
         TemplateURL: ../../templates/s3/generic-bucket.yaml
         Parameters:
-          FullDomainName: downloads.curibio.com
+          TheBucketName: downloads.curibio.com
           HostStaticWebsite: true
           VersioningStatus: Enabled

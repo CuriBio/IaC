@@ -14,17 +14,37 @@ Parameters:
     ConstraintDescription: Must be a valid stage name (test, modl, or prod).
 
 Resources:
-  TheBucket:
+  BuildResourcesBucket:
       Type: AWS::CloudFormation::Stack
       Properties:
         TemplateURL: ../templates/s3/generic-bucket.yaml
         Parameters:
           ExportedBucketNamePrefix:
-            Ref: "AWS::StackName"
+            Fn::Join:
+              - "--"
+              - - Ref: "AWS::StackName"
+                - "build-resources"
           TheBucketName:
             Fn::Join:
               - "--"
               - - "build-resources"
+                - Ref: "AWS::Region"
+                - Fn::ImportValue: "BucketNameUniquifier"
+                - Ref: Stage
+  BuildArtifactsBucket:
+      Type: AWS::CloudFormation::Stack
+      Properties:
+        TemplateURL: ../templates/s3/generic-bucket.yaml
+        Parameters:
+          ExportedBucketNamePrefix:
+            Fn::Join:
+              - "--"
+              - - Ref: "AWS::StackName"
+                - "build-artifacts"
+          TheBucketName:
+            Fn::Join:
+              - "--"
+              - - "build-artifacts"
                 - Ref: "AWS::Region"
                 - Fn::ImportValue: "BucketNameUniquifier"
                 - Ref: Stage
@@ -36,7 +56,6 @@ Resources:
         Fn::Join:
           - "/"
           - - "/CodeBuild/general"
-            - Ref: Stage
             - "vcn-password"
       Type: "String"
       Value: "must be edited manually in the Systems Manager"
@@ -48,7 +67,6 @@ Resources:
         Fn::Join:
           - "/"
           - - "/CodeBuild/general"
-            - Ref: Stage
             - "vcn-notarization-password"
       Type: "String"
       Value: "must be edited manually in the Systems Manager"
@@ -60,7 +78,6 @@ Resources:
         Fn::Join:
           - "/"
           - - "/CodeBuild/general"
-            - Ref: Stage
             - "vcn-username"
       Type: "String"
       Value: "must be edited manually in the Systems Manager"
