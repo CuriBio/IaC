@@ -1,61 +1,75 @@
 # adapted from: https://github.com/sjevs/cloudformation-s3-static-website-with-cloudfront-and-route-53/blob/master/s3-static-website-with-cloudfront-and-route-53.yaml
-# to create: aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates-curi-bio-prod-us-east-1 --template-file=generic-bucket.yaml
+# to create: aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates-us-east-1-curi-bio-prod --template-file=generic-bucket.yaml
 
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Creates an S3 bucket
+Description: Creates an S3 bucket. If HostStaticWebsite is set to True, then the bucket must be public and not encrypted and any parameters to restrict public access or apply encryption will be overridden
 Parameters:
   TheBucketName:
     Type: String
     Description: The name for the bucket
     AllowedPattern: (?!-)[a-zA-Z0-9-.]{1,63}(?<!-)
+  UseDeafaltServerSideEncryption:
+    Type: String
+    Default: true
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must be true/false
   AllowServerAccessLogDelivery:
     Type: String
-    Default: no
+    Default: false
     AllowedValues:
-    - yes
-    - no
-    ConstraintDescription: Must be yes/no
+      - true
+      - false
+    ConstraintDescription: Must be true/false
   EnableServerAccessLogging:
     Type: String
-    Default: yes
+    Default: true
     AllowedValues:
-    - yes
-    - no
-    ConstraintDescription: Must be yes/no
+      - true
+      - false
+    ConstraintDescription: Must be true/false
+  HostStaticWebsite:
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+    ConstraintDescription: Must be true/false
   BlockPublicAcls:
     Type: String
     Default: true
     AllowedValues:
-    - true
-    - false
+      - true
+      - false
     ConstraintDescription: Must be true/false
   BlockPublicPolicy:
     Type: String
     Default: true
     AllowedValues:
-    - true
-    - false
+      - true
+      - false
     ConstraintDescription: Must be true/false
   IgnorePublicAcls:
     Type: String
     Default: true
     AllowedValues:
-    - true
-    - false
+      - true
+      - false
     ConstraintDescription: Must be true/false
   RestrictPublicBuckets:
     Type: String
     Default: true
     AllowedValues:
-    - true
-    - false
+      - true
+      - false
     ConstraintDescription: Must be true/false
   VersioningStatus:
     Type: String
     Default: Suspended
     AllowedValues:
-    - Enabled
-    - Suspended
+      - Enabled
+      - Suspended
     ConstraintDescription: Must be Enabled/Suspended
   ExportedBucketNamePrefix:
     Type: String
@@ -71,11 +85,19 @@ Conditions:
   ConditionAllowServerAccessLogDelivery:
     Fn::Equals:
       - Ref: AllowServerAccessLogDelivery
-      - yes
+      - true
   ConditionEnableServerAccessLogging:
     Fn::Equals:
       - Ref: EnableServerAccessLogging
-      - yes
+      - true
+  ConditionHostStaticWebsite:
+    Fn::Equals:
+      - Ref: HostStaticWebsite
+      - true
+  ConditionUseDeafaltServerSideEncryption:
+    Fn::Equals:
+      - Ref: UseDeafaltServerSideEncryption
+      - true
 
 Resources:
   GenericBucket:
@@ -86,20 +108,54 @@ Resources:
       VersioningConfiguration:
         Status:
           Ref: "VersioningStatus"
+      BucketEncryption:
+        Fn::If:
+          - ConditionHostStaticWebsite
+          - Ref: AWS::NoValue
+          - Fn::If:
+            - ConditionUseDeafaltServerSideEncryption
+            - ServerSideEncryptionConfiguration:
+                - ServerSideEncryptionByDefault:
+                    SSEAlgorithm: "AES256"
+            - Ref: "AWS::NoValue"
+
+
       PublicAccessBlockConfiguration:
         BlockPublicAcls:
-          Ref: "BlockPublicAcls"
+          Fn::If:
+          - ConditionHostStaticWebsite
+          - "false"
+          - Ref: "BlockPublicAcls"
         BlockPublicPolicy:
-          Ref: "BlockPublicPolicy"
+          Fn::If:
+          - ConditionHostStaticWebsite
+          - "false"
+          - Ref: "BlockPublicPolicy"
         IgnorePublicAcls:
-          Ref: "IgnorePublicAcls"
+          Fn::If:
+          - ConditionHostStaticWebsite
+          - "false"
+          - Ref: "IgnorePublicAcls"
         RestrictPublicBuckets:
-          Ref: "RestrictPublicBuckets"
+          Fn::If:
+          - ConditionHostStaticWebsite
+          - "false"
+          - Ref: "RestrictPublicBuckets"
       AccessControl:
         Fn::If:
           - ConditionAllowServerAccessLogDelivery
           - "LogDeliveryWrite"
+          - Fn::If:
+            - ConditionHostStaticWebsite
+            - "PublicRead"
+            - Ref: AWS::NoValue
+      WebsiteConfiguration:
+        Fn::If:
+          - ConditionHostStaticWebsite
+          - IndexDocument: index.html
+            ErrorDocument: 404.html
           - Ref: AWS::NoValue
+
       LoggingConfiguration:
         Fn::If:
           - ConditionEnableServerAccessLogging
@@ -117,6 +173,26 @@ Resources:
                   - "/"
           - Ref: AWS::NoValue
     DeletionPolicy: Delete
+  WebsiteBucketPolicy:
+    Condition: ConditionHostStaticWebsite
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: "GenericBucket"
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:s3:::"
+                  - Ref: "GenericBucket"
+                  - "/*"
+
+
 Outputs:
   BucketName:
     Value:

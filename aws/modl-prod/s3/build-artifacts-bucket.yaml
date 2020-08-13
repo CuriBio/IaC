@@ -1,4 +1,4 @@
-# aws cloudformation package --template-file build-artifacts-bucket.yaml --output-template-file build-artifacts-bucket.packaged.yaml --s3-bucket cf-templates-curi-bio-prod-us-east-1
+# aws cloudformation package --template-file build-artifacts-bucket.yaml --output-template-file build-artifacts-bucket.packaged.yaml --s3-bucket cf-templates--us-east-1--curi-bio--prod
 # aws cloudformation deploy --stack-name=build-artifacts-bucket --template-file=build-artifacts-bucket.packaged.yaml --parameter-overrides Stage=prod
 
 AWSTemplateFormatVersion: "2010-09-09"
@@ -23,9 +23,10 @@ Resources:
             Ref: "AWS::StackName"
           TheBucketName:
             Fn::Join:
-              - "-"
-              - - "curibio-build-artifacts"
+              - "--"
+              - - "build-artifacts"
                 - Ref: "AWS::Region"
+                - Fn::ImportValue: "BucketNameUniquifier"
                 - Ref: Stage
 
 Outputs:

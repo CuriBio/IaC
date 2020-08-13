@@ -17,15 +17,16 @@ Resources:
   TheBucket:
       Type: AWS::CloudFormation::Stack
       Properties:
-        TemplateURL: ../templates/s3/generic-bucket-with-exported-name.yaml
+        TemplateURL: ../templates/s3/generic-bucket.yaml
         Parameters:
-          RootStackName:
+          ExportedBucketNamePrefix:
             Ref: "AWS::StackName"
           TheBucketName:
             Fn::Join:
-              - "-"
-              - - "curibio-build-resources"
+              - "--"
+              - - "build-resources"
                 - Ref: "AWS::Region"
+                - Fn::ImportValue: "BucketNameUniquifier"
                 - Ref: Stage
   VcnNotarizationPasswordParameter:
     Type: AWS::SSM::Parameter

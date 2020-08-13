@@ -1,0 +1,14 @@
+# aws cloudformation package --template-file general-downloads-bucket.yaml --output-template-file general-downloads-bucket.packaged.yaml --s3-bucket cf-templates--us-east-1--curi-bio--prod
+# aws cloudformation deploy --stack-name=general-downloads-bucket --template-file=general-downloads-bucket.packaged.yaml
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates an S3 bucket configured for hosting a static website with versioning enabled for generic customer facing downloads
+Resources:
+  TheBucket:
+      Type: AWS::CloudFormation::Stack
+      Properties:
+        TemplateURL: ../../templates/s3/generic-bucket.yaml
+        Parameters:
+          FullDomainName: downloads.curibio.com
+          HostStaticWebsite: true
+          VersioningStatus: Enabled

@@ -1,4 +1,4 @@
-# aws cloudformation package --template-file s3-server-logs-bucket.yaml --output-template-file s3-server-logs-bucket.packaged.yaml --s3-bucket cf-templates-curi-bio-prod-us-east-1
+# aws cloudformation package --template-file s3-server-logs-bucket.yaml --output-template-file s3-server-logs-bucket.packaged.yaml --s3-bucket cf-templates--us-east-1--curi-bio--prod
 # aws cloudformation deploy --stack-name=s3-server-logs-bucket-us-east-1 --template-file=s3-server-logs-bucket.packaged.yaml --parameter-overrides Stage=prod
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Creates a bucket to host server access logs
@@ -25,13 +25,13 @@ Resources:
             Ref: "AWS::StackName"
           TheBucketName:
             Fn::Join:
-              - "-"
-              - - Ref: BucketNameUniquifier
-                - "server-access-logs"
+              - "--"
+              - - "server-access-logs"
                 - Ref: "AWS::Region"
+                - Ref: BucketNameUniquifier
                 - Ref: Stage
-          EnableServerAccessLogging: no
-          AllowServerAccessLogDelivery: yes
+          EnableServerAccessLogging: false
+          AllowServerAccessLogDelivery: true
 
 
 Outputs:

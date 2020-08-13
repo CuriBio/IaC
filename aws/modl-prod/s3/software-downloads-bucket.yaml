@@ -1,5 +1,5 @@
 # adapted from: https://github.com/sjevs/cloudformation-s3-static-website-with-cloudfront-and-route-53/blob/master/s3-static-website-with-cloudfront-and-route-53.yaml
-# aws cloudformation package --template-file software-downloads-bucket.yaml --output-template-file software-downloads-bucket.packaged.yaml --s3-bucket cf-templates-curi-bio-prod-us-east-1
+# aws cloudformation package --template-file software-downloads-bucket.yaml --output-template-file software-downloads-bucket.packaged.yaml --s3-bucket cf-templates--us-east-1--curi-bio--prod
 # aws cloudformation deploy --stack-name=software-downloads-bucket --template-file=software-downloads-bucket.packaged.yaml
 
 
@@ -9,6 +9,7 @@ Resources:
   TheBucket:
       Type: AWS::CloudFormation::Stack
       Properties:
-        TemplateURL: ../../templates/s3/public-website-bucket.yaml
+        TemplateURL: ../../templates/s3/generic-bucket.yaml
         Parameters:
-          FullDomainName: software.curibio.com
+          TheBucketName: software.curibio.com
+          HostStaticWebsite: true
