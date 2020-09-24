@@ -23,6 +23,7 @@ Resources:
         Parameters:
           ExportedBucketNamePrefix:
             Ref: "AWS::StackName"
+          CostCenterTagValue: "General Overhead"
           TheBucketName:
             Fn::Join:
               - "--"

@@ -3,14 +3,14 @@
 set -ex # exit if command fails and display commands https://www.peterbe.com/plog/set-ex
 
 # initially create the bucket for cloud formation templates without any server access logging enabled (because the bucket for that does not yet exist)
-aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates--us-east-1--curi-bio--prod EnableServerAccessLogging=false --template-file=aws/templates/s3/generic-bucket.yaml
+aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides CostCenterTagValue="General Overhead" TheBucketName=cf-templates--us-east-1--curi-bio--prod EnableServerAccessLogging=false --template-file=aws/templates/s3/generic-bucket.yaml
 
 # package and deploy the S3 bucket to hold Server Access Logs
 aws cloudformation package --template-file aws/modl-prod/s3/s3-server-logs-bucket.yaml --output-template-file s3-server-logs-bucket.packaged.yaml --s3-bucket cf-templates--us-east-1--curi-bio--prod
 aws cloudformation deploy --stack-name=s3-server-logs-bucket-us-east-1 --template-file=s3-server-logs-bucket.packaged.yaml --parameter-overrides Stage=prod
 
 # Enable server access logging for the CloudFormation templates bucket
-aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides TheBucketName=cf-templates--us-east-1--curi-bio--prod EnableServerAccessLogging=true --template-file=aws/templates/s3/generic-bucket.yaml
+aws cloudformation deploy --stack-name=cloud-formation-templates-bucket-us-east-1 --parameter-overrides CostCenterTagValue="General Overhead" TheBucketName=cf-templates--us-east-1--curi-bio--prod EnableServerAccessLogging=true --template-file=aws/templates/s3/generic-bucket.yaml
 
 #### S3 Buckets ####
 
