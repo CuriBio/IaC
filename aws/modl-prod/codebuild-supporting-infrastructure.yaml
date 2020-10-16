@@ -12,6 +12,10 @@ Parameters:
     - modl
     - prod
     ConstraintDescription: Must be a valid stage name (test, modl, or prod).
+  CostCenterTagValue:
+    Type: String
+    Default: "Software Overhead"
+
 
 Resources:
   BuildResourcesBucket:
@@ -19,6 +23,8 @@ Resources:
       Properties:
         TemplateURL: ../templates/s3/generic-bucket.yaml
         Parameters:
+          CostCenterTagValue:
+            Ref: CostCenterTagValue
           ExportedBucketNamePrefix:
             Fn::Join:
               - "--"
@@ -36,6 +42,8 @@ Resources:
       Properties:
         TemplateURL: ../templates/s3/generic-bucket.yaml
         Parameters:
+          CostCenterTagValue:
+            Ref: CostCenterTagValue
           ExportedBucketNamePrefix:
             Fn::Join:
               - "--"
@@ -52,6 +60,9 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Description: Password to perform VCN notarization / code signing
+      Tags:
+        "user:Cost Center":
+          Ref: CostCenterTagValue
       Name:
         Fn::Join:
           - "/"
@@ -63,6 +74,9 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Description: Extra password needed to perform VCN notarization / code signing
+      Tags:
+        "user:Cost Center":
+          Ref: CostCenterTagValue
       Name:
         Fn::Join:
           - "/"
@@ -74,6 +88,9 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Description: Username to perform VCN notarization / code signing
+      Tags:
+        "user:Cost Center":
+          Ref: CostCenterTagValue
       Name:
         Fn::Join:
           - "/"

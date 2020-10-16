@@ -2,11 +2,18 @@
 name: Dev
 
 on:
-#   schedule:
-#   - cron: "0 0 7 1/1 * ? *"
+  workflow_dispatch:
+    inputs:
+      randomlyseed:
+        description: 'Pytest Randomly Seed'
+        required: false
+        default: ''
+  schedule:
+    - cron: '0 5 * * *'
   push:
     branches:
-      - master
+      - main
+      - development
   pull_request:
 
 jobs:
@@ -15,9 +22,17 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-latest"
+          - "ubuntu-18.04"
         python-version:
             - 3.8
+        include:
+          # only enable coverage on the fastest job
+          - os: "ubuntu-18.04"
+            python-version: "3.7"
+            ENABLE_CODE_COVERAGE: true
+            IS_FASTEST_JOB: true
+          - os: "ubuntu-18.04"
+            IS_LINUX: true
     name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -31,24 +46,27 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
-
-      - name: Create virtual python environment
-        run: python -m venv venv
+        run: |
+          python -c "import sys; print(sys.version)"
+          python -m venv venv
 
       - name: Activate virtual environment (Linux/MacOS)
+        if: matrix.IS_LINUX == true
         run: . venv/bin/activate
 
-
-      - name: Display Pip Version
-        run: pip -V
+      - name: Display Pip Version and confirm environment empty
+        run: |
+          pip -V
+          pip freeze
       - name: Install Dev Dependencies
         run: pip install -r requirements-dev.txt
+
       - name: Log full installed packages
         run: pip freeze
-      - name: Install pre-commit hooks
-        run: pre-commit install
 
       - name: Run pre-commit hooks
+        if: matrix.IS_FASTEST_JOB == true
         # only enable pre-commit on the fastest job
-        run: pre-commit run -a
+        run: |
+          pre-commit install
+          pre-commit run -a

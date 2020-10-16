@@ -3,12 +3,32 @@
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Creates an S3 bucket configured for hosting a static website with versioning enabled for generic customer facing downloads
+Parameters:
+  Stage:
+    Type: String
+    Description: The stage for deployment
+    AllowedValues:
+    - modl
+    - prod
+    ConstraintDescription: Must be a valid stage name (modl, or prod).
+
+Conditions:
+  ConditionIsProd:
+    Fn::Equals:
+      - Ref: Stage
+      - "prod"
+
 Resources:
   TheBucket:
       Type: AWS::CloudFormation::Stack
       Properties:
         TemplateURL: ../../templates/s3/generic-bucket.yaml
         Parameters:
-          TheBucketName: downloads.curibio.com
+          CostCenterTagValue: "General Overhead"
+          TheBucketName:
+            Fn::If:
+            - ConditionIsProd
+            - downloads.curibio.com
+            - downloads.curibio-modl.com
           HostStaticWebsite: true
           VersioningStatus: Enabled
