@@ -4,7 +4,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./test
+    working-directory: ./infra/test
     shell: bash
   environment:
     name: test
