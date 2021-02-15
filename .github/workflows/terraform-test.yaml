@@ -4,6 +4,7 @@ on:
 
 defaults:
       run:
+        working-directory: ./test
         shell: bash
 jobs:
   terraform:
