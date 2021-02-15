@@ -1,10 +1,14 @@
 name: 'Terraform Plan'
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 
 defaults:
-      run:
-        shell: bash
+  run:
+    working-directory: ./infra/test
+    shell: bash
+  environment:
+    name: test
+
 jobs:
   terraform:
     name: 'Terraform'
