@@ -23,9 +23,9 @@ resource "aws_s3_bucket" "terraform_state" {
 }
 
 resource "aws_dynamodb_table" "terraform_locks" {
-  name = "curi-terraform-locks"
+  name         = "curi-terraform-locks"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = "LockID"
+  hash_key     = "LockID"
 
   attribute {
     name = "LockID"
@@ -36,10 +36,10 @@ resource "aws_dynamodb_table" "terraform_locks" {
 terraform {
   backend "s3" {
     bucket = "curi-tf-state"
-    key = "global/terraform.tfstate"
+    key    = "global/terraform.tfstate"
     region = "us-east-1"
 
     dynamodb_table = "curi-terraform-locks"
-    encrypt = true
+    encrypt        = true
   }
 }
