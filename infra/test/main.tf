@@ -20,7 +20,7 @@ resource "aws_s3_bucket" "test_bucket" {
 }
 
 terraform {
-  required_version = "0.14.6"
+  required_version = "0.14.7"
 
   backend "s3" {
     bucket = "curi-tf-state"
