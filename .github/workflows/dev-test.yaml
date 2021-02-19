@@ -22,17 +22,13 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-18.04"
+          - "ubuntu-20.04"
         python-version:
-            - 3.8
+            - 3.9
         include:
-          # only enable coverage on the fastest job
-          - os: "ubuntu-18.04"
-            python-version: "3.8"
-            ENABLE_CODE_COVERAGE: true
+          - os: "ubuntu-20.04"
+            python-version: "3.9"
             IS_FASTEST_JOB: true
-          - os: "ubuntu-18.04"
-            IS_LINUX: true
     name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -51,7 +47,7 @@ jobs:
           python -m venv venv
 
       - name: Activate virtual environment (Linux/MacOS)
-        if: matrix.IS_LINUX == true
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: . venv/bin/activate
 
       - name: Display Pip Version and confirm environment empty
