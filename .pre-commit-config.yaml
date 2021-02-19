@@ -1,36 +1,39 @@
-minimum_pre_commit_version: '2.4.0'
+minimum_pre_commit_version: 2.4.0
 # default_stages: [commit, push]
 # fail_fast: true
 repos:
 
 # Git-related
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.4.0  # Use the ref you want to point at
+    rev: v3.4.0  # Use the ref you want to point at
     hooks:
     -   id: forbid-new-submodules
 -   repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 1.11.0  # Use the ref you want to point at
+    rev: 2.1.5  # Use the ref you want to point at
     hooks:
     -   id: git-dirty
 
 # Reformatting (should generally come before any file format or other checks, because reformatting can change things)
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.4.0  # Use the ref you want to point at
+    rev: v3.4.0  # Use the ref you want to point at
     hooks:
-        # black and docformatter don't do this in docstrings (11/1/19)
     -   id: trailing-whitespace
     -   id: pretty-format-json
         args: [--autofix, --no-sort-keys]
+-   repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.45.0
+    hooks:
+    -   id: terraform_fmt
 
 # Safety/Security Issues
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.4.0  # Use the ref you want to point at
+    rev: v3.4.0  # Use the ref you want to point at
     hooks:
     -   id: detect-private-key
 
 # Invalid File Checks
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.4.0  # Use the ref you want to point at
+    rev: v3.4.0  # Use the ref you want to point at
     hooks:
     -   id: check-added-large-files
         args: ['--maxkb=123']
@@ -39,10 +42,7 @@ repos:
     -   id: check-xml
     -   id: check-merge-conflict
     -   id: check-case-conflict
-
-# Terraform
 -   repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.45.0
     hooks:
     -   id: terraform_validate
-    -   id: terraform_fmt
