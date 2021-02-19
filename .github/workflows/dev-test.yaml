@@ -47,6 +47,7 @@ jobs:
           python -m venv venv
 
       - name: 'Terraform Setup'
+        # setup Terraform to make sure to have the correct version when running pre-commit hooks
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 0.14.7
