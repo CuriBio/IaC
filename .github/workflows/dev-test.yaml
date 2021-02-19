@@ -46,6 +46,11 @@ jobs:
           python -c "import sys; print(sys.version)"
           python -m venv venv
 
+      - name: 'Terraform Setup'
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.14.7
+
       - name: Cache Pre-commit hooks
         uses: actions/cache@v2.1.4
         env:
