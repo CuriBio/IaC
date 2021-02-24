@@ -60,7 +60,7 @@ jobs:
             \`\`\`
 
             </details>
-            *Pusher: @${{ github.actor }}
+            *Pusher: @${{ github.actor }}`;
 
             github.issues.createComment({
               issue_number: context.issue.number,
