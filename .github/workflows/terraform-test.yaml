@@ -4,7 +4,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./infra/test
+    working-directory: ./infra/environments/test
     shell: bash
 
 jobs:
@@ -26,10 +26,16 @@ jobs:
         with:
           terraform_version: 0.14.7
 
-      - name: 'Terraform Init'
-        run: terraform init
+      - name: 'Terragrunt Setup'
+        run: |
+          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.28.7/terragrunt_linux_amd64"
+          sudo chmod +x /bin/terragrunt
+          terragrunt -v
+
+      - name: 'Terragrunt Init'
+        run: terragrunt init --terragrunt-non-interactive
 
       - name: 'Terraform Plan'
-        run: terraform plan
+        run: terragrunt plan --terragrunt-non-interactive -no-color
 
 
