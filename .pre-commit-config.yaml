@@ -43,6 +43,6 @@ repos:
     -   id: check-merge-conflict
     -   id: check-case-conflict
 -   repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.45.0
+    rev: v1.46.0
     hooks:
     -   id: terraform_validate
