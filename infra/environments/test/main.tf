@@ -13,5 +13,5 @@ terraform {
 
 module "data_processor" {
   source                = "../../modules/curi/data_processor"
-  data_processor_bucket = "curi-test-data-test-bucket-2"
+  data_processor_bucket = "curi-test-data-test-bucket-3"
 }
