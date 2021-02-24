@@ -63,5 +63,5 @@ jobs:
             )}
 
       - name: 'Terragrunt plan status'
-        if steps.plan.outcome == 'failure'
+        if: steps.plan.outcome == 'failure'
         run: exit 1
