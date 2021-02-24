@@ -54,7 +54,9 @@ jobs:
             #### Terragrunt Initialization \`${{ steps.init.outcome }}\`
             #### Terragrunt Plan \`${{ steps.plan.outcome }}\`
             <details><summary>Show Plan</summary>
-            \`\`\`${process.env.PLAN}\`\`\`
+            \`\`\`
+            ${process.env.PLAN}
+            \`\`\`
             </details>
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name}}\`*`;
 
