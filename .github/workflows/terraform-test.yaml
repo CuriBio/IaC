@@ -60,7 +60,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
-            )}
+            })
 
       - name: 'Terragrunt plan status'
         if: steps.plan.outcome == 'failure'
