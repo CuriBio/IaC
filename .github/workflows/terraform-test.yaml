@@ -59,7 +59,7 @@ jobs:
             ${process.env.PLAN}
             \`\`\`
 
-            </details>  
+            </details>
             *Pusher: @${{ github.actor }}
 
             github.issues.createComment({
