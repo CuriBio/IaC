@@ -7,16 +7,16 @@ on:
 
 defaults:
   if: github.event.pull_request.base.ref == 'jrp-test-tf'
-  run:
-    working-directory: ./infra/environment/test
-    shell: bash
+  env:
+    WORKING_DIR: "./infra/environment/test"
   if: github.event.pull_request.base.ref == 'development'
-  run:
-    working-directory: ./infra/environment/foo
-    shell: bash
+  env:
+    WORKING_DIR: "./infra/environment/modl"
   if: github.event.pull_request.base.ref == 'main'
+  env:
+    WORKING_DIR: "./infra/environment/prod"
   run:
-    working-directory: ./infra/environment/prod
+    working-directory: ${{ env.WORKING_DIR }}
     shell: bash
 
 jobs:
