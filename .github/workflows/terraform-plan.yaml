@@ -11,6 +11,8 @@ defaults:
     shell: bash
 
 jobs:
+  setup:
+
   terraform:
     name: 'Terraform'
     runs-on: "ubuntu-20.04"
@@ -40,7 +42,9 @@ jobs:
 
       - name: 'Terraform Plan'
         id: plan
-        run: terragrunt run-all plan --terragrunt-non-interactive -no-color
+        uses: ./.github/actions/terragrunt
+        run: terragrunt_plan
+        #run: terragrunt run-all plan --terragrunt-non-interactive -no-color
 
       - name: 'Terragrunt plan output'
         uses: actions/github-script@0.9.0
@@ -72,3 +76,8 @@ jobs:
       - name: 'Terragrunt plan status'
         if: steps.plan.outcome == 'failure'
         run: exit 1
+
+      - name: 'Terragrunt apply'
+        id: apply
+        if: github.event_name == 'push
+        run: terragrunt run-all apply --terragrunt-non-interactive --auto-approve

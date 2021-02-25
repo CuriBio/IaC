@@ -1,0 +1,10 @@
+name: 'Terragrunt plan'
+description: 'Run terragrunt plan'
+outputs:
+  plan-output:
+    description: 'Terragrunt plan output'
+    value: ${{ steps.terragrunt_plan.outputs.stdout }}
+runs:
+  id: terragrunt_plan
+  run: terragrunt run-all plan --terragrunt-non-interactive -no-color
+
