@@ -5,6 +5,9 @@ outputs:
     description: 'Terragrunt plan output'
     value: ${{ steps.terragrunt_plan.outputs.stdout }}
 runs:
-  id: terragrunt_plan
-  run: terragrunt run-all plan --terragrunt-non-interactive -no-color
+  using: "composite"
+  steps:
+    - id: terragrunt_plan
+      run: terragrunt run-all plan --terragrunt-non-interactive -no-color
+      shell: bash
 
