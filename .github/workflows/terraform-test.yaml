@@ -6,8 +6,17 @@ on:
       - jrp-test-tf
 
 defaults:
+  if: github.event.pull_request.base.ref == 'jrp-test-tf'
   run:
-    working-directory: ./infra/environments/test
+    working-directory: ./infra/environment/test
+    shell: bash
+  if: github.event.pull_request.base.ref == 'development'
+  run:
+    working-directory: ./infra/environment/foo
+    shell: bash
+  if: github.event.pull_request.base.ref == 'main'
+  run:
+    working-directory: ./infra/environment/prod
     shell: bash
 
 jobs:
@@ -29,10 +38,9 @@ jobs:
           terraform_version: 0.14.7
 
       - name: 'Terragrunt Setup'
-        run: |
-          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.28.7/terragrunt_linux_amd64"
-          sudo chmod +x /bin/terragrunt
-          terragrunt -v
+        uses: ./.github/actions/terragrunt
+        with:
+          terragrunt_version: 0.28.7
 
       - name: 'Terragrunt Init'
         id: init
@@ -50,18 +58,29 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terragrunt Initialization \`${{ steps.init.outcome }}\`
+            const output = `
+            #### Terragrunt Initialization \`${{ steps.init.outcome }}\`
             #### Terragrunt Plan \`${{ steps.plan.outcome }}\`
-            <details><summary>Show Plan</summary>\`\`\`${process.env.PLAN}\`\`\`</details>
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name}}\`*`;
+            <details><summary>Show Plan</summary>
+
+            \`\`\` terraform
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+            Pusher: @${{ github.actor }}`;
 
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
-            )}
+            })
 
-        - name 'Terragrunt plan status'
-          if steps.plan.outcome == 'failure'
-          run: exit 1
+      - name: 'Terragrunt plan status'
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: 'Test'
+        if: github.event.pull_request.base.ref == 'jrp-test-tf'
+        run: echo "Test"
