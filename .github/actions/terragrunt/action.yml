@@ -1,5 +1,5 @@
-name: 'Terragrunt plan'
-description: 'Run terragrunt plan'
+name: 'Terragrunt setup'
+description: 'Setup terragrunt and init'
 inputs:
   terragrunt_version:
     description: 'Terragrunt version'

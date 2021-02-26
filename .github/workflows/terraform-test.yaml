@@ -1,23 +1,11 @@
-name: 'Terraform Plan'
+name: 'Terraform Plan/Apply'
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - jrp-test-tf
-
-defaults:
-  if: github.event.pull_request.base.ref == 'jrp-test-tf'
-  env:
-    WORKING_DIR: "./infra/environment/test"
-  if: github.event.pull_request.base.ref == 'development'
-  env:
-    WORKING_DIR: "./infra/environment/modl"
-  if: github.event.pull_request.base.ref == 'main'
-  env:
-    WORKING_DIR: "./infra/environment/prod"
-  run:
-    working-directory: ${{ env.WORKING_DIR }}
-    shell: bash
+  # pull_request:
+  # push:
+  #   branches:
+  #     - main
+  #     - development
 
 jobs:
   terraform:
@@ -32,55 +20,59 @@ jobs:
       - name: 'Checkout'
         uses: actions/checkout@v2
 
-      - name: 'Terraform Setup'
+      - name: 'Terraform setup'
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 0.14.7
 
-      - name: 'Terragrunt Setup'
+      - name: 'Terragrunt setup'
         uses: ./.github/actions/terragrunt
         with:
           terragrunt_version: 0.28.7
 
-      - name: 'Terragrunt Init'
-        id: init
-        run: terragrunt init --terragrunt-non-interactive
+      # - name: 'Terragrunt init'
+      #   id: init
+      #   working-directory: "./infra/environment/${{ steps.target_env.outputs.target_env }}"
+      #   run: terragrunt init --terragrunt-non-interactive
 
-      - name: 'Terraform Plan'
-        id: plan
-        run: terragrunt run-all plan --terragrunt-non-interactive -no-color
+      # - name: 'Terraform plan dev'
+      #   id: plan_dev
+      #   if: github.event.pull_request.base.ref == 'development'
+      #   working-directory: "./infra/environment/development"
+      #   run: terragrunt run-all plan --terragrunt-non-interactive -no-color
 
       - name: 'Terragrunt plan output'
-        uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: "terragrunt\n${{ steps.plan.outputs.stdout }}"
+        uses: ./.github/actions/terragrunt_plan
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `
-            #### Terragrunt Initialization \`${{ steps.init.outcome }}\`
-            #### Terragrunt Plan \`${{ steps.plan.outcome }}\`
-            <details><summary>Show Plan</summary>
+          working_cir: "./infra/environment/test"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-            \`\`\` terraform
-            ${process.env.PLAN}
-            \`\`\`
+      # - name: 'Terragrunt plan dev output'
+      #   uses: actions/github-script@0.9.0
+      #   env:
+      #     PLAN: "terragrunt\n${{ steps.plan_dev.outputs.stdout }}"
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const output = `
+      #       #### Terragrunt Initialization \`${{ steps.init.outcome }}\`
+      #       #### Terragrunt Plan \`${{ steps.plan.outcome }}\`
+      #       <details><summary>Show Plan</summary>
 
-            </details>
-            Pusher: @${{ github.actor }}`;
+      #       \`\`\` terraform
+      #       ${process.env.PLAN}
+      #       \`\`\`
 
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
+      #       </details>
+      #       Pusher: @${{ github.actor }}`;
 
-      - name: 'Terragrunt plan status'
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
+      #       github.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
 
-      - name: 'Test'
-        if: github.event.pull_request.base.ref == 'jrp-test-tf'
-        run: echo "Test"
+      # - name: 'Terragrunt plan status'
+      #   if: steps.plan.outcome == 'failure'
+      #   run: exit 1
