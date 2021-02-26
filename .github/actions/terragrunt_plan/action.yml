@@ -32,3 +32,4 @@ runs:
       shell: bash
     - name: 'Terragrunt plan output'
       run: echo "::set-output name=plan_output::${{ steps.plan.outputs.stdout }}"
+      shell: bash
