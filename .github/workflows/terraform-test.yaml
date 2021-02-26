@@ -45,7 +45,7 @@ jobs:
         id: plan_dev
         uses: ./.github/actions/terragrunt_plan
         with:
-          working_dir: "./infra/environment/test"
+          working_dir: "./infra/environments/test"
 
       - name: 'Terragrunt plan dev output'
         uses: actions/github-script@0.9.0
