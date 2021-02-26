@@ -42,37 +42,36 @@ jobs:
       #   run: terragrunt run-all plan --terragrunt-non-interactive -no-color
 
       - name: 'Terragrunt plan output'
-        uses: actions/github-script@0.9.0
+        id: plan_dev
         uses: ./.github/actions/terragrunt_plan
         with:
           working_cir: "./infra/environment/test"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: 'Terragrunt plan dev output'
-      #   uses: actions/github-script@0.9.0
-      #   env:
-      #     PLAN: "terragrunt\n${{ steps.plan_dev.outputs.stdout }}"
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       const output = `
-      #       #### Terragrunt Initialization \`${{ steps.init.outcome }}\`
-      #       #### Terragrunt Plan \`${{ steps.plan.outcome }}\`
-      #       <details><summary>Show Plan</summary>
+      - name: 'Terragrunt plan dev output'
+        uses: actions/github-script@0.9.0
+        env:
+          PLAN: "terragrunt\n${{ steps.plan_dev.outputs.plan_output }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `
+            #### Terragrunt Initialization \`${{ steps.plan_dev.outputs.init_outcome }}\`
+            #### Terragrunt Plan \`${{ steps.plan_dev.plan_outcome }}\`
+            <details><summary>Show Plan</summary>
 
-      #       \`\`\` terraform
-      #       ${process.env.PLAN}
-      #       \`\`\`
+            \`\`\` terraform
+            "terragrunt\n${{ steps.plan_dev.outputs.plan_output }}"
+            \`\`\`
 
-      #       </details>
-      #       Pusher: @${{ github.actor }}`;
+            </details>
+            Pusher: @${{ github.actor }}`;
 
-      #       github.issues.createComment({
-      #         issue_number: context.issue.number,
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         body: output
-      #       })
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
 
       # - name: 'Terragrunt plan status'
       #   if: steps.plan.outcome == 'failure'

@@ -4,9 +4,13 @@ inputs:
   working_dir:
     description: 'Terragrunt working directory'
     required: true
-  github_token:
-    description: 'github token'
-    required: true
+outputs:
+  init_outcome:
+    description: 'Terragrunt init outcome'
+  plan_outcome:
+    description: 'Terragrunt plan outcome'
+  plan_output:
+    description: 'Terragrunt plan output'
 runs:
   using: "composite"
   steps:
@@ -15,33 +19,16 @@ runs:
       working-directory: ${{ inputs.working_dir }}
       run: terragrunt init --terragrunt-non-interactive
       shell: bash
+    - name: 'Terragrunt init outcome'
+      run: echo "::set-output name=init_outcome::${{ steps.init.outcome }}"
+      shell: bash
     - name: 'Terragrunt plan'
       id: plan
       working-directory: ${{ inputs.working_dir }}
       run: terragrunt run-all plan --terragrunt-non-interactive
       shell: bash
-    - name: 'Plan output comment'
-      env:
-        PLAN: "terragrunt\n${{ steps.plan.outputs.stdout }}"
-      with:
-        github-token: ${{ inputs.github_token }}
-        script: |
-           const output = `
-           #### Terragrunt Initialization \`${{ steps.init.outcome }}\`
-           #### Terragrunt Plan \`${{ steps.plan.outcome }}\`
-           <details><summary>Show Plan</summary>
-
-           \`\`\` terraform
-           ${process.env.PLAN}
-           \`\`\`
-
-           </details>
-           Pusher: @${{ github.actor }}`;
-
-           github.issues.createComment({
-             issue_number: context.issue.number,
-             owner: context.repo.owner,
-             repo: context.repo.repo,
-             body: output
-           })
-        shell: bash
+    - name: 'Terragrunt plan outcome'
+      run: echo "::set-output name=plan_outcome::${{ steps.plan.outcome }}"
+      shell: bash
+    - name: 'Terragrunt plan output'
+      run: echo "::set-output name=plan_output::${{ steps.plan.outputs.stdout }}"
