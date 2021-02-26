@@ -42,6 +42,7 @@ jobs:
       #   run: terragrunt run-all plan --terragrunt-non-interactive -no-color
 
       - name: 'Terragrunt plan output'
+        uses: actions/github-script@0.9.0
         uses: ./.github/actions/terragrunt_plan
         with:
           working_cir: "./infra/environment/test"
