@@ -30,17 +30,6 @@ jobs:
         with:
           terragrunt_version: 0.28.7
 
-      # - name: 'Terragrunt init'
-      #   id: init
-      #   working-directory: "./infra/environment/${{ steps.target_env.outputs.target_env }}"
-      #   run: terragrunt init --terragrunt-non-interactive
-
-      # - name: 'Terraform plan dev'
-      #   id: plan_dev
-      #   if: github.event.pull_request.base.ref == 'development'
-      #   working-directory: "./infra/environment/development"
-      #   run: terragrunt run-all plan --terragrunt-non-interactive -no-color
-
       - name: 'Terragrunt plan output'
         id: plan_dev
         uses: ./.github/actions/terragrunt_plan
@@ -53,26 +42,7 @@ jobs:
           PLAN: "terragrunt\n${{ steps.plan_dev.outputs.plan_output }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `
-            #### Terragrunt Initialization \`${{ steps.plan_dev.outputs.init_outcome }}\`
-            #### Terragrunt Plan \`${{ steps.plan_dev.plan_outcome }}\`
-            <details><summary>Show Plan</summary>
-
-            \`\`\` terraform
-            "terragrunt\n${{ steps.plan_dev.outputs.plan_output }}"
-            \`\`\`
-
-            </details>
-            Pusher: @${{ github.actor }}`;
-
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
-
+          script: pr-comment.sh
       # - name: 'Terragrunt plan status'
       #   if: steps.plan.outcome == 'failure'
       #   run: exit 1
