@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "b" {
-  bucket = var.data_processor_bucket
+  bucket = "${terraform.workspace}_${var.data_processor_bucket}"
   acl    = "private"
 
   server_side_encryption_configuration {
