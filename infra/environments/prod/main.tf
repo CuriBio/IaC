@@ -1,7 +1,7 @@
 locals {
   role_arns = {
-    "modl"  = "arn:aws:iam::725604423866:role/terraform_deploy_role"
-    "prod"  = "arn:aws:iam::245339368379:role/terraform_deploy_role"
+    "modl" = "arn:aws:iam::725604423866:role/terraform_deploy_role"
+    "prod" = "arn:aws:iam::245339368379:role/terraform_deploy_role"
   }
 
   env      = terraform.workspace

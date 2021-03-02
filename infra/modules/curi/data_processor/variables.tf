@@ -5,5 +5,5 @@ variable "data_processor_bucket" {
 
 variable "ecr_repository_url" {
   description = "ecr repository url"
-  type = string
+  type        = string
 }
