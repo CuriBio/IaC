@@ -1,4 +1,4 @@
-name: 'Terraform PR Open'
+name: 'Terraform Bootstrap'
 on:
   workflow_dispatch:
   # pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   terraform:
-    name: 'Terraform PR Open'
+    name: 'Terraform PR Bootstrap'
     runs-on: ubuntu-latest
 
     env:
