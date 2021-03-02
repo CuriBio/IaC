@@ -1,0 +1,14 @@
+name: 'Terragrunt plan'
+description: 'Run terragrunt plan'
+inputs:
+  terragrunt_version:
+    description: 'Terragrunt version'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v${{ inputs.terragrunt_version }}/terragrunt_linux_amd64"
+        sudo chmod +x /bin/terragrunt
+        terragrunt -v
+      shell: bash
