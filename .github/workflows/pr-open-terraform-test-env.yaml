@@ -1,0 +1,74 @@
+name: 'Terraform PR Open'
+on:
+  workflow_dispatch:
+  # pull_request:
+  #   types: [opened]
+  #   branches:
+  #   - '!main'
+  #   - '!development'
+
+jobs:
+  terraform:
+    name: 'Terraform PR Open'
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_user_id: ${{ github.actor }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: 'Extract branch name'
+      id: branch_name
+      run: echo "::set-output name=branch::${GITHUB_HEAD_REF##*/}"
+
+    - name: 'test environment'
+      run: |
+        echo "tf_workspace=${{ steps.branch_name.outputs.branch }}" >> $GITHUB_ENV
+        echo "tf_environment=test" >> $GITHUB_ENV
+
+    - name: 'Terraform setup'
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 0.14.7
+
+    - name: 'Terragrunt setup'
+      uses: ./.github/actions/terragrunt
+      with:
+        version: 0.28.7
+
+    - name: 'Create Environment'
+      id: tfenv
+      run: ./.github/scripts/tf-bootstrap-env.sh -w ${{ env.tf_workspace }}
+
+    - name: 'Terragrunt plan dev output'
+      uses: actions/github-script@0.9.0
+      env:
+        PLAN: "terragrunt\n${{ steps.tfenv.outputs.plan_output }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `
+          <details><summary>Show Plan</summary>
+
+          \`\`\` terraform
+          ${process.env.PLAN}
+          \`\`\`
+
+          </details>
+
+          Pusher: @${{ github.actor }}`;
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+    - name: 'Terragrunt apply'
+      run: ./.github/scripts/tf-bootstrap-env.sh -w ${{ env.tf_workspace }} -a
+
+
