@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "b" {
-  bucket = var.data_processor_bucket
+  bucket = "${terraform.workspace}-test-data-bucket"
   acl    = "private"
 
   server_side_encryption_configuration {
@@ -9,5 +9,17 @@ resource "aws_s3_bucket" "b" {
       }
     }
   }
+}
+
+module "lambda_function_container_image" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "${terraform.workspace}-hello-world-lambda"
+  description   = "Hello world lambda"
+
+  create_package = false
+
+  image_uri    = "${var.ecr_repository_url}:hello_world_latest"
+  package_type = "Image"
 }
 
