@@ -12,6 +12,7 @@ terraform {
 }
 
 module "data_processor" {
-  source                = "../../modules/curi/data_processor"
-  data_processor_bucket = "curi-test-data-test-bucket"
+  source                = "../../../modules/curi/data_processor"
+  data_processor_bucket = "curi-test-data"
+  ecr_repository_url    = var.ecr_repository_url
 }

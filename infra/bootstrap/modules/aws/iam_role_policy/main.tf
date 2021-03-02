@@ -27,6 +27,31 @@ resource "aws_iam_role_policy" "policy" {
       {
         Action = [
           "s3:*",
+          "ec2:DescribeAccountAttributes",
+          "ecr:*",
+          "logs:CreateLogGroup",
+          "logs:DeleteLogGroup",
+          "logs:DescribeLogGroups",
+          "logs:ListTagsLogGroup",
+          "iam:CreateRole",
+          "iam:PassRole",
+          "iam:CreatePolicy",
+          "iam:DeleteRole",
+          "iam:DeletePolicy",
+          "iam:GetPolicy",
+          "iam:GetPolicyVersion",
+          "iam:GetRole",
+          "iam:ListInstanceProfilesForRole",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListRolePolicies",
+          "iam:ListPolicyVersions",
+          "iam:AttachRolePolicy",
+          "iam:ListEntitiesForPolicy",
+          "iam:DetachRolePolicy",
+          "lambda:CreateFunction",
+          "lambda:DeleteFunction",
+          "lambda:GetFunction",
+          "lambda:ListVersionsByFunction",
         ]
         Effect   = "Allow"
         Resource = "*"
