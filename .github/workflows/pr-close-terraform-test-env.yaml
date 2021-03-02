@@ -1,0 +1,57 @@
+name: 'Terraform PR Close'
+on:
+  pull_request:
+    types: [closed]
+    branches:
+    - '!main'
+    - '!development'
+
+jobs:
+  terraform:
+    name: 'Terraform PR Close'
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_user_id: ${{ github.actor }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: 'Extract branch name'
+      id: branch_name 
+      run: echo "::set-output name=branch::${GITHUB_HEAD_REF##*/}"
+
+    - name: 'test environment'
+      run: |
+        echo "tf_workspace=${{ steps.branch_name.outputs.branch }}" >> $GITHUB_ENV
+        echo "tf_environment=test" >> $GITHUB_ENV
+
+    - name: 'Terraform setup'
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 0.14.7
+
+    - name: 'Terragrunt setup'
+      uses: ./.github/actions/terragrunt
+      with:
+        version: 0.28.7
+
+    - name: 'Terragrunt init'
+      working-directory: "./infra/environments/${{ env.tf_environment }}"
+      run: terragrunt init --terragrunt-non-interactive
+
+    - name: 'Terragrunt workspace'
+      working-directory: "./infra/environments/${{ env.tf_environment }}"
+      run: |
+        terragrunt workspace new ${{ env.tf_workspace }}
+        terragrunt workspace select ${{ env.tf_workspace }}
+
+    - name: 'Terragrunt teardown' 
+      working-directory: "./infra/environments/${{ env.tf_environment }}"
+      run: |
+        terragrunt destroy --terragrunt-non-interactive --auto-approve
+        terragrunt workspace delete ${{ env.tf_workspace }}
+
