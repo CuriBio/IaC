@@ -1,4 +1,4 @@
-TAG = $(shell date +%Y-%m-%d)
+TAG = latest
 IMAGE = $(shell basename `pwd`)
 
 .PHONY: build push tag
@@ -7,8 +7,8 @@ build:
 	docker build -t $(IMAGE):$(TAG) .
 
 tag:
-	docker tag $(IMAGE):$(TAG) $(ECR_REPO):$(TAG)
+	docker tag $(IMAGE):$(TAG) $(ECR_REPO):$(IMAGE)_$(TAG)
 
 push:
-	docker push $(ECR_REPO):$(TAG)
+	docker push $(ECR_REPO):$(IMAGE)_$(TAG)
 

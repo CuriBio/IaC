@@ -11,8 +11,8 @@ terraform {
   backend "s3" {}
 }
 
-resource "aws_ecr_repository" "foo" {
-  name                 = "hello_world"
+resource "aws_ecr_repository" "ecr" {
+  name                 = terraform.workspace
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

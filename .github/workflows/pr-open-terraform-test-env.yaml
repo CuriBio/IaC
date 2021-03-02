@@ -39,32 +39,18 @@ jobs:
       with:
         version: 0.28.7
 
-    - name: 'Terragrunt init'
-      id: init
-      working-directory: "./infra/environments/${{ env.tf_environment }}"
-      run: terragrunt init --terragrunt-non-interactive
-
-    - name: 'Terragrunt workspace'
-      working-directory: "./infra/environments/${{ env.tf_environment }}"
-      run: |
-        terragrunt workspace new ${{ env.tf_workspace }}
-        terragrunt workspace select ${{ env.tf_workspace }}
-
-    - name: 'Terragrunt plan'
-      id: plan
-      working-directory: "./infra/environments/${{ env.tf_environment }}"
-      run: terragrunt run-all plan --terragrunt-non-interactive
+    - name: 'Create Environment'
+      id: tfenv
+      run: ./.github/scripts/tf-bootstrap-env.sh -w ${{ env.tf_workspace }}
 
     - name: 'Terragrunt plan dev output'
       uses: actions/github-script@0.9.0
       env:
-        PLAN: "terragrunt\n${{ steps.plan.outputs.stdout }}"
+        PLAN: "terragrunt\n${{ steps.tfenv.outputs.plan_output }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `
-          #### Terragrunt Initialization \`${{ steps.init.outcome }}\`
-          #### Terragrunt Plan \`${{ steps.plan.outcome }}\`
           <details><summary>Show Plan</summary>
 
           \`\`\` terraform
@@ -82,7 +68,6 @@ jobs:
           })
 
     - name: 'Terragrunt apply'
-      working-directory: "./infra/environments/${{ env.tf_environment }}"
-      run: terragrunt run-all apply --terragrunt-non-interactive --auto-approve
+      run: ./.github/scripts/tf-bootstrap-env.sh -w ${{ env.tf_workspace }} -a
 
 

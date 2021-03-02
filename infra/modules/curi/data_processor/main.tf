@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "b" {
-  bucket = "foo-test-data-bucket"
+  bucket = "${terraform.workspace}-test-data-bucket"
   acl    = "private"
 
   server_side_encryption_configuration {
@@ -19,7 +19,7 @@ module "lambda_function_container_image" {
 
   create_package = false
 
-  image_uri    = "${var.ecr_repository_url}:2021-03-01"
+  image_uri    = "${var.ecr_repository_url}:hello_world_latest"
   package_type = "Image"
 }
 
