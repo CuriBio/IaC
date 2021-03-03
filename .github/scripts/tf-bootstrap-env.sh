@@ -54,6 +54,11 @@ if [[ $ENV_TF = 'test' ]]; then
   (cd $INFRADIR/$ENV_TF/ecr && (terragrunt workspace select $WORKSPACE || terragrunt workspace new $WORKSPACE))
   (cd $INFRADIR/$ENV_TF/ecr && terragrunt apply --terragrunt-non-interactive --auto-approve)
 
+
+  # get ecr repo url and login
+  role_arn=$(cd $INFRADIR/$ENV_TF/ecr && terragrunt output --raw arn)
+  TF_VAR_ecr_repository_url=$(cd $INFRADIR/$ENV_TF/ecr && terragrunt output --raw ecr_repository_url)
+
   (cd $INFRADIR/$ENV_TF/service && terragrunt init --terragrunt-non-interactive)
   (cd $INFRADIR/$ENV_TF/service && (terragrunt workspace select $WORKSPACE || terragrunt workspace new $WORKSPACE))
 fi
@@ -72,13 +77,10 @@ if [[ $DESTROY = true ]]; then
 fi
 
 
-# get ecr repo url and login
-role_arn=$(cd $INFRADIR/$ENV_TF/ecr && terragrunt output --raw arn)
-ecr_repo=$(cd $INFRADIR/$ENV_TF/ecr && terragrunt output --raw ecr_repository_url)
 
 # docker login needs the assumed role to push images to ecr
 eval $(aws sts assume-role --role-arn $role_arn --role-session-name terraform | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
-aws ecr get-login-password --region us-east-1 | docker login --password-stdin --username AWS $ecr_repo
+aws ecr get-login-password --region us-east-1 | docker login --password-stdin --username AWS $TF_VAR_ecr_repository_url
 unset AWS_SECRET_ACCESS_KEY AWS_ACCESS_KEY_ID AWS_SESSION_TOKEN
 
 # build images, push docker images to ecr
