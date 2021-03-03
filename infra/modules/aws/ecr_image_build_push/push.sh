@@ -3,4 +3,4 @@ eval $(/usr/local/bin/aws sts assume-role --role-arn $ROLE_ARN --role-session-na
 unset AWS_PROFILE
 /usr/local/bin/aws ecr get-login-password --region us-east-1 | docker login --password-stdin --username AWS $ECR_REPO
 
-docker push $ECR_REPO:"$IMAGE"_"$TAG"
+docker push $ECR_REPO:"$TAG"
