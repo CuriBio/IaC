@@ -13,7 +13,7 @@ terraform {
 
 module "ecr_image" {
   source  = "../../../modules/aws/ecr_image_build_push"
-  image_name = "hello_world"
+  image_name = "${terraform.workspace}_hello_world"
   image_src = "../../../../src/lambdas/hello_world"
   role_arn     = "arn:aws:iam::077346344852:role/terraform_deploy_role"
 }
@@ -21,6 +21,6 @@ module "ecr_image" {
 module "data_processor" {
   depends_on = [module.ecr_image]
   source                = "../../../modules/curi/data_processor"
-  data_processor_bucket = "curi-test-data"
+  data_processor_bucket = "${terraform.workspace}-curi-test-data"
   ecr_repository_url    = module.ecr_image.ecr_repository_url
 }
