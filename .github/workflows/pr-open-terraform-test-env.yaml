@@ -43,7 +43,7 @@ jobs:
       run: ./.github/scripts/tf-bootstrap-env.sh -w ${{ env.tf_workspace }}
 
     - name: 'Terragrunt plan dev output'
-      uses: actions/github-script@0.9.0
+      uses: actions/github-script@v3.1
       env:
         PLAN: "terragrunt\n${{ steps.tfenv.outputs.plan_output }}"
       with:
