@@ -1,4 +1,6 @@
 #!/bin/bash
+set -ex
+
 SRCDIR=./src
 INFRADIR=./infra/environments
 ENV_TF=test
