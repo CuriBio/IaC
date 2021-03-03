@@ -2,7 +2,8 @@
 set -ex
 
 aws --version
-aws sts assume-role --role-arn $ROLE_ARN --role-session-name terraform
+SESSION=$(AWS_PAGER="" aws sts assume-role --role-arn $ROLE_ARN --role-session-name terraform --output json)
+echo $SESSION
 unset AWS_PROFILE
 
 unset AWS_ACCESS_KEY_ID
