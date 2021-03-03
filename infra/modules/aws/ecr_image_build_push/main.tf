@@ -24,6 +24,8 @@ resource "null_resource" "docker_build" {
     environment = {
       ECR_REPO = aws_ecr_repository.ecr.repository_url
       ROLE_ARN = var.role_arn
+      IMAGE    = var.image_name
+      TAG      = "latest"
     }
   }
 }
@@ -37,8 +39,8 @@ resource "null_resource" "docker_push" {
     environment = {
       ECR_REPO = aws_ecr_repository.ecr.repository_url
       ROLE_ARN = var.role_arn
-      IMAGE = var.image_name
-      TAG = "latest"
+      IMAGE    = var.image_name
+      TAG      = "latest"
     }
   }
 }
