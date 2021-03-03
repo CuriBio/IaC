@@ -8,7 +8,3 @@ build:
 
 tag:
 	docker tag $(IMAGE):$(TAG) $(ECR_REPO):$(IMAGE)_$(TAG)
-
-push:
-	docker push $(ECR_REPO):$(IMAGE)_$(TAG)
-
