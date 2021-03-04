@@ -1,7 +1,11 @@
+locals {
+  role_arn = "arn:aws:iam::077346344852:role/terraform_deploy_role"
+}
+
 provider "aws" {
   region = "us-east-1"
   assume_role {
-    role_arn     = "arn:aws:iam::077346344852:role/terraform_deploy_role"
+    role_arn     = local.role_arn
     session_name = "terraform"
   }
 }
@@ -15,7 +19,7 @@ module "ecr_image" {
   source     = "../../../modules/aws/ecr_image_build_push"
   image_name = "${terraform.workspace}_hello_world"
   image_src  = "../../../../src/lambdas/hello_world"
-  role_arn   = "arn:aws:iam::077346344852:role/terraform_deploy_role"
+  role_arn   = local.role_arn
 }
 
 module "data_processor" {
