@@ -2,7 +2,7 @@
 set -ex
 
 aws --version
-SESSION=$(AWS_PAGER="" aws sts assume-role --role-arn $ROLE_ARN --role-session-name terraform --output json --debug)
+SESSION=$(AWS_PAGER="" aws sts assume-role --region us-east-1 --role-arn $ROLE_ARN --role-session-name terraform --region us-east-1 --output json --debug)
 echo $SESSION
 unset AWS_PROFILE
 
