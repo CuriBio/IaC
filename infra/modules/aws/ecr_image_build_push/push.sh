@@ -1,7 +1,6 @@
 #!/bin/bash
 aws --version
 SESSION=$(AWS_PAGER="" aws sts assume-role --region us-east-1 --role-arn $ROLE_ARN --role-session-name terraform --region us-east-1 --output json)
-echo $SESSION
 unset AWS_PROFILE
 
 unset AWS_ACCESS_KEY_ID
