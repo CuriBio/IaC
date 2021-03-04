@@ -60,8 +60,8 @@ if [[ $ENV_TF = 'test' ]]; then
 fi
 
 # provision services
-plan_output=$(cd $INFRADIR/$ENV_TF && terragrunt run-all plan --terragrunt-non-interactive)
-echo "::set-output name=plan_output::$plan_output"
+plan_output=$(cd $INFRADIR/$ENV_TF && terragrunt run-all plan --terragrunt-non-interactive -no-color)
+echo "::set-output name=plan_output::$(echo $plan_output)"
 
 if [[ $APPLY_PLAN = true ]]; then
   (cd $INFRADIR/$ENV_TF && terragrunt run-all apply --terragrunt-non-interactive --auto-approve)
