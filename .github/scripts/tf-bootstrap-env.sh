@@ -66,5 +66,3 @@ echo "::set-output name=plan_output::$(echo $plan_output)"
 if [[ $APPLY_PLAN = true ]]; then
   (cd $INFRADIR/$ENV_TF && terragrunt run-all apply --terragrunt-non-interactive --auto-approve)
 fi
-
-#echo $plan_output
