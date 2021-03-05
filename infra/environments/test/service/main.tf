@@ -1,8 +1,8 @@
 locals {
-  role_arn = "arn:aws:iam::077346344852:role/terraform_deploy_role"
-  image_name = "${terraform.workspace}-hello_world"
-  data_bucket = "${terraform.workspace}-test-data"
-  function_name = "${terraform.workspace}-hello-lambda"
+  role_arn             = "arn:aws:iam::077346344852:role/terraform_deploy_role"
+  image_name           = "${terraform.workspace}-hello_world"
+  data_bucket          = "${terraform.workspace}-test-data"
+  function_name        = "${terraform.workspace}-hello-lambda"
   function_description = "Hello world lambda"
 }
 
@@ -30,9 +30,9 @@ module "lambda" {
   image_src  = "../../../../src/lambdas/hello_world"
 
   # s3 bucket
-  data_bucket           = local.data_bucket
+  data_bucket = local.data_bucket
 
   #lambda
-  function_name         = local.function_name
-  function_description  = local.function_description
+  function_name        = local.function_name
+  function_description = local.function_description
 }

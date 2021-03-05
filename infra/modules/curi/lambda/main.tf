@@ -33,8 +33,8 @@ resource "null_resource" "docker_build" {
     command = "(cd ${var.image_src} && make build)"
 
     environment = {
-      IMAGE    = var.image_name
-      TAG      = "latest"
+      IMAGE = var.image_name
+      TAG   = "latest"
     }
   }
 }
@@ -71,7 +71,7 @@ resource "null_resource" "docker_push" {
 
 module "lambda_function_container_image" {
   depends_on = [null_resource.docker_push]
-  source = "terraform-aws-modules/lambda/aws"
+  source     = "terraform-aws-modules/lambda/aws"
 
   function_name = var.function_name
   description   = var.function_description
