@@ -2,6 +2,7 @@
 SRCDIR=./src
 INFRADIR=./infra/environments
 ENV_TF=test
+APPLY_PLAN=false
 
 function usage() {
   echo "Usage: $(basename $0) [-pwa]" 2>&1
@@ -59,12 +60,10 @@ if [[ $ENV_TF = 'test' ]]; then
   fi
 fi
 
-# provision services
-plan_output=$(cd $INFRADIR/$ENV_TF && terragrunt run-all plan --terragrunt-non-interactive -no-color)
-echo "::set-output name=plan_output::$(echo $plan_output)"
-
-if [[ $APPLY_PLAN = true ]]; then
+# if apply plan not set then output plan only
+if [[ $APPLY_PLAN = false ]]; then
+    plan_output=$(cd $INFRADIR/$ENV_TF && terragrunt run-all plan --terragrunt-non-interactive -no-color)
+    echo "::set-output name=plan_output::$(echo \"$plan_output\")"
+else
   (cd $INFRADIR/$ENV_TF && terragrunt run-all apply --terragrunt-non-interactive --auto-approve)
 fi
-
-#echo $plan_output
