@@ -1,7 +1,7 @@
 Preqequisites:
   * terragrunt
-  * an aws admin account that will be used to assume role of the different deploy environments  
-  * have an aws profile setup for this account, e.g. `curi_admin`
+  * an aws admin account that will be used to assume role of the different deploy environments
+  * have an aws profile setup for this account, e.g. ``curi_admin``
   * aws account(s) profile for each environment with iam user and api access (access_key/secret_key)
     Currently the environments use these profile names, e.g.
 
