@@ -1,7 +1,6 @@
 name: 'Terraform PR Open'
 on:
   pull_request:
-    types: [opened]
     branches-ignore:
     - main
 
