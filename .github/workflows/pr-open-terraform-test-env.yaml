@@ -31,7 +31,7 @@ jobs:
 
     - name: 'Create Environment'
       id: tfenv
-      run: python ./.github/scripts/tf-deploy-env.py --workspace modl
+      run: python ./.github/scripts/tf-deploy-env.py --workspace modl --no-color
 
     - name: 'Terraform plan dev output'
       uses: actions/github-script@v3.1
