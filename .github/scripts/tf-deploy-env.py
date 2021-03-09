@@ -34,7 +34,6 @@ def main():
         sys.exit(1)
 
     tfvars = '-var-file=' + {'prod': './prod/terraform.tfvars', 'modl': './modl/terraform.tfvars'}.get(args.workspace, './test/terraform.tfvars')
-    print(f'tfvars={tfvars}')
     shell_args = {'shell': True, 'cwd': args.infra_dir, 'env': os.environ}
 
     # init terraform and select workspace, create if it doesn't exist
