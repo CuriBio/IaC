@@ -19,28 +19,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: 'Extract branch name'
-      id: branch_name
-      run: echo "::set-output name=branch::${GITHUB_HEAD_REF##*/}"
-
-    - name: 'test environment'
-      run: |
-        echo "tf_workspace=${{ steps.branch_name.outputs.branch }}" >> $GITHUB_ENV
-        echo "tf_environment=test" >> $GITHUB_ENV
-
     - name: 'Terraform setup'
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 0.14.7
 
-    - name: 'Terragrunt setup'
-      uses: ./.github/actions/terragrunt
-      with:
-        terragrunt_version: 0.28.7
-
     - name: 'Create Environment'
       id: tfenv
-      run: ./.github/scripts/tf-bootstrap-env.sh -w ${{ env.tf_workspace }}
+      uses: actions/setup-python@v2
+        with:
+            python-version: 3.8
+      run: ./.github/scripts/tf-deploy-env.py --workspace modl
 
     - name: 'Terragrunt plan dev output'
       uses: actions/github-script@v3.1
@@ -67,6 +56,9 @@ jobs:
           })
 
     - name: 'Terragrunt apply'
-      run: ./.github/scripts/tf-bootstrap-env.sh -w ${{ env.tf_workspace }} -a
+      uses: actions/setup-python@v2
+        with:
+            python-version: 3.8
+      run: ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}_${{ github.event.pull_request.number }}" --apply
 
 
