@@ -33,27 +33,27 @@ def main():
         logger.error(f"Workspace {args.workspace} can't be destroyed")
         sys.exit(1)
 
-    #tfvars = '-var-file=' + {'prod': 'prod.tfvars', 'modl': 'modl.tfvars'}.get(args.workspace, 'test.tfvars')
-    tfvars = ''
+    tfvars = '-var-file=' + {'prod': './prod/terraform.tfvars', 'modl': './modl/terraform.tfvars'}.get(args.workspace, './test/terraform.tfvars')
+    print(f'tfvars={tfvars}')
     shell_args = {'shell': True, 'cwd': args.infra_dir, 'env': os.environ}
 
     # init terraform and select workspace, create if it doesn't exist
-    subprocess_stream(f'terragrunt run-all init --terragrunt-non-interactive {tfvars}', **shell_args)
-    subprocess_stream(f'terragrunt run-all workspace select {args.workspace} || terragrunt run-all workspace new {args.workspace}', **shell_args)
+    subprocess_stream(f'terraform init {tfvars}', **shell_args)
+    subprocess_stream(f'terraform workspace select {args.workspace} || terraform workspace new {args.workspace}', **shell_args)
 
     # if destroy then teardown and exit
     if args.destroy:
-        subprocess_stream(f'terragrunt run-all destroy --terragrunt-non-interactive --auto-approve {tfvars}', **shell_args)
-        subprocess_stream('terragrunt run-all workspace select default', **shell_args)
-        subprocess_stream(f'terragrunt run-all workspace delete {args.workspace}', **shell_args)
+        subprocess_stream(f'terraform destroy -auto-approve {tfvars}', **shell_args)
+        subprocess_stream('terraform workspace select default', **shell_args)
+        subprocess_stream(f'terraform workspace delete {args.workspace}', **shell_args)
         sys.exit(0)
 
     if not args.apply: # plan only
         colorize = '-no-color' if args.no_color else ''
-        plan = subprocess_stream(f'terragrunt run-all plan --terragrunt-non-interactive {colorize} {tfvars}', capture=True, **shell_args)
+        plan = subprocess_stream(f'terraform plan {colorize} {tfvars}', capture=True, **shell_args)
         print(f'echo "::set-output name=plan_output::{plan.decode()}"')
     else: # apply infra
-        subprocess_stream(f'terragrunt run-all apply --terragrunt-non-interactive --auto-approve {tfvars}', **shell_args)
+        subprocess_stream(f'terraform apply -auto-approve {tfvars}', **shell_args)
 
 if __name__ == "__main__":
     main()
