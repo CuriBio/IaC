@@ -19,6 +19,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: 'Setup Python'
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
     - name: 'Terraform setup'
       uses: hashicorp/setup-terraform@v1
       with:
@@ -26,9 +31,6 @@ jobs:
 
     - name: 'Create Environment'
       id: tfenv
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
       run: ./.github/scripts/tf-deploy-env.py --workspace modl
 
     - name: 'Terragrunt plan dev output'
@@ -56,9 +58,6 @@ jobs:
           })
 
     - name: 'Terragrunt apply'
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
       run: ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}_${{ github.event.pull_request.number }}" --apply
 
 
