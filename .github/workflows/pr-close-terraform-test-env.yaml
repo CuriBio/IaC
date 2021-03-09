@@ -31,5 +31,5 @@ jobs:
         terraform_version: 0.14.7
 
     - name: 'Terragrunt apply'
-      run: ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}_${{ github.event.pull_request.number }}" --destroy
+      run: python ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}_${{ github.event.pull_request.number }}" --destroy
 

@@ -31,7 +31,7 @@ jobs:
 
     - name: 'Create Environment'
       id: tfenv
-      run: ./.github/scripts/tf-deploy-env.py --workspace modl
+      run: python ./.github/scripts/tf-deploy-env.py --workspace modl
 
     - name: 'Terragrunt plan dev output'
       uses: actions/github-script@v3.1
@@ -58,6 +58,6 @@ jobs:
           })
 
     - name: 'Terragrunt apply'
-      run: ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}_${{ github.event.pull_request.number }}" --apply
+      run: python ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}_${{ github.event.pull_request.number }}" --apply
 
 
