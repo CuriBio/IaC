@@ -29,6 +29,9 @@ jobs:
       with:
         terraform_version: 0.14.7
 
-    - name: 'Terraform apply'
+    - name: 'Terraform destroy PR environment'
       run: python ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}-${{ github.event.pull_request.number }}" --destroy
+
+    - name: 'Terraform apply modl environment'
+      run: python ./.github/scripts/tf-deploy-env.py --workspace modl --apply
 
