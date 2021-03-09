@@ -2,9 +2,8 @@ name: 'Terraform PR Close'
 on:
   pull_request:
     types: [closed]
-    branches:
-    - '!main'
-    - '!development'
+    branches-ignore:
+    - 'main'
 
 jobs:
   terraform:
