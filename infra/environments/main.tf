@@ -33,7 +33,7 @@ module "lambda" {
 
   # docker image
   image_name = "${terraform.workspace}-${var.image_name}"
-  image_src = "../../src/lambdas/hello_world"
+  image_src  = "../../src/lambdas/hello_world"
 
   # s3 bucket
   data_bucket = "${terraform.workspace}-${var.data_bucket}"
