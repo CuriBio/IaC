@@ -31,12 +31,12 @@ jobs:
 
     - name: 'Create Environment'
       id: tfenv
-      run: python ./.github/scripts/tf-deploy-env.py --workspace modl
+      run: python ./.github/scripts/tf-deploy-env.py --workspace modl --no-color
 
     - name: 'Terraform plan dev output'
       uses: actions/github-script@v3.1
       env:
-        PLAN: "terraform\n${{ steps.tfenv.outputs.plan_output }}"
+        PLAN: "terraform\n${{ steps.tfenv.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |

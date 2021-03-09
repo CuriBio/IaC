@@ -50,7 +50,6 @@ def main():
     if not args.apply: # plan only
         colorize = '-no-color' if args.no_color else ''
         plan = subprocess_stream(f'terraform plan {colorize} {tfvars}', capture=True, **shell_args)
-        print(f'echo "::set-output name=plan_output::{plan.decode()}"')
     else: # apply infra
         subprocess_stream(f'terraform apply -auto-approve {tfvars}', **shell_args)
 
