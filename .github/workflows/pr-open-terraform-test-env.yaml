@@ -33,7 +33,7 @@ jobs:
       id: tfenv
       run: python ./.github/scripts/tf-deploy-env.py --workspace modl
 
-    - name: 'Terragrunt plan dev output'
+    - name: 'Terraform plan dev output'
       uses: actions/github-script@v3.1
       env:
         PLAN: "terraform\n${{ steps.tfenv.outputs.plan_output }}"
@@ -57,7 +57,7 @@ jobs:
             body: output
           })
 
-    - name: 'Terragrunt apply'
+    - name: 'Terraform apply'
       run: python ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}-${{ github.event.pull_request.number }}" --apply
 
 
