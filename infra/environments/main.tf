@@ -1,7 +1,11 @@
+# lambda variables
 variable "role_arn" {}
 variable "image_name" {}
 variable "data_bucket" {}
 variable "function_name" {}
+
+# download/dns variables
+variable "hosted_zone" {}
 
 
 provider "aws" {
@@ -22,6 +26,15 @@ terraform {
     encrypt        = true
     dynamodb_table = "terraform-lock-table"
   }
+}
+
+
+module "downloads" {
+  source = "../modules/curi/s3_downloads"
+  count  = contains(["prod", "modl", "test"], terraform.workspace) ? 1 : 0
+
+  hosted_zone = var.hosted_zone
+  subdomain   = "downloads"
 }
 
 

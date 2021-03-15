@@ -35,6 +35,6 @@ To provision a new test environment, after it has been bootstrapped:
   * From the root of your checkout run ``AWS_PROFILE=curi_admin ./.github/scripts/tf-bootstrap-env.sh -w <name>``
     where ``<name>`` is the prefix you want to use for the test environment.
   * verify plan looks good
-  * run ``AWS_PROFILE=curi_admin ./.github/scripts/tf-bootstrap-env.sh -w <name> -a``
+  * run ``AWS_PROFILE=curi_admin ./.github/scripts/tf-deploy-env.py --workspace <name> --apply``
   * After you're done testing with the new environment teardown the infrastructure with
-    ``AWS_PROFILE=curi_admin ./.github/scripts/tf-bootstrap-env.sh -w <name> -d``
+    ``AWS_PROFILE=curi_admin ./.github/scripts/tf-deploy-env.py --workspace <name> --destroy``

@@ -7,7 +7,7 @@ import sys
 def subprocess_stream(*args, capture=False, **kwargs):
     output = []
     try:
-        with subprocess.Popen(*args, **kwargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
+        with subprocess.Popen(*args, **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as p:
             for line in p.stdout:
                 sys.stdout.buffer.write(line)
                 sys.stdout.flush()
