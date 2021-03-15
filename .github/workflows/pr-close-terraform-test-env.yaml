@@ -32,6 +32,10 @@ jobs:
     - name: 'Terraform destroy PR environment'
       run: python ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}-${{ github.event.pull_request.number }}" --destroy
 
+    - name: 'Terraform apply test environment'
+      if: github.event.pull_request.merged == true
+      run: python ./.github/scripts/tf-deploy-env.py --workspace test --apply
+
     - name: 'Terraform apply modl environment'
       if: github.event.pull_request.merged == true
       run: python ./.github/scripts/tf-deploy-env.py --workspace modl --apply
