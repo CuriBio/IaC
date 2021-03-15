@@ -70,6 +70,7 @@ resource "aws_iam_role_policy" "policy" {
           "acm:DescribeCertificate",
           "acm:ListTagsForCertificate",
           "acm:DeleteCertificate",
+          "acm:RequestCertificate",
         ]
         Effect   = "Allow"
         Resource = "*"

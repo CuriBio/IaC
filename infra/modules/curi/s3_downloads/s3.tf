@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "log_bucket" {
-  bucket = "curibio-server-access-logs"
+  bucket = "curibio-${terraform.workspace}-server-access-logs"
   acl    = "log-delivery-write"
 }
 
