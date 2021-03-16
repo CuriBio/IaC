@@ -13,12 +13,11 @@ resource "aws_route53_record" "cname" {
   name            = "${var.subdomain}.${var.hosted_zone}"
   type            = "CNAME"
   ttl             = 86400
-  records         = ["${aws_s3_bucket.downloads.bucket}.s3.amazonaws.com"]
+  records         = [aws_cloudfront_distribution.s3_distribution.domain_name]
 }
 
 
 resource "aws_acm_certificate" "cert" {
-  depends_on        = [aws_route53_record.cname]
   domain_name       = "*.${var.hosted_zone}"
   validation_method = "DNS"
 
