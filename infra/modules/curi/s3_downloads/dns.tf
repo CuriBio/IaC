@@ -63,11 +63,31 @@ resource "aws_route53_record" "a_record" {
 
   # For Square space
   records = [
-    "216.239.32.21",
-    "216.239.34.21",
-    "216.239.36.21",
-    "216.239.38.21"
+    "198.185.159.144",
+    "198.185.159.145",
+    "198.49.23.144",
+    "198.49.23.145"
   ]
+}
+
+
+resource "aws_route53_record" "sqsp_verify" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = var.sqsp_verification
+  type    = "CNAME"
+  ttl     = 3600
+  records = ["verify.squarespace.com"]
+}
+
+
+resource "aws_route53_record" "sqsp_www" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "www"
+  type    = "CNAME"
+  ttl     = 3600
+
+  # For Square space
+  records = ["ext-cust.squarespace.com"]
 }
 
 
