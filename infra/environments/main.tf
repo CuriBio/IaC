@@ -7,6 +7,9 @@ variable "function_name" {}
 # download/dns variables
 variable "hosted_zone" {}
 
+# squarespace
+variable "sqsp_verification" {}
+
 
 provider "aws" {
   region = "us-east-1"
@@ -35,6 +38,8 @@ module "downloads" {
 
   hosted_zone = var.hosted_zone
   subdomain   = "downloads"
+
+  sqsp_verification = var.sqsp_verification
 }
 
 

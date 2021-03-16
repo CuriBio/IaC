@@ -7,3 +7,6 @@ function_name = "hello-lambda2"
 
 # downloads/dns
 hosted_zone = "curibio-test.com"
+
+# squarespace dns
+sqsp_verification = "e2xgjnsckpkc3lh9jx52"
