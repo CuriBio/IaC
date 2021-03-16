@@ -1,15 +1,24 @@
-# if creating for first time and domain was registered in route53
-# this zone needs to be imported into terraform state otherwise this
-# will create a second zone with the same domain b/c route53
-# automatically creates a hosted zone for any domain you register
-#
-# from your workspace run `terraform import -var-file=./<workspace>/terraform.tfvars aws_route53_zone.main <HOSTED ZONE ID>`
+# there likely will alreday be a hosted zone for the domain if if was
+# registerd through route53, if that is the case then you will have to delete
+# the existing hosted zone and then update the NS settings for the registration
+# with the new NS that are set in the hosted zone created by terraform.
 resource "aws_route53_zone" "main" {
   name = var.hosted_zone
 }
 
 
+resource "aws_route53_record" "cname" {
+  allow_overwrite = true
+  zone_id         = aws_route53_zone.main.zone_id
+  name            = "${var.subdomain}.${var.hosted_zone}"
+  type            = "CNAME"
+  ttl             = 86400
+  records         = ["${aws_s3_bucket.downloads.bucket}.s3.amazonaws.com"]
+}
+
+
 resource "aws_acm_certificate" "cert" {
+  depends_on        = [aws_route53_record.cname]
   domain_name       = "*.${var.hosted_zone}"
   validation_method = "DNS"
 
@@ -26,15 +35,6 @@ resource "aws_acm_certificate" "cert" {
 resource "aws_acm_certificate_validation" "cert" {
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.cname_ssl_verification : record.fqdn]
-}
-
-
-resource "aws_route53_record" "cname" {
-  zone_id = aws_route53_zone.main.zone_id
-  name    = "${var.subdomain}.${var.hosted_zone}"
-  type    = "CNAME"
-  ttl     = 86400
-  records = [aws_cloudfront_distribution.s3_distribution.domain_name]
 }
 
 
