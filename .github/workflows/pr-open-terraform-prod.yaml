@@ -1,13 +1,13 @@
 name: 'Terraform PR Open'
 on:
-  pull_request:
+  pull_request_target:
     branches-ignore:
     - 'development'
 
 jobs:
   terraform:
     name: 'Terraform PR Open'
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-20.04"
 
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
