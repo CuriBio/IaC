@@ -22,17 +22,13 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-18.04"
+          - "ubuntu-20.04"
         python-version:
-            - 3.8
+            - 3.9
         include:
-          # only enable coverage on the fastest job
-          - os: "ubuntu-18.04"
-            python-version: "3.7"
-            ENABLE_CODE_COVERAGE: true
+          - os: "ubuntu-20.04"
+            python-version: "3.9"
             IS_FASTEST_JOB: true
-          - os: "ubuntu-18.04"
-            IS_LINUX: true
     name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -50,8 +46,26 @@ jobs:
           python -c "import sys; print(sys.version)"
           python -m venv venv
 
+      - name: 'Terraform Setup'
+        # setup Terraform to make sure to have the correct version when running pre-commit hooks
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.14.7
+
+      - name: Cache Pre-commit hooks
+        uses: actions/cache@v2.1.4
+        env:
+          cache-name: cache-pre-commit-hooks
+        if: matrix.IS_FASTEST_JOB == true
+        with:
+          path: ./.precommit_cache
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('**/.pre-commit-config.yaml') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
+
+
       - name: Activate virtual environment (Linux/MacOS)
-        if: matrix.IS_LINUX == true
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         run: . venv/bin/activate
 
       - name: Display Pip Version and confirm environment empty
@@ -67,6 +81,8 @@ jobs:
       - name: Run pre-commit hooks
         if: matrix.IS_FASTEST_JOB == true
         # only enable pre-commit on the fastest job
+        env:
+          PRE_COMMIT_HOME: ./.precommit_cache
         run: |
           pre-commit install
           pre-commit run -a

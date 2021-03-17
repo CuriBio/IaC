@@ -2,6 +2,11 @@
 .idea/
 .~c9*
 
+# CI caches
+.npm_cache/
+.precommit_cache/
+.pipenv_cache/
+
 # Python
 *.py[cod]
 __pycache__/
@@ -33,6 +38,10 @@ coverage-report-pytest
 
 # test profiling
 prof/
+
+# terraform
+.terraform/
+*.terraform.lock.hcl
 
 
 # Local files
