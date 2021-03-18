@@ -7,21 +7,6 @@ resource "aws_s3_bucket" "downloads" {
   bucket = "${var.subdomain}.${var.hosted_zone}"
   acl    = "public-read"
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "PublicReadGetObject",
-        Effect = "Allow"
-        Principal = {
-          AWS = "*"
-        }
-        Action   = "s3:GetObject"
-        Resource = "arn:aws:s3:::${var.subdomain}.${var.hosted_zone}/*"
-      }
-    ]
-  })
-
   versioning {
     enabled = true
   }
@@ -35,4 +20,47 @@ resource "aws_s3_bucket" "downloads" {
     target_bucket = aws_s3_bucket.log_bucket.id
     target_prefix = "${var.subdomain}.${var.hosted_zone}_logs"
   }
+}
+
+resource "aws_s3_bucket_policy" "downloads_policy" {
+  bucket = aws_s3_bucket.downloads.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "s3_downloads_policy"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject",
+        Effect    = "Allow"
+        Principal = "*"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = "${aws_s3_bucket.downloads.arn}/*"
+      },
+      {
+        Effect = "Allow",
+        Principal = {
+          AWS = var.s3_download_users
+        }
+        Action = [
+          "s3:ListBucket"
+        ]
+        Resource = aws_s3_bucket.downloads.arn
+      },
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = var.s3_download_users
+        }
+        Action = [
+          "s3:GetObjectAcl",
+          "s3:PutObject",
+          "s3:PutObjectAcl",
+          "s3:DeleteObject",
+        ]
+        Resource = "${aws_s3_bucket.downloads.arn}/*"
+      }
+    ]
+  })
 }

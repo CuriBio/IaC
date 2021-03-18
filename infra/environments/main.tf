@@ -10,6 +10,9 @@ variable "hosted_zone" {}
 # squarespace
 variable "sqsp_verification" {}
 
+# s3 download bucket users
+variable "s3_download_users" {}
+
 
 provider "aws" {
   region = "us-east-1"
@@ -36,10 +39,15 @@ module "downloads" {
   source = "../modules/curi/s3_downloads"
   count  = contains(["prod", "modl", "test"], terraform.workspace) ? 1 : 0
 
+  # hosted zone
   hosted_zone = var.hosted_zone
   subdomain   = "downloads"
 
+  # squarespace dns verification
   sqsp_verification = var.sqsp_verification
+
+  # user access
+  s3_download_users = var.s3_download_users
 }
 
 
