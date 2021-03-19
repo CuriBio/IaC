@@ -13,7 +13,7 @@ variable "sqsp_verification" {
   type        = string
 }
 
-variable "s3_download_users" {
-  description = "s3 download bucket users"
-  type        = list(any)
+variable "account_id" {
+  description = "account_id of users to assume role"
+  type        = string
 }
