@@ -38,29 +38,6 @@ resource "aws_s3_bucket_policy" "downloads_policy" {
         ]
         Resource = "${aws_s3_bucket.downloads.arn}/*"
       },
-      {
-        Effect = "Allow",
-        Principal = {
-          AWS = var.s3_download_users
-        }
-        Action = [
-          "s3:ListBucket"
-        ]
-        Resource = aws_s3_bucket.downloads.arn
-      },
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = var.s3_download_users
-        }
-        Action = [
-          "s3:GetObjectAcl",
-          "s3:PutObject",
-          "s3:PutObjectAcl",
-          "s3:DeleteObject",
-        ]
-        Resource = "${aws_s3_bucket.downloads.arn}/*"
-      }
     ]
   })
 }

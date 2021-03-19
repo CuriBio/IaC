@@ -10,9 +10,6 @@ variable "hosted_zone" {}
 # squarespace
 variable "sqsp_verification" {}
 
-# s3 download bucket users
-variable "s3_download_users" {}
-
 
 provider "aws" {
   region = "us-east-1"
@@ -45,9 +42,6 @@ module "downloads" {
 
   # squarespace dns verification
   sqsp_verification = var.sqsp_verification
-
-  # user access
-  s3_download_users = var.s3_download_users
 
   # account id for role policy of s3 downloads
   account_id = "424924102580"
