@@ -10,8 +10,3 @@ hosted_zone = "curibio-test.com"
 
 # squarespace dns
 sqsp_verification = "e2xgjnsckpkc3lh9jx52"
-
-# s3 downloads users
-s3_download_users = [
-  "arn:aws:iam::424924102580:user/s3_test"
-]
