@@ -48,6 +48,9 @@ module "downloads" {
 
   # user access
   s3_download_users = var.s3_download_users
+
+  # account id for role policy of s3 downloads
+  account_id = "424924102580"
 }
 
 
