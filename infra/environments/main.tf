@@ -43,8 +43,11 @@ module "downloads" {
   # squarespace dns verification
   sqsp_verification = var.sqsp_verification
 
-  # account id for role policy of s3 downloads
-  account_id = "424924102580"
+  # account principalsfor role policy of s3 downloads
+  principals = [
+    "arn:aws:iam::424924102580:root",
+    "arn:aws:iam::750030001816:root"
+  ]
 }
 
 

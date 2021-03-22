@@ -51,6 +51,7 @@ resource "aws_iam_role_policy" "policy" {
           "iam:AttachRolePolicy",
           "iam:ListEntitiesForPolicy",
           "iam:DetachRolePolicy",
+          "iam:UpdateAssumeRolePolicy",
           "lambda:CreateFunction",
           "lambda:DeleteFunction",
           "lambda:GetFunction",
