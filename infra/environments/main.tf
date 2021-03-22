@@ -36,10 +36,15 @@ module "downloads" {
   source = "../modules/curi/s3_downloads"
   count  = contains(["prod", "modl", "test"], terraform.workspace) ? 1 : 0
 
+  # hosted zone
   hosted_zone = var.hosted_zone
   subdomain   = "downloads"
 
+  # squarespace dns verification
   sqsp_verification = var.sqsp_verification
+
+  # account id for role policy of s3 downloads
+  account_id = "424924102580"
 }
 
 
