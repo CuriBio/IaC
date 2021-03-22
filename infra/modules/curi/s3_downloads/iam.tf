@@ -9,7 +9,7 @@ resource "aws_iam_role" "downloads_role" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          AWS = "arn:aws:iam::${var.account_id}:root"
+          AWS = var.principals
         }
         Condition = {}
       }

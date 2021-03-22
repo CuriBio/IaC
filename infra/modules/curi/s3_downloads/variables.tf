@@ -13,7 +13,7 @@ variable "sqsp_verification" {
   type        = string
 }
 
-variable "account_id" {
-  description = "account_id of users to assume role"
-  type        = string
+variable "principals" {
+  description = "account principals"
+  type        = list(string)
 }
