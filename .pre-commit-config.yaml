@@ -25,6 +25,18 @@ repos:
     hooks:
     -   id: terraform_fmt
 
+-   repo: https://github.com/sqlalchemyorg/zimports
+    rev: 0.3.0  # pick a hash or tag to point to
+    hooks:
+    -   id: zimports
+
+-   repo: https://github.com/psf/black
+    rev: 20.8b1  # pick a git hash / tag to point to
+    hooks:
+    -   id: black
+
+
+
 # Safety/Security Issues
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0  # Use the ref you want to point at
@@ -42,3 +54,30 @@ repos:
     -   id: check-xml
     -   id: check-merge-conflict
     -   id: check-case-conflict
+
+-   repo: https://github.com/NanoSurface-Biomedical/pre-commit-pylint
+    rev: "5a76725fa664ca733db485598da5c8460cf3347f" # pick a git hash / tag to point to
+    hooks:
+    -   id: pylint-pass-with-displayed-warnings
+        name: pylint-src
+        args:
+        - --codes-to-allow=W0511
+        - src
+        - --rcfile=src/pylintrc
+        - --ignore-patterns=.*~.*
+        - --jobs 0
+        files: ('src/.*\.py$')
+        exclude: '.*\~.*'
+        verbose: true
+    -   id: pylint-pass-with-displayed-warnings
+        name: pylint-tests
+        args:
+        - --codes-to-allow=W0511
+        - tests
+        - --rcfile=tests/pylintrc
+        - --ignore-patterns=.*~.*
+        - --jobs 0
+        files: 'tests/.*\.py$'
+        exclude: ('.*\~.*')
+        verbose: true
+    -   id: python-check-no-print-statments
