@@ -4,6 +4,8 @@ import os
 import subprocess
 import sys
 
+logger = logging.getLogger(__name__)
+
 
 def subprocess_stream(*args, capture=False, **kwargs):
     output = []
@@ -23,8 +25,6 @@ def subprocess_stream(*args, capture=False, **kwargs):
 
 
 def main():
-    logger = logging.getLogger(__name__)
-
     parser = argparse.ArgumentParser(description="tf-deploy-env")
     parser.add_argument(
         "--workspace", default="test", type=str, help="Terraform workspace name"
@@ -66,7 +66,7 @@ def main():
 
     if not args.apply:  # plan only
         colorize = "-no-color" if args.no_color else ""
-        plan = subprocess_stream(
+        subprocess_stream(
             f"terraform plan {colorize} {tfvars}", capture=True, **shell_args
         )
     else:  # apply infra
