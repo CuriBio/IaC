@@ -4,6 +4,7 @@ from typing import Dict
 import uuid
 
 import boto3
+from mypy_boto3_sts import STSClient
 import pytest
 import requests
 
@@ -17,9 +18,9 @@ def fixture_downloads_bucket_name(deployment_tier):
 
 
 def _create_generic_object(
-    account_id: str, downloads_bucket_name: str
+    sts_client: STSClient, account_id: str, downloads_bucket_name: str
 ) -> Dict[str, Any]:
-    client = boto3.client("sts")
+    client = sts_client
     assumed_role_object = client.assume_role(
         RoleArn=f"arn:aws:iam::{account_id}:role/s3_downloads_role",
         RoleSessionName="a-role-session-name",
@@ -44,7 +45,7 @@ def fixture_Given_an_object_is_in_the_downloads_bucket(
     deployment_aws_account_id, downloads_bucket_name
 ):
     object_properties = _create_generic_object(
-        deployment_aws_account_id, downloads_bucket_name
+        boto3.client("sts"), deployment_aws_account_id, downloads_bucket_name
     )
     yield object_properties
     created_object = object_properties["object"]
@@ -58,8 +59,12 @@ def test_When_admin_account_assumes_marketing_role__Then_an_object_can_be_create
     assert isinstance(tf_workspace_name, str)
     print(f"Workspace name in pytest: {tf_workspace_name}")  # allow-print
     print(f"Determined deployment tier: {deployment_tier}")  # allow-print
+    client = boto3.client("sts")
+    account_id = client.get_caller_identity()["Account"]
+    # confirm that the client being used to create the object is the admin account
+    assert account_id == "424924102580"
     object_properties = _create_generic_object(
-        deployment_aws_account_id, downloads_bucket_name
+        client, deployment_aws_account_id, downloads_bucket_name
     )
     created_object = object_properties["object"]
     expected_key = object_properties["key"]
