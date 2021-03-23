@@ -10,7 +10,7 @@ import requests
 
 
 @pytest.fixture(scope="function", name="downloads_bucket_name")
-def fixture_downloads_bucket_name(deployment_tier):
+def fixture_downloads_bucket_name(deployment_tier) -> str:
     suffix = ""
     if deployment_tier in ["test", "modl"]:
         suffix = f"-{deployment_tier}"
@@ -72,11 +72,21 @@ def test_When_admin_account_assumes_marketing_role__Then_an_object_can_be_create
     created_object.delete(VersionId=created_object.version_id)
 
 
-def test_Given_an_object_is_in_the_downloads_bucket__When_a_generic_http_request_is_sent_for_the_object__Then_it_can_be_accessed_since_the_bucket_is_configured_for_public_access(
-    downloads_bucket_name, Given_an_object_is_in_the_downloads_bucket
-):
-    object_properties = Given_an_object_is_in_the_downloads_bucket
-    object_key = object_properties["object"].key
-    url = f"https://{downloads_bucket_name}/{object_key}"
-    r = requests.get(url)
-    assert r.text == object_properties["contents"]
+class Test__Given_an_object_is_in_the_downloads_bucket:
+    # pylint:disable=too-few-public-methods # Eli (3/23/21): trying out this style of having Given as a class wrapping tests that use something in common. Might in future just remove this pylint rule for test suites
+    object_properties: Dict[str, Any]
+
+    @pytest.fixture(
+        autouse=True
+    )  # adapted from https://stackoverflow.com/questions/21430900/py-test-skips-test-class-if-constructor-is-defined
+    def _setup(self, Given_an_object_is_in_the_downloads_bucket):
+        self.object_properties = Given_an_object_is_in_the_downloads_bucket
+
+    def test_When_a_public_http_request_is_sent_for_the_object__Then_it_can_be_accessed(
+        self, downloads_bucket_name
+    ):
+        object_properties = self.object_properties
+        object_key = object_properties["object"].key
+        url = f"https://{downloads_bucket_name}/{object_key}"
+        r = requests.get(url)
+        assert r.text == object_properties["contents"]
