@@ -1,5 +1,11 @@
 name: 'Terraform PR Close'
 on:
+  workflow_dispatch:
+    inputs:
+      randomlyseed:
+        description: 'Pytest Randomly Seed'
+        required: false
+        default: ''
   pull_request:
     types: [closed]
     branches-ignore:
@@ -24,6 +30,26 @@ jobs:
       with:
         python-version: 3.9
 
+    - name: Display Python version
+      run: |
+        python -c "import sys; print(sys.version)"
+        python -m venv venv
+
+    - name: Activate virtual environment (Linux/MacOS)
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+      run: . venv/bin/activate
+
+    - name: Display Pip Version and confirm environment empty
+      run: |
+        pip -V
+        pip freeze
+
+    - name: Install Dev Dependencies
+      run: pip install -r requirements-dev.txt
+
+    - name: Log full installed packages
+      run: pip freeze
+
     - name: 'Terraform setup'
       uses: hashicorp/setup-terraform@v1
       with:
@@ -33,3 +59,10 @@ jobs:
       if: github.event.pull_request.merged == true
       run: python ./.github/scripts/tf-deploy-env.py --workspace prod --apply
 
+    - name: Run Tests with randomly generated seed
+      if: github.event.inputs.randomlyseed == ''
+      run: pytest -xsvv --tf-workspace-name prod
+
+    - name: Run Tests with supplied pytest-randomly seed
+      if: github.event.inputs.randomlyseed != ''
+      run: pytest -xsvv --tf-workspace-name prod --randomly-seed=${{ github.event.inputs.randomlyseed }}
