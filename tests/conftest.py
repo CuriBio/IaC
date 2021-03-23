@@ -59,3 +59,19 @@ def pytest_collection_modifyitems(config: Config, items: List[Function]) -> None
         for item in items:
             if "slow" in item.keywords:
                 item.add_marker(skip_slow)
+
+
+@pytest.fixture(
+    scope="function",  # Eli (3/23/21): tried to set this as session or module scoped, but gave errors related to "factories", presumably related to the way the command line argument is processed for the Terraform workspace name
+    name="deployment_tier",
+)
+def fixture_deployment_tier(tf_workspace_name) -> str:
+    if tf_workspace_name in ["prod", "modl"]:
+        return tf_workspace_name
+    return "test"
+
+
+@pytest.fixture(scope="function", name="deployment_aws_account_id")
+def fixture_deployment_aws_account_id(deployment_tier):
+    lookup = {"test": "077346344852", "modl": "725604423866", "prod": "245339368379"}
+    return lookup[deployment_tier]
