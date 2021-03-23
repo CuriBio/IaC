@@ -1,4 +1,4 @@
-name: 'Terraform PR Open'
+name: 'Open PR not into Prod'
 on:
   workflow_dispatch:
     inputs:

@@ -1,4 +1,4 @@
-name: 'Terraform PR Close'
+name: 'Close PR into Development'
 on:
   workflow_dispatch:
     inputs:

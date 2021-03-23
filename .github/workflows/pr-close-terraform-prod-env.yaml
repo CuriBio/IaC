@@ -1,4 +1,4 @@
-name: 'Terraform PR Close'
+name: 'Close PR into Prod'
 on:
   workflow_dispatch:
     inputs:

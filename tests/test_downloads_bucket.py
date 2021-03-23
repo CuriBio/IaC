@@ -18,11 +18,10 @@ def fixture_downloads_bucket_name(deployment_tier):
 
 
 def _create_generic_object(
-    sts_client: STSClient, account_id: str, downloads_bucket_name: str
+    sts_client: STSClient, deployment_account_id: str, downloads_bucket_name: str
 ) -> Dict[str, Any]:
-    client = sts_client
-    assumed_role_object = client.assume_role(
-        RoleArn=f"arn:aws:iam::{account_id}:role/s3_downloads_role",
+    assumed_role_object = sts_client.assume_role(
+        RoleArn=f"arn:aws:iam::{deployment_account_id}:role/s3_downloads_role",
         RoleSessionName="a-role-session-name",
     )
     credentials = assumed_role_object["Credentials"]
@@ -56,7 +55,6 @@ def fixture_Given_an_object_is_in_the_downloads_bucket(
 def test_When_admin_account_assumes_marketing_role__Then_an_object_can_be_created_and_deleted_in_the_downloads_bucket(
     tf_workspace_name, deployment_tier, deployment_aws_account_id, downloads_bucket_name
 ):
-    assert isinstance(tf_workspace_name, str)
     print(f"Workspace name in pytest: {tf_workspace_name}")  # allow-print
     print(f"Determined deployment tier: {deployment_tier}")  # allow-print
     client = boto3.client("sts")
