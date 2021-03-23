@@ -1,4 +1,4 @@
-name: 'Open PR into Prod'
+name: 'Open/Update PR into Prod'
 on:
   workflow_dispatch:
     inputs:

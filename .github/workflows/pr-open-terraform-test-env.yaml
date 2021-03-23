@@ -1,4 +1,4 @@
-name: 'Open PR not into Prod'
+name: 'Open/Update PR not into Prod'
 on:
   workflow_dispatch:
     inputs:
