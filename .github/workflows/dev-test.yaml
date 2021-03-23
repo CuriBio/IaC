@@ -27,7 +27,7 @@ jobs:
             - 3.8 # Eli (3/23/21): the `black` pre-commit hook was having different behavior in Python 3.9, so switching to 3.8 to match dev environment for now
         include:
           - os: "ubuntu-20.04"
-            python-version: "3.9"
+            python-version: 3.8
             IS_FASTEST_JOB: true
     name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
