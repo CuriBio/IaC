@@ -8,13 +8,14 @@ from mypy_boto3_sts import STSClient
 import pytest
 import requests
 
+from .test_dns import fixture_domain_name
+
+__fixtures__ = (fixture_domain_name,)
+
 
 @pytest.fixture(scope="function", name="downloads_bucket_name")
-def fixture_downloads_bucket_name(deployment_tier) -> str:
-    suffix = ""
-    if deployment_tier in ["test", "modl"]:
-        suffix = f"-{deployment_tier}"
-    return f"downloads.curibio{suffix}.com"
+def fixture_downloads_bucket_name(domain_name) -> str:
+    return f"downloads.{domain_name}"
 
 
 def _create_generic_object(
