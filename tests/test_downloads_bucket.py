@@ -42,8 +42,6 @@ def _create_generic_object(
 def When_admin_account_assumes_marketing_role__Then_an_object_can_be_created_and_deleted_in_the_downloads_bucket(
     tf_workspace_name, deployment_tier, deployment_aws_account_id, downloads_bucket_name
 ):
-    print(f"Workspace name in pytest: {tf_workspace_name}")  # allow-print
-    print(f"Determined deployment tier: {deployment_tier}")  # allow-print
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
     # confirm that the client being used to create the object is the admin account
