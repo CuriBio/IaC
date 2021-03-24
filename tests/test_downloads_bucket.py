@@ -39,20 +39,7 @@ def _create_generic_object(
     return {"object": created_object, "contents": obj_contents, "key": obj_key}
 
 
-@pytest.fixture(scope="function", name="Given_an_object_is_in_the_downloads_bucket")
-def fixture_Given_an_object_is_in_the_downloads_bucket(
-    deployment_aws_account_id, downloads_bucket_name
-):
-    object_properties = _create_generic_object(
-        boto3.client("sts"), deployment_aws_account_id, downloads_bucket_name
-    )
-    yield object_properties
-    created_object = object_properties["object"]
-    # since this is a versioned bucket, to completely delete the object, the version ID needs to be specified
-    created_object.delete(VersionId=created_object.version_id)
-
-
-def test_When_admin_account_assumes_marketing_role__Then_an_object_can_be_created_and_deleted_in_the_downloads_bucket(
+def When_admin_account_assumes_marketing_role__Then_an_object_can_be_created_and_deleted_in_the_downloads_bucket(
     tf_workspace_name, deployment_tier, deployment_aws_account_id, downloads_bucket_name
 ):
     print(f"Workspace name in pytest: {tf_workspace_name}")  # allow-print
@@ -72,17 +59,24 @@ def test_When_admin_account_assumes_marketing_role__Then_an_object_can_be_create
     created_object.delete(VersionId=created_object.version_id)
 
 
-class Test__Given_an_object_is_in_the_downloads_bucket:
+class Given_an_object_is_in_the_downloads_bucket:
     # pylint:disable=too-few-public-methods # Eli (3/23/21): trying out this style of having Given as a class wrapping tests that use something in common. Might in future just remove this pylint rule for test suites
     object_properties: Dict[str, Any]
 
     @pytest.fixture(
         autouse=True
     )  # adapted from https://stackoverflow.com/questions/21430900/py-test-skips-test-class-if-constructor-is-defined
-    def _setup(self, Given_an_object_is_in_the_downloads_bucket):
-        self.object_properties = Given_an_object_is_in_the_downloads_bucket
+    def _setup(self, deployment_aws_account_id, downloads_bucket_name):
+        object_properties = _create_generic_object(
+            boto3.client("sts"), deployment_aws_account_id, downloads_bucket_name
+        )
+        self.object_properties = object_properties
+        created_object = object_properties["object"]
+        yield object_properties
+        # since this is a versioned bucket, to completely delete the object, the version ID needs to be specified
+        created_object.delete(VersionId=created_object.version_id)
 
-    def test_When_a_public_http_request_is_sent_for_the_object__Then_it_can_be_accessed(
+    def When_a_public_http_request_is_sent_for_the_object__Then_it_can_be_accessed(
         self, downloads_bucket_name
     ):
         object_properties = self.object_properties
