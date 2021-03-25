@@ -6,6 +6,7 @@ from typing import List
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.python import Function
+import boto3
 import pytest
 
 sys.dont_write_bytecode = True
@@ -75,3 +76,20 @@ def fixture_deployment_tier(tf_workspace_name) -> str:
 def fixture_deployment_aws_account_id(deployment_tier):
     lookup = {"test": "077346344852", "modl": "725604423866", "prod": "245339368379"}
     return lookup[deployment_tier]
+
+
+@pytest.fixture(scope="function", name="boto3_test_session")
+def fixture_boto3_test_session(deployment_aws_account_id):
+    client = boto3.client("sts")
+    assumed_role_object = client.assume_role(
+        RoleArn=f"arn:aws:iam::{deployment_aws_account_id}:role/iac_testing_role",
+        RoleSessionName="a-role-session-name2",
+    )
+    credentials = assumed_role_object["Credentials"]
+    session = boto3.session.Session(
+        aws_access_key_id=credentials["AccessKeyId"],
+        aws_secret_access_key=credentials["SecretAccessKey"],
+        aws_session_token=credentials["SessionToken"],
+        region_name="us-east-1",
+    )
+    yield session

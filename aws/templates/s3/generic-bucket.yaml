@@ -217,4 +217,3 @@ Outputs:
           - "--"
           - - Ref: ExportedBucketNamePrefix
             - "bucket-name"
-
