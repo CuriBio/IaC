@@ -42,6 +42,10 @@ resource "null_resource" "docker_build" {
 resource "null_resource" "docker_tag" {
   depends_on = [aws_ecr_repository.ecr, null_resource.docker_build]
 
+  triggers = {
+    hash = data.external.hash.result["hash"]
+  }
+
   provisioner "local-exec" {
     command = "(cd ${var.image_src} && make tag)"
 
@@ -56,6 +60,10 @@ resource "null_resource" "docker_tag" {
 
 resource "null_resource" "docker_push" {
   depends_on = [null_resource.docker_tag]
+
+  triggers = {
+    hash = data.external.hash.result["hash"]
+  }
 
   provisioner "local-exec" {
     command = "(${path.module}/push.sh)"
