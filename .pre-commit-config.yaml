@@ -54,6 +54,7 @@ repos:
     -   id: check-xml
     -   id: check-merge-conflict
     -   id: check-case-conflict
+    -   id: end-of-file-fixer
 
 -   repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.0  # pick a git hash / tag to point to
