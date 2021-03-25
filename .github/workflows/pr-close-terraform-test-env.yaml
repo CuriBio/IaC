@@ -56,7 +56,7 @@ jobs:
         terraform_version: 0.14.7
 
     - name: 'Terraform destroy PR environment'
-      run: python ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}-${{ github.event.pull_request.number }}" --destroy
+      run: python ./.github/scripts/tf-deploy-env.py --workspace "IaC-${{ github.event.pull_request.number }}" --destroy
 
     - name: 'Terraform apply test environment'
       if: github.event.pull_request.merged == true
