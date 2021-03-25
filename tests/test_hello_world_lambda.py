@@ -7,7 +7,7 @@ import hcl2
 from .fixtures import PATH_TO_INFRA_DIR
 
 
-def When_the_function_is_invoked__Then_it_returns_a_response(
+def When_the_function_is_invoked__Then_it_returns_the_expected_response_payload(
     deployment_tier, tf_workspace_name, deployment_aws_account_id, boto3_test_session
 ):
     with open(
@@ -26,4 +26,4 @@ def When_the_function_is_invoked__Then_it_returns_a_response(
     )
     assert response["StatusCode"] == 200
     extracted_payload = json.loads(response["Payload"].read().decode("utf-8"))
-    print(extracted_payload)  # allow-print
+    assert "Hello from" in extracted_payload
