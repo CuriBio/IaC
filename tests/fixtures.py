@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Global fixtures across the test suite."""
 import os
 
 from stdlib_utils import get_current_file_abs_directory
