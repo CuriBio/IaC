@@ -83,12 +83,12 @@ jobs:
           })
 
     - name: 'Terraform apply'
-      run: python ./.github/scripts/tf-deploy-env.py --workspace "IaC-${{ github.event.pull_request.number }}" --apply
+      run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
 
     - name: Run Tests with randomly generated seed
       if: github.event.inputs.randomlyseed == ''
-      run: pytest -xsvv --tf-workspace-name "IaC-${{ github.event.pull_request.number }}"
+      run: pytest -xsvv --tf-workspace-name "iac-${{ github.event.pull_request.number }}"
 
     - name: Run Tests with supplied pytest-randomly seed
       if: github.event.inputs.randomlyseed != ''
-      run: pytest -xsvv --tf-workspace-name "IaC-${{ github.event.pull_request.number }}" --randomly-seed=${{ github.event.inputs.randomlyseed }}
+      run: pytest -xsvv --tf-workspace-name "iac-${{ github.event.pull_request.number }}" --randomly-seed=${{ github.event.inputs.randomlyseed }}
