@@ -56,6 +56,7 @@ resource "aws_iam_role_policy" "policy" {
           "lambda:DeleteFunction",
           "lambda:GetFunction",
           "lambda:ListVersionsByFunction",
+          "lambda:InvokeFunction",
           "route53:CreateHostedZone",
           "route53:GetChange",
           "route53:GetHostedZone",
