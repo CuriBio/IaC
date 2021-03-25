@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import os
 
 import hcl2
@@ -23,4 +24,6 @@ def When_the_function_is_invoked__Then_it_returns_a_response(
     response = lambda_client.invoke(
         FunctionName=lambda_arn, InvocationType="RequestResponse",
     )
-    print(response)  # allow-print
+    assert response["StatusCode"] == 200
+    extracted_payload = json.loads(response["Payload"].read().decode("utf-8"))
+    print(extracted_payload)  # allow-print
