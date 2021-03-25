@@ -20,7 +20,7 @@ def When_the_function_is_invoked__Then_it_returns_a_response(
     lambda_function_name = tf_info["function_name"][0]
     lambda_function_name = f"{tf_workspace_name}-{lambda_function_name}"
     lambda_arn = f"arn:aws:lambda:us-east-1:{deployment_aws_account_id}:function:{lambda_function_name}"
-    lambda_client = boto3.client("lambda")
+    lambda_client = boto3.client("lambda", region_name="us-east-1")
     response = lambda_client.invoke(
         FunctionName=lambda_arn, InvocationType="RequestResponse",
     )
