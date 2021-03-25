@@ -92,5 +92,3 @@ jobs:
     - name: Run Tests with supplied pytest-randomly seed
       if: github.event.inputs.randomlyseed != ''
       run: pytest -xsvv --tf-workspace-name "${{ github.actor }}-${{ github.event.pull_request.number }}" --randomly-seed=${{ github.event.inputs.randomlyseed }}
-
-
