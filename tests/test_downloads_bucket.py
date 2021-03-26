@@ -1,27 +1,40 @@
 # -*- coding: utf-8 -*-
+import os
 from typing import Any
 from typing import Dict
 import uuid
 
 import boto3
+import hcl2
 from mypy_boto3_sts import STSClient
 import pytest
 import requests
 
+from .fixtures import PATH_TO_INFRA_DIR
+from .test_dns import fixture_domain_name
+
+__fixtures__ = (fixture_domain_name,)
+
 
 @pytest.fixture(scope="function", name="downloads_bucket_name")
-def fixture_downloads_bucket_name(deployment_tier) -> str:
-    suffix = ""
-    if deployment_tier in ["test", "modl"]:
-        suffix = f"-{deployment_tier}"
-    return f"downloads.curibio{suffix}.com"
+def fixture_downloads_bucket_name(domain_name) -> str:
+    return f"downloads.{domain_name}"
 
 
 def _create_generic_object(
     sts_client: STSClient, deployment_account_id: str, downloads_bucket_name: str
 ) -> Dict[str, Any]:
+    with open(
+        os.path.join(PATH_TO_INFRA_DIR, "modules", "curi", "s3_downloads", "iam.tf"),
+        "r",
+    ) as in_file:
+        iam_tf_info = hcl2.load(in_file)
+    role_name = next(iter(iam_tf_info["resource"][0]["aws_iam_role"].values()))["name"][
+        0
+    ]
+
     assumed_role_object = sts_client.assume_role(
-        RoleArn=f"arn:aws:iam::{deployment_account_id}:role/s3_downloads_role",
+        RoleArn=f"arn:aws:iam::{deployment_account_id}:role/{role_name}",
         RoleSessionName="a-role-session-name",
     )
     credentials = assumed_role_object["Credentials"]

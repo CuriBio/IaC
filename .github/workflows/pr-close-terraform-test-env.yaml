@@ -56,7 +56,7 @@ jobs:
         terraform_version: 0.14.7
 
     - name: 'Terraform destroy PR environment'
-      run: python ./.github/scripts/tf-deploy-env.py --workspace "${{ github.actor }}-${{ github.event.pull_request.number }}" --destroy
+      run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --destroy
 
     - name: 'Terraform apply test environment'
       if: github.event.pull_request.merged == true
@@ -64,11 +64,11 @@ jobs:
 
     - name: Run Tests with randomly generated seed
       if: github.event.inputs.randomlyseed == ''
-      run: pytest -xsvv --tf-workspace-name test
+      run: pytest -xsvv tests/ --tf-workspace-name test
 
     - name: Run Tests with supplied pytest-randomly seed
       if: github.event.inputs.randomlyseed != ''
-      run: pytest -xsvv --tf-workspace-name test --randomly-seed=${{ github.event.inputs.randomlyseed }}
+      run: pytest -xsvv tests/ --tf-workspace-name test --randomly-seed=${{ github.event.inputs.randomlyseed }}
 
     - name: 'Terraform apply modl environment'
       if: github.event.pull_request.merged == true
@@ -76,8 +76,8 @@ jobs:
 
     - name: Run Tests with randomly generated seed
       if: github.event.inputs.randomlyseed == ''
-      run: pytest -xsvv --tf-workspace-name modl
+      run: pytest -xsvv tests/ --tf-workspace-name modl
 
     - name: Run Tests with supplied pytest-randomly seed
       if: github.event.inputs.randomlyseed != ''
-      run: pytest -xsvv --tf-workspace-name modl --randomly-seed=${{ github.event.inputs.randomlyseed }}
+      run: pytest -xsvv tests/ --tf-workspace-name modl --randomly-seed=${{ github.event.inputs.randomlyseed }}
