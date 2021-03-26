@@ -21,5 +21,5 @@ def When_an_http_request_is_made_to_company_homepage__Then_it_can_be_accessed(
     assert r.status_code == 200
     assert "Curi Bio" in r.text
     time.sleep(
-        1000
+        1
     )  # Eli (3/26/21): sometimes a 429 throttling error can occur if test suites run too frequently, so adding a delay
