@@ -61,8 +61,8 @@ jobs:
 
     - name: Run Tests with randomly generated seed
       if: github.event.inputs.randomlyseed == ''
-      run: pytest -xsvv --tf-workspace-name prod
+      run: pytest -xsvv tests/ --tf-workspace-name prod
 
     - name: Run Tests with supplied pytest-randomly seed
       if: github.event.inputs.randomlyseed != ''
-      run: pytest -xsvv --tf-workspace-name prod --randomly-seed=${{ github.event.inputs.randomlyseed }}
+      run: pytest -xsvv tests/ --tf-workspace-name prod --randomly-seed=${{ github.event.inputs.randomlyseed }}
