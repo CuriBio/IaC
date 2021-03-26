@@ -86,3 +86,11 @@ jobs:
         run: |
           pre-commit install
           pre-commit run -a
+
+      - name: Run Tests with randomly generated seed
+        if: github.event.inputs.randomlyseed == ''
+        run: pytest -xsvv src/tests/
+
+      - name: Run Tests with supplied pytest-randomly seed
+        if: github.event.inputs.randomlyseed != ''
+        run: pytest -xsvv src/tests/ --randomly-seed=${{ github.event.inputs.randomlyseed }}

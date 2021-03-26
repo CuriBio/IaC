@@ -87,8 +87,8 @@ jobs:
 
     - name: Run Tests with randomly generated seed
       if: github.event.inputs.randomlyseed == ''
-      run: pytest -xsvv --tf-workspace-name "iac-${{ github.event.pull_request.number }}"
+      run: pytest -xsvv tests/ --tf-workspace-name "iac-${{ github.event.pull_request.number }}"
 
     - name: Run Tests with supplied pytest-randomly seed
       if: github.event.inputs.randomlyseed != ''
-      run: pytest -xsvv --tf-workspace-name "iac-${{ github.event.pull_request.number }}" --randomly-seed=${{ github.event.inputs.randomlyseed }}
+      run: pytest -xsvv tests/ --tf-workspace-name "iac-${{ github.event.pull_request.number }}" --randomly-seed=${{ github.event.inputs.randomlyseed }}
