@@ -65,6 +65,8 @@ jobs:
 
       - name: Cache Python dependencies
         uses: actions/cache@v2.1.4
+        env:
+          cache-name: cache-pip
         with:
           path: ~/.cache/pip
           key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('requirements*.txt') }}
