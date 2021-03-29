@@ -63,6 +63,14 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
 
+      - name: Cache Python dependencies
+        uses: actions/cache@v2.1.4
+        with:
+          path: ~/.cache/pip
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('requirements*.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
+
 
       - name: Activate virtual environment (Linux/MacOS)
         if: runner.os == 'Linux' || runner.os == 'macOS'
