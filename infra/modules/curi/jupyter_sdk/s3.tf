@@ -55,7 +55,7 @@ resource "aws_s3_bucket" "jupyter" {
       [{
           "Redirect": {
             "HostName": "mybinder.org",
-            "ReplaceKeyPrefixWith": "v2/gh/curibio/jupyter_sdk/${var.version_tag}?filepath=intro.ipynb"
+            "ReplaceKeyWith": "v2/gh/curibio/jupyter_sdk/${var.version_tag}?filepath=intro.ipynb"
           }
       }]
       EOF
