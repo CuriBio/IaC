@@ -1,13 +1,20 @@
 resource "aws_cloudfront_distribution" "jupyter_sdk_distribution" {
   origin {
-    domain_name = aws_s3_bucket.jupyter.bucket_regional_domain_name
+    domain_name = "jupyter-sdk.${var.hosted_zone}.s3-website-us-east-1.amazonaws.com"
     origin_id   = "website"
+
+    custom_origin_config {
+      origin_protocol_policy = "http-only"
+      http_port = 80
+      https_port = 443
+      origin_ssl_protocols = ["TLSv1.2", "TLSv1.1", "TLSv1"]
+    }
   }
+
 
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Managed by Terraform"
-  default_root_object = "index.html"
 
   aliases = ["jupyter-sdk.${var.hosted_zone}"]
 
@@ -26,7 +33,7 @@ resource "aws_cloudfront_distribution" "jupyter_sdk_distribution" {
 
     viewer_protocol_policy = "allow-all"
     min_ttl                = 0
-    default_ttl            = 3600
+    default_ttl            = 60
     max_ttl                = 86400
   }
 
@@ -54,6 +61,7 @@ resource "aws_s3_bucket" "jupyter" {
     routing_rules = <<EOF
       [{
           "Redirect": {
+            "HttpRedirectCode": "302",
             "HostName": "mybinder.org",
             "ReplaceKeyWith": "v2/gh/curibio/jupyter_sdk/${var.version_tag}?filepath=intro.ipynb"
           }
