@@ -51,6 +51,17 @@ module "downloads" {
 }
 
 
+module "jupyter_notebook" {
+  source = "../modules/curi/jupyter_sdk"
+  count  = contains(["prod", "modl", "test"], terraform.workspace) ? 1 : 0
+
+  hosted_zone    = var.hosted_zone
+  hosted_zone_id = module.downloads[0].hosted_zone_id
+  ssl_cert_arn   = module.downloads[0].ssl_cert_arn
+  version_tag    = "v0.13.2"
+}
+
+
 module "lambda" {
   source = "../modules/curi/lambda"
 
