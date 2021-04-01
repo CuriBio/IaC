@@ -5,16 +5,16 @@ resource "aws_cloudfront_distribution" "jupyter_sdk_distribution" {
 
     custom_origin_config {
       origin_protocol_policy = "http-only"
-      http_port = 80
-      https_port = 443
-      origin_ssl_protocols = ["TLSv1.2", "TLSv1.1", "TLSv1"]
+      http_port              = 80
+      https_port             = 443
+      origin_ssl_protocols   = ["TLSv1.2", "TLSv1.1", "TLSv1"]
     }
   }
 
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Managed by Terraform"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "Managed by Terraform"
 
   aliases = ["jupyter-sdk.${var.hosted_zone}"]
 
