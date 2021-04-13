@@ -52,7 +52,7 @@ jobs:
         pip freeze
 
     - name: Cache Python dependencies
-      uses: actions/cache@v2.1.4
+      uses: actions/cache@v2.1.5
       env:
         cache-name: cache-pip
       with:
