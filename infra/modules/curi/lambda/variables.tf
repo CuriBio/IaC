@@ -1,8 +1,3 @@
-variable "data_bucket" {
-  description = "S3 data ingestion bucket"
-  type        = string
-}
-
 variable "image_name" {
   type        = string
   description = "docker image name"
@@ -26,4 +21,27 @@ variable "function_name" {
 variable "function_description" {
   type        = string
   description = "lambda description"
+}
+
+variable "lambda_env" {
+  type = map
+  description = "lambda env"
+}
+
+variable "allowed_triggers" {
+  type = map
+  description = "triggers"
+  default = {}
+}
+
+variable "lambda_role" {
+  type = string
+  description = "lambda role"
+  default = null
+}
+
+variable "attach_policies" {
+  type = map
+  description = "lambda policies"
+  default = {}
 }

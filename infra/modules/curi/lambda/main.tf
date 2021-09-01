@@ -1,15 +1,15 @@
-resource "aws_s3_bucket" "b" {
-  bucket = var.data_bucket
-  acl    = "private"
+# resource "aws_s3_bucket" "b" {
+#   bucket = var.data_bucket
+#   acl    = "private"
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-}
+#   server_side_encryption_configuration {
+#     rule {
+#       apply_server_side_encryption_by_default {
+#         sse_algorithm = "AES256"
+#       }
+#     }
+#   }
+# }
 
 resource "aws_ecr_repository" "ecr" {
   name                 = var.image_name
@@ -83,9 +83,14 @@ module "lambda_function_container_image" {
 
   function_name = var.function_name
   description   = var.function_description
+  environment_variables = var.lambda_env
 
   create_package = false
 
   image_uri    = "${aws_ecr_repository.ecr.repository_url}:latest"
   package_type = "Image"
+
+  allowed_triggers = var.allowed_triggers
+  attach_policy_statements = true
+  policy_statements = var.attach_policies
 }
