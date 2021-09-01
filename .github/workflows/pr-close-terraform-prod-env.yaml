@@ -76,11 +76,3 @@ jobs:
     - name: 'Terraform apply prod environment'
       if: github.event.pull_request.merged == true
       run: python ./.github/scripts/tf-deploy-env.py --workspace prod --apply
-
-    - name: Run Tests with randomly generated seed
-      if: github.event.inputs.randomlyseed == ''
-      run: pytest -xsvv tests/ --tf-workspace-name prod
-
-    - name: Run Tests with supplied pytest-randomly seed
-      if: github.event.inputs.randomlyseed != ''
-      run: pytest -xsvv tests/ --tf-workspace-name prod --randomly-seed=${{ github.event.inputs.randomlyseed }}
