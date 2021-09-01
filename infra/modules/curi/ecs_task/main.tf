@@ -143,7 +143,7 @@ resource "aws_ecs_service" "aws-ecs-service" {
 
   launch_type          = "FARGATE"
   scheduling_strategy  = "REPLICA"
-  desired_count        = 1
+  desired_count        = 0
 
   force_new_deployment = true
 
