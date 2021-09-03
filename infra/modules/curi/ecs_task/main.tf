@@ -68,11 +68,11 @@ resource "aws_ecs_cluster" "aws-ecs-cluster" {
   name = "${terraform.workspace}-${var.image_name}-cluster"
   tags = {
     Name        = "${terraform.workspace}-${var.image_name}-ecs"
-    #Environment = var.app_environment
   }
 }
 
 resource "aws_ecs_task_definition" "aws-ecs-task" {
+  name                     = "${terraform.workspace}-${var.image_name}-ecs-task"
   family                   = "${terraform.workspace}-${var.image_name}-ecs-task-definition"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -105,10 +105,10 @@ EOF
 
 
 resource "aws_cloudwatch_log_group" "sdk-analysis-logs" {
-  name = "sdk-analysis-test"
+  name = "${terraform.workspace}-sdk-analysis"
 
   tags = {
-    Environment = "test"
+    Environment = terraform.workspace
     Application = "sdk-analysis"
   }
 }
