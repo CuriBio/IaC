@@ -13,9 +13,7 @@ SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
 
 
-logging.basicConfig(
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -44,16 +42,10 @@ if __name__ == "__main__":
 
                             with tempfile.TemporaryDirectory(dir="/tmp") as tmpdir:
                                 try:
-                                    logger.info(
-                                        f"Download to {bucket}/{key} to {tmpdir}/{key}"
-                                    )
-                                    s3_client.download_file(
-                                        bucket, key, f"{tmpdir}/{key}"
-                                    )
+                                    logger.info(f"Download to {bucket}/{key} to {tmpdir}/{key}")
+                                    s3_client.download_file(bucket, key, f"{tmpdir}/{key}")
                                 except Exception as e:
-                                    logger.error(
-                                        f"Failed to download {bucket}/{key}: {e}"
-                                    )
+                                    logger.error(f"Failed to download {bucket}/{key}: {e}")
                                     continue
 
                                 try:
@@ -66,17 +58,13 @@ if __name__ == "__main__":
 
                                 try:
                                     with open(f"{tmpdir}/{file_name}", "rb") as f:
-                                        s3_client.upload_fileobj(
-                                            f, S3_UPLOAD_BUCKET, file_name
-                                        )
+                                        s3_client.upload_fileobj(f, S3_UPLOAD_BUCKET, file_name)
                                 except Exception as e:
                                     logger.error(
                                         f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{file_name}: {e}"
                                     )
 
-                sqs_client.delete_message(
-                    QueueUrl=SQS_URL, ReceiptHandle=message["ReceiptHandle"]
-                )
+                sqs_client.delete_message(QueueUrl=SQS_URL, ReceiptHandle=message["ReceiptHandle"])
         except ClientError:
             logger.exception("receive_message failed")
 

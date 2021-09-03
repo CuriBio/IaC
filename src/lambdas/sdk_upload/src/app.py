@@ -7,9 +7,7 @@ from botocore.exceptions import ClientError
 
 S3_BUCKET = os.environ.get("S3_BUCKET")
 
-logging.basicConfig(
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +27,5 @@ def generate_presigned_url(s3_client, object_key, expires_in):
 def handler(event, context):
     s3_client = boto3.client("s3")
     logger.info(f"event: {event}")
-    url = generate_presigned_url(
-        s3_client, object_key=event["file_name"], expires_in=3600
-    )
+    url = generate_presigned_url(s3_client, object_key=event["file_name"], expires_in=3600)
     return {"status": "ok", "url": url}

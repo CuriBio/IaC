@@ -10,9 +10,7 @@ logger = logging.getLogger(__name__)
 def subprocess_stream(*args, capture=False, **kwargs):
     output = []
     try:
-        with subprocess.Popen(
-            *args, **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        ) as p:
+        with subprocess.Popen(*args, **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as p:
             for line in p.stdout:
                 sys.stdout.buffer.write(line)
                 sys.stdout.flush()
@@ -26,17 +24,12 @@ def subprocess_stream(*args, capture=False, **kwargs):
 
 def main():
     parser = argparse.ArgumentParser(description="tf-deploy-env")
-    parser.add_argument(
-        "--workspace", default="test", type=str, help="Terraform workspace name"
-    )
+    parser.add_argument("--workspace", default="test", type=str, help="Terraform workspace name")
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--destroy", action="store_true")
     parser.add_argument("--no-color", action="store_true")
     parser.add_argument(
-        "--infra_dir",
-        default="./infra/environments/",
-        type=str,
-        help="Terraform infrastructure directory",
+        "--infra_dir", default="./infra/environments/", type=str, help="Terraform infrastructure directory",
     )
     args = parser.parse_args()
 
@@ -44,10 +37,9 @@ def main():
         logger.error(f"Workspace {args.workspace} can't be destroyed")
         sys.exit(1)
 
-    tfvars = "-var-file=" + {
-        "prod": "./prod/terraform.tfvars",
-        "modl": "./modl/terraform.tfvars",
-    }.get(args.workspace, "./test/terraform.tfvars")
+    tfvars = "-var-file=" + {"prod": "./prod/terraform.tfvars", "modl": "./modl/terraform.tfvars"}.get(
+        args.workspace, "./test/terraform.tfvars"
+    )
     shell_args = {"shell": True, "cwd": args.infra_dir, "env": os.environ}
 
     # init terraform and select workspace, create if it doesn't exist
@@ -66,9 +58,7 @@ def main():
 
     if not args.apply:  # plan only
         colorize = "-no-color" if args.no_color else ""
-        subprocess_stream(
-            f"terraform plan {colorize} {tfvars}", capture=True, **shell_args
-        )
+        subprocess_stream(f"terraform plan {colorize} {tfvars}", capture=True, **shell_args)
     else:  # apply infra
         subprocess_stream(f"terraform apply -auto-approve {tfvars}", **shell_args)
 
