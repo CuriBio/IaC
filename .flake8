@@ -3,7 +3,7 @@
 
 # W503 is incompatible with PEP8 (according to https://github.com/ambv/black/issues/43)
 
-max-line-length = 80
+max-line-length = 110
 select = C,E,F,W,B,B950
 ignore = E501,W503
 import-order-style = google
