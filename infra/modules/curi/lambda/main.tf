@@ -81,8 +81,8 @@ module "lambda_function_container_image" {
   depends_on = [null_resource.docker_push]
   source     = "terraform-aws-modules/lambda/aws"
 
-  function_name = var.function_name
-  description   = var.function_description
+  function_name         = var.function_name
+  description           = var.function_description
   environment_variables = var.lambda_env
 
   create_package = false
@@ -90,7 +90,7 @@ module "lambda_function_container_image" {
   image_uri    = "${aws_ecr_repository.ecr.repository_url}:latest"
   package_type = "Image"
 
-  allowed_triggers = var.allowed_triggers
+  allowed_triggers         = var.allowed_triggers
   attach_policy_statements = true
-  policy_statements = var.attach_policies
+  policy_statements        = var.attach_policies
 }

@@ -6,16 +6,16 @@ module "lambda" {
 
   # docker image
   image_name = var.image_name
-  image_src = "../../src/lambdas/sdk_upload"
+  image_src  = "../../src/lambdas/sdk_upload"
 
   # lambda
-  function_name = var.function_name
+  function_name        = var.function_name
   function_description = "Handle sdk data upload"
   # attach_policy = aws_iam_role.policy.arn
   # depends_on = [aws_iam_role_policy_attachment.lambda-attach]
 
   lambda_env = {
-    SQS_NAME = "${terraform.workspace}-sdk-upload-queue",
+    SQS_NAME  = "${terraform.workspace}-sdk-upload-queue",
     S3_BUCKET = var.upload_bucket,
     #REGION = var.aws_region
   }
@@ -36,11 +36,11 @@ module "lambda" {
 }
 
 module "ecs_task" {
-  source = "../ecs_task"
+  source   = "../ecs_task"
   role_arn = var.role_arn
 
   image_name = "sdk_analysis"
-  image_src = "../../src/lambdas/sdk_analysis"
+  image_src  = "../../src/lambdas/sdk_analysis"
 
   task_policy = jsonencode({
     Version = "2012-10-17"
@@ -50,7 +50,7 @@ module "ecs_task" {
           "sqs:ReceiveMessage",
           "sqs:DeleteMessage",
         ]
-        Effect = "Allow"
+        Effect   = "Allow"
         Resource = aws_sqs_queue.sdk_upload_queue.arn
       },
       {
@@ -72,12 +72,12 @@ module "ecs_task" {
 
   task_env = [
     {
-      "name": "SQS_URL",
-      "value": aws_sqs_queue.sdk_upload_queue.url
+      "name" : "SQS_URL",
+      "value" : aws_sqs_queue.sdk_upload_queue.url
     },
     {
-      "name": "S3_UPLOAD_BUCKET",
-      "value": aws_s3_bucket.analyzed_bucket.bucket
+      "name" : "S3_UPLOAD_BUCKET",
+      "value" : aws_s3_bucket.analyzed_bucket.bucket
     }
   ]
 }
@@ -86,7 +86,7 @@ module "ecs_task" {
 # S3 upload bucket
 resource "aws_s3_bucket" "upload_bucket" {
   bucket = var.upload_bucket
-  acl = "private"
+  acl    = "private"
 
   server_side_encryption_configuration {
     rule {
@@ -99,7 +99,7 @@ resource "aws_s3_bucket" "upload_bucket" {
 
 resource "aws_s3_bucket" "analyzed_bucket" {
   bucket = var.analyzed_bucket
-  acl = "private"
+  acl    = "private"
 
   server_side_encryption_configuration {
     rule {
@@ -146,8 +146,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.upload_bucket.id
 
   queue {
-    queue_arn     = aws_sqs_queue.sdk_upload_queue.arn
-    events        = ["s3:ObjectCreated:*"]
+    queue_arn = aws_sqs_queue.sdk_upload_queue.arn
+    events    = ["s3:ObjectCreated:*"]
   }
 }
-

@@ -32,4 +32,3 @@ variable "function_description" {
   type        = string
   description = "lambda description"
 }
-

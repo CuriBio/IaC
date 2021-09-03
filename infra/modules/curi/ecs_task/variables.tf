@@ -14,13 +14,13 @@ variable "role_arn" {
 }
 
 variable "task_env" {
-  type        = list
+  type        = list(any)
   description = "task environment variables"
   default     = []
 }
 
 variable "task_policy" {
-  type = string
+  type        = string
   description = "task role policy"
-  default = ""
+  default     = ""
 }

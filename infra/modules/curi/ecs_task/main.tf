@@ -67,12 +67,11 @@ resource "null_resource" "docker_push" {
 resource "aws_ecs_cluster" "aws-ecs-cluster" {
   name = "${terraform.workspace}-${var.image_name}-cluster"
   tags = {
-    Name        = "${terraform.workspace}-${var.image_name}-ecs"
+    Name = "${terraform.workspace}-${var.image_name}-ecs"
   }
 }
 
 resource "aws_ecs_task_definition" "aws-ecs-task" {
-  name                     = "${terraform.workspace}-${var.image_name}-ecs-task"
   family                   = "${terraform.workspace}-${var.image_name}-ecs-task-definition"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -136,22 +135,22 @@ data "aws_ecs_task_definition" "main" {
 }
 
 resource "aws_ecs_service" "aws-ecs-service" {
-  name                 = "${terraform.workspace}-${var.image_name}-ecs-service"
-  cluster              = aws_ecs_cluster.aws-ecs-cluster.id
-  task_definition      = aws_ecs_task_definition.aws-ecs-task.arn
+  name            = "${terraform.workspace}-${var.image_name}-ecs-service"
+  cluster         = aws_ecs_cluster.aws-ecs-cluster.id
+  task_definition = aws_ecs_task_definition.aws-ecs-task.arn
   #task_definition      = "${aws_ecs_task_definition.aws-ecs-task.family}:${max(aws_ecs_task_definition.aws-ecs-task.revision, data.aws_ecs_task_definition.main.revision)}"
 
-  launch_type          = "FARGATE"
-  scheduling_strategy  = "REPLICA"
-  desired_count        = 0
+  launch_type         = "FARGATE"
+  scheduling_strategy = "REPLICA"
+  desired_count       = 0
 
   force_new_deployment = true
 
   deployment_minimum_healthy_percent = 0
-  deployment_maximum_percent = 200
+  deployment_maximum_percent         = 200
 
   network_configuration {
-    subnets = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
+    subnets          = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
     assign_public_ip = true
   }
 }
