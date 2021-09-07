@@ -6,17 +6,20 @@ locals {
     Environment = "${terraform.workspace}"
   }
 }
+provider "aws" {
+  region = local.region
+}
 resource "aws_db_parameter_group" "parameter_group" {
-  name = "${local.name}-parameter-group"
+  name   = "${local.name}-parameter-group"
   family = "aurora-mysql5.7"
   description = "${local.name}-parameter-group"
-  tags = local.tags
+  tags   = local.tags
 }
 resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
-  name = "${local.name}-cluster-parameter-group"
+  name   = "${local.name}-cluster-parameter-group"
   family = "aurora-mysql5.7"
   description = "${local.name}-cluster-parameter-group"
-  tags = local.tags
+  tags   = local.tags
 }
 # Providing a reference to our default VPC
 resource "aws_default_vpc" "default_vpc" {
