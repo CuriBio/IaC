@@ -94,6 +94,13 @@ module "sdk_analysis" {
   function_description = "SDK upload lambda"
 }
 
+module "api" {
+  source = "../modules/curi/api_gateway"
+
+  sdk_upload_function_name = var.sdk_upload_function_name
+  sdk_upload_invoke_arn    = module.sdk_analysis.invoke_arn
+}
+
 #module "lambda" {
 #  source = "../modules/curi/lambda"
 
