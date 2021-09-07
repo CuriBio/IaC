@@ -86,7 +86,7 @@ module "sdk_analysis" {
   image_name = "${terraform.workspace}-${var.sdk_upload_image_name}"
 
   # s3 buckets
-  upload_bucket = "${terraform.workspace}-${var.upload_bucket}"
+  upload_bucket   = "${terraform.workspace}-${var.upload_bucket}"
   analyzed_bucket = "${terraform.workspace}-${var.analyzed_bucket}"
 
   #lambda

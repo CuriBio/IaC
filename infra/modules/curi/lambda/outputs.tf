@@ -10,5 +10,5 @@ output "ecr_repository_url" {
 
 output "function_arn" {
   description = "lambda function arn"
-  value = module.lambda_function_container_image.lambda_function_arn
+  value       = module.lambda_function_container_image.lambda_function_arn
 }

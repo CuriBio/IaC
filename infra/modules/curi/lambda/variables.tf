@@ -24,24 +24,24 @@ variable "function_description" {
 }
 
 variable "lambda_env" {
-  type = map
+  type        = map(any)
   description = "lambda env"
 }
 
 variable "allowed_triggers" {
-  type = map
+  type        = map(any)
   description = "triggers"
-  default = {}
+  default     = {}
 }
 
 variable "lambda_role" {
-  type = string
+  type        = string
   description = "lambda role"
-  default = null
+  default     = null
 }
 
 variable "attach_policies" {
-  type = map
+  type        = map(any)
   description = "lambda policies"
-  default = {}
+  default     = {}
 }
