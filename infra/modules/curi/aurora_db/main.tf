@@ -31,22 +31,16 @@ resource "aws_default_subnet" "default_subnet_a" {
 resource "aws_default_subnet" "default_subnet_b" {
   availability_zone = "${local.region}b"
 }
-resource "aws_default_subnet" "default_subnet_c" {
-  availability_zone = "${local.region}c"
-}
 module "db" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "~> 3.0"
 
   name                  = local.name
   engine                = "aurora-mysql"
   engine_version        = "5.7.12"
-  instance_type         = "db.t3.small"
-  instance_type_replica = "db.t3.small"
+  instance_type_replica = "db.t2.small"
 
   vpc_id              = aws_default_vpc.default_vpc.id
-  subnets             = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
-  allowed_cidr_blocks = aws_default_vpc.default_vpc.cidr_block
+  subnets             = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
 
   apply_immediately   = true
   skip_final_snapshot = true
