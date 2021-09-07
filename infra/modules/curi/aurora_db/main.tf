@@ -22,8 +22,8 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
   tags        = local.tags
 }
 # Providing a reference to our default VPC
-resource "aws_default_vpc" "default_vpc" {
-}
+resource "aws_default_vpc" "default_vpc" {}
+
 # Providing a reference to our default subnets
 resource "aws_default_subnet" "default_subnet_a" {
   availability_zone = "${local.region}a"
@@ -34,7 +34,7 @@ resource "aws_default_subnet" "default_subnet_b" {
 resource "aws_default_subnet" "default_subnet_c" {
   availability_zone = "${local.region}c"
 }
-module "aurora_db" {
+module "db" {
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "~> 3.0"
 
