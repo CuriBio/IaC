@@ -3,7 +3,7 @@ locals {
   region = "us_east_1"
   tags = {
     Application = "mantarray_db"
-    Environment = "${terraform.workspace}"
+    Environment = terraform.workspace
   }
 }
 provider "aws" {
