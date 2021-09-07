@@ -6,9 +6,9 @@ data_bucket   = "test-data"
 function_name = "hello-lambda2"
 
 # cloud sdk
-upload_bucket = "sdk-upload"
-analyzed_bucket = "sdk-analyzed"
-sdk_upload_image_name = "sdk_upload"
+upload_bucket            = "sdk-upload"
+analyzed_bucket          = "sdk-analyzed"
+sdk_upload_image_name    = "sdk_upload"
 sdk_upload_function_name = "sdk-upload-lambda"
 
 # downloads/dns

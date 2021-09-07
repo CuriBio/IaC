@@ -34,7 +34,7 @@ repos:
     rev: 19.10b0  # pick a git hash / tag to point to
     hooks:
     -   id: black
-
+        args: [--line-length=110]
 
 
 # Safety/Security Issues
