@@ -94,6 +94,10 @@ module "sdk_analysis" {
   function_description = "SDK upload lambda"
 }
 
+module "aurora_database" {
+  source = "../modules/curi/aurora_db"
+}
+
 #module "lambda" {
 #  source = "../modules/curi/lambda"
 
