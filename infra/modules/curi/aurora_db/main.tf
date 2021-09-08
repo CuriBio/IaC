@@ -54,4 +54,3 @@ module "db" {
 
   tags = local.tags
 }
-
