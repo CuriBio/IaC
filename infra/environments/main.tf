@@ -16,6 +16,9 @@ variable "analyzed_bucket" {}
 variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
+#database
+variable "instance_type" {}
+variable "master_username" {}
 
 terraform {
   required_version = ">= 0.14.7"
@@ -96,6 +99,9 @@ module "sdk_analysis" {
 
 module "aurora_database" {
   source = "../modules/curi/aurora_db"
+
+  instance_type = var.instance_type
+  master_username = var.master_username
 }
 
 #module "lambda" {
