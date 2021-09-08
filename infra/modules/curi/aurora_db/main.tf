@@ -1,5 +1,5 @@
 locals {
-  name   = "${terraform.workspace}-mantarray-db"
+  name = "${terraform.workspace}-mantarray-db"
   tags = {
     Application = "mantarray-db"
     Environment = terraform.workspace
