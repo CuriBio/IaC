@@ -58,6 +58,6 @@ module "db" {
 resource "null_resource" "setup_db" {
   depends_on = [module.db] #wait for the db to be ready
   provisioner "local-exec" {
-    command = "mysql -u ${module.db.username} -p ${random_password.master_password.result} -h ${aws_rds_cluster_instance.this.endpoint} < schema.sql"
+    command = "mysql -u ${module.db.username} -p ${random_password.master_password.result} -h ${module.db.aws_rds_cluster.this[0].endpoint} < schema.sql"
   }
 }
