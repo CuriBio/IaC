@@ -9,6 +9,10 @@ locals {
 provider "aws" {
   region = local.region
 }
+
+resource "random_password" "master_password" {
+  length = 10
+}
 resource "aws_db_parameter_group" "parameter_group" {
   name        = "${local.name}-parameter-group"
   family      = "aurora-mysql5.7"
@@ -43,6 +47,7 @@ module "db" {
   apply_immediately = true
 
   username = var.master_username
+  password = random_password.master_password.result
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.cluster_parameter_group.id
