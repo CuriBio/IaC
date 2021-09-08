@@ -39,12 +39,12 @@ module "db" {
   engine_version        = "5.7.mysql_aurora.2.09.2"
   instance_type_replica = var.instance_type
 
-  vpc_id  = aws_default_vpc.default_vpc.id
-  subnets = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
+  vpc_id              = aws_default_vpc.default_vpc.id
+  subnets             = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
   allowed_cidr_blocks = [aws_default_vpc.default_vpc.cidr_block]
 
   replica_count = 1
-  
+
   username = var.master_username
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id

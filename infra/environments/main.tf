@@ -100,7 +100,7 @@ module "sdk_analysis" {
 module "aurora_database" {
   source = "../modules/curi/aurora_db"
 
-  instance_type = var.instance_type
+  instance_type   = var.instance_type
   master_username = var.master_username
 }
 
