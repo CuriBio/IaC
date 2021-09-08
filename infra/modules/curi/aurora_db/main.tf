@@ -34,10 +34,10 @@ resource "aws_default_subnet" "default_subnet_b" {
 module "db" {
   source = "terraform-aws-modules/rds-aurora/aws"
 
-  name                  = local.name
-  engine                = "aurora-mysql"
-  engine_version        = "5.7.mysql_aurora.2.09.2"
-  instance_type_replica = var.instance_type
+  name           = local.name
+  engine         = "aurora-mysql"
+  engine_version = "5.7.mysql_aurora.2.09.2"
+  instance_type  = var.instance_type
 
   vpc_id              = aws_default_vpc.default_vpc.id
   subnets             = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
