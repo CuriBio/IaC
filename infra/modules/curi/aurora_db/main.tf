@@ -25,6 +25,9 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
   description = "${local.name}-cluster-parameter-group"
   tags        = local.tags
 }
+resource "random_password" "master_password" {
+  length = 10
+}
 # Data sources to get VPC and subnets
 data "aws_vpc" "default" {
   default = true
@@ -46,8 +49,9 @@ module "db" {
   replica_count     = 1
   apply_immediately = true
 
-  username = var.master_username
-  password = random_password.master_password.result
+  username               = var.master_username
+  password               = random_password.master_password.result
+  create_random_password = false
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.cluster_parameter_group.id
