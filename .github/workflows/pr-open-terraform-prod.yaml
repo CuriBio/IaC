@@ -99,11 +99,3 @@ jobs:
             repo: context.repo.repo,
             body: output
           })
-
-    - name: Run Tests with randomly generated seed
-      if: github.event.inputs.randomlyseed == ''
-      run: pytest -xsvv tests/ --tf-workspace-name modl
-
-    - name: Run Tests with supplied pytest-randomly seed
-      if: github.event.inputs.randomlyseed != ''
-      run: pytest -xsvv tests/ --tf-workspace-name modl --randomly-seed=${{ github.event.inputs.randomlyseed }}

@@ -10,24 +10,38 @@ variable "hosted_zone" {}
 # squarespace
 variable "sqsp_verification" {}
 
-
-provider "aws" {
-  region = "us-east-1"
-  assume_role {
-    role_arn     = var.role_arn
-    session_name = "terraform"
-  }
-}
+# cloud sdk
+variable "upload_bucket" {}
+variable "analyzed_bucket" {}
+variable "sdk_upload_image_name" {}
+variable "sdk_upload_function_name" {}
 
 
 terraform {
   required_version = ">= 0.14.7"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 3.35.0"
+    }
+  }
+
   backend "s3" {
     bucket         = "curi-infrastructure-state"
     key            = "terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
     dynamodb_table = "terraform-lock-table"
+  }
+}
+
+
+provider "aws" {
+  region = "us-east-1"
+  assume_role {
+    role_arn     = var.role_arn
+    session_name = "terraform"
   }
 }
 
@@ -43,7 +57,7 @@ module "downloads" {
   # squarespace dns verification
   sqsp_verification = var.sqsp_verification
 
-  # account principalsfor role policy of s3 downloads
+  # account principals for role policy of s3 downloads
   principals = [
     "arn:aws:iam::424924102580:root",
     "arn:aws:iam::750030001816:root"
@@ -62,20 +76,42 @@ module "jupyter_notebook" {
 }
 
 
-module "lambda" {
-  source = "../modules/curi/lambda"
+module "sdk_analysis" {
+  source = "../modules/curi/cloud_sdk"
 
   # assume role for docker push
   role_arn = var.role_arn
 
   # docker image
-  image_name = "${terraform.workspace}-${var.image_name}"
-  image_src  = "../../src/lambdas/hello_world"
+  image_name = "${terraform.workspace}-${var.sdk_upload_image_name}"
 
-  # s3 bucket
-  data_bucket = "${terraform.workspace}-${var.data_bucket}"
+  # s3 buckets
+  upload_bucket   = "${terraform.workspace}-${var.upload_bucket}"
+  analyzed_bucket = "${terraform.workspace}-${var.analyzed_bucket}"
 
   #lambda
-  function_name        = "${terraform.workspace}-${var.function_name}"
-  function_description = "Hello world lambda"
+  function_name        = "${terraform.workspace}-${var.sdk_upload_function_name}"
+  function_description = "SDK upload lambda"
 }
+
+#module "lambda" {
+#  source = "../modules/curi/lambda"
+
+#  # assume role for docker push
+#  role_arn = var.role_arn
+
+#  # docker image
+#  image_name = "${terraform.workspace}-${var.image_name}"
+#  image_src  = "../../src/lambdas/hello_world"
+
+#  # s3 bucket
+#  data_bucket = "${terraform.workspace}-${var.data_bucket}"
+
+#  #lambda
+#  function_name        = "${terraform.workspace}-${var.function_name}"
+#  function_description = "Hello world lambda"
+
+#  lambda_env = {
+#    WORKSPACE = terraform.workspace
+#  }
+#}

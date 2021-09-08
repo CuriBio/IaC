@@ -27,8 +27,12 @@ resource "aws_iam_role_policy" "policy" {
       {
         Action = [
           "s3:*",
-          "ec2:DescribeAccountAttributes",
+          "sqs:*",
+          "ec2:*",
           "ecr:*",
+          "ecs:*",
+          "vpc:*",
+          "rds:*",
           "logs:CreateLogGroup",
           "logs:DeleteLogGroup",
           "logs:DescribeLogGroups",
@@ -52,6 +56,7 @@ resource "aws_iam_role_policy" "policy" {
           "iam:ListEntitiesForPolicy",
           "iam:DetachRolePolicy",
           "iam:UpdateAssumeRolePolicy",
+          "iam:TagRole",
           "lambda:CreateFunction",
           "lambda:DeleteFunction",
           "lambda:GetFunction",
@@ -75,48 +80,6 @@ resource "aws_iam_role_policy" "policy" {
           "acm:ListTagsForCertificate",
           "acm:DeleteCertificate",
           "acm:RequestCertificate",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role" "iac_testing_role" {
-  name = "iac_testing_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          AWS = "arn:aws:iam::${var.account_id}:root"
-        }
-        Condition = {}
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "iac_testing_policy" {
-  name = "iac_testing_policy"
-  role = aws_iam_role.iac_testing_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "lambda:GetFunction",
-          "lambda:GetFunctionConfiguration",
-          "lambda:GetAccountSettings",
-          "lambda:ListFunctions",
-          "lambda:ListVersionsByFunction",
-          "lambda:InvokeFunction",
         ]
         Effect   = "Allow"
         Resource = "*"
