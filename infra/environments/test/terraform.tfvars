@@ -18,5 +18,5 @@ hosted_zone = "curibio-test.com"
 sqsp_verification = "e2xgjnsckpkc3lh9jx52"
 
 #database
-instance_type   = "db.t2.small"
+instance_type   = "db.t3.small"
 master_username = "admin"
