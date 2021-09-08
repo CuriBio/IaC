@@ -1,12 +1,13 @@
 locals {
-  name = "${terraform.workspace}-mantarray-db"
+  name   = "${terraform.workspace}-mantarray-db"
+  region = "us-east-1"
   tags = {
     Application = "mantarray-db"
     Environment = terraform.workspace
   }
 }
 provider "aws" {
-  region = "us-east-1"
+  region = local.region
 }
 resource "aws_db_parameter_group" "parameter_group" {
   name        = "${local.name}-parameter-group"
