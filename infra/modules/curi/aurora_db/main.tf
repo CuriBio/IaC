@@ -25,9 +25,7 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
   description = "${local.name}-cluster-parameter-group"
   tags        = local.tags
 }
-resource "random_password" "master_password" {
-  length = 10
-}
+
 # Data sources to get VPC and subnets
 data "aws_vpc" "default" {
   default = true
