@@ -21,9 +21,13 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
   description = "${local.name}-cluster-parameter-group"
   tags        = local.tags
 }
-# Providing a reference to our default VPC
-resource "aws_default_vpc" "default_vpc" {}
-
+# Data sources to get VPC and subnets
+data "aws_vpc" "default" {
+  default = true
+}
+data "aws_subnet_ids" "all" {
+  vpc_id = data.aws_vpc.default.id
+}
 module "db" {
   source = "terraform-aws-modules/rds-aurora/aws"
 
@@ -32,7 +36,8 @@ module "db" {
   engine_version = "5.7.mysql_aurora.2.09.2"
   instance_type  = var.instance_type
 
-  vpc_id = aws_default_vpc.default_vpc.id
+  subnets = data.aws_subnet_ids.all.ids
+  vpc_id  = data.aws_vpc.default.id
 
   replica_count     = 1
   apply_immediately = true
