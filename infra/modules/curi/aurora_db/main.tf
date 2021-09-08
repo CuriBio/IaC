@@ -1,6 +1,6 @@
 locals {
   name   = "${terraform.workspace}-mantarray-db"
-  region = "us-east-1"
+  region = "us-east-2"
   tags = {
     Application = "mantarray-db"
     Environment = terraform.workspace
@@ -55,9 +55,3 @@ module "db" {
   tags = local.tags
 }
 
-resource "null_resource" "setup_db" {
-  depends_on = [module.db] #wait for the db to be ready
-  provisioner "local-exec" {
-    command = "mysql -u ${module.db.username} -p ${random_password.master_password.result} -h ${module.db.aws_rds_cluster.this[0].endpoint} < schema.sql"
-  }
-}
