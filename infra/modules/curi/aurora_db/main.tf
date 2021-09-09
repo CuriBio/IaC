@@ -12,6 +12,7 @@ provider "aws" {
 
 resource "random_password" "master_password" {
   length = 10
+  override_special = "/ @"
 }
 resource "aws_db_parameter_group" "parameter_group" {
   name        = "${local.name}-parameter-group"
