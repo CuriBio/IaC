@@ -76,6 +76,9 @@ resource "null_resource" "setup_db" {
     }
     connection {
       password = "testingDBsetup1234"
+      host     = module.db.rds_cluster_instance_endpoints[0]
+      user     = module.db.rds_cluster_master_username
+      port     = module.db.rds_cluster_port
     }
   }
 }
