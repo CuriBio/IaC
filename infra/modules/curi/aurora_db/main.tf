@@ -72,12 +72,10 @@ resource "null_resource" "setup_db" {
       USERNAME = module.db.rds_cluster_master_username
       HOST     = module.db.rds_cluster_instance_endpoints[0]
       PORT     = module.db.rds_cluster_port
-    }
-  }
-  provisioner "local-exec" {
-    command = "$PASSWORD"
-    environment = {
       PASSWORD = "testingDBsetup1234"
+    }
+    connection {
+      password = "testingDBsetup1234"
     }
   }
 }
