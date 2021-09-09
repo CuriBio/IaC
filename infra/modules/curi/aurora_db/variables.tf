@@ -3,15 +3,14 @@ variable "instance_type" {
   type        = string
 }
 
-variable "master_username" {
+variable "db_username" {
   description = "RDS username"
   type        = string
   sensitive   = true
 }
 
-variable "master_password" {
+variable "db_password" {
   description = "RDS password"
   type        = string
-  default     = "testDBsetup1234"
   sensitive   = true
 }

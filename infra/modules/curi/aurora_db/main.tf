@@ -5,7 +5,7 @@ locals {
     Environment = terraform.workspace
   }
 }
-resource "random_password" "master_password" {
+resource "random_password" "db_password" {
   length  = 10
   special = false
 }
@@ -53,8 +53,8 @@ module "db" {
   replica_count     = 1
   apply_immediately = true
 
-  username               = var.master_username
-  password               = var.master_password
+  username               = var.db_username
+  password               = var.db_password
   create_random_password = false
   publicly_accessible    = true
 
@@ -69,10 +69,10 @@ resource "null_resource" "setup_db" {
   provisioner "local-exec" {
     command = "mysql -u $USERNAME -h $HOST -P $PORT --password=$PASSWORD < ${path.module}/schema.sql;"
     environment = {
-      USERNAME = var.master_username
+      USERNAME = var.db_username
       HOST     = module.db.rds_cluster_instance_endpoints[0]
       PORT     = module.db.rds_cluster_port
-      PASSWORD = var.master_password
+      PASSWORD = var.db_password
     }
   }
 }
