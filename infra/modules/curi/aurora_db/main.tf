@@ -56,7 +56,6 @@ module "db" {
   username               = var.db_username
   password               = var.db_password
   create_random_password = false
-  publicly_accessible    = true
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.cluster_parameter_group.id
@@ -72,7 +71,7 @@ resource "null_resource" "setup_db" {
       USERNAME = var.db_username
       HOST     = module.db.rds_cluster_instance_endpoints[0]
       PORT     = module.db.rds_cluster_port
-      PASSWORD = var.db_password
+      PASSWORD = sensitive(var.db_password)
     }
   }
 }
