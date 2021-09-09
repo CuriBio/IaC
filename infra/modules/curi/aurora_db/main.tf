@@ -67,7 +67,10 @@ module "db" {
 resource "null_resource" "setup_db" {
   depends_on = [module.db]
   provisioner "local-exec" {
-    command = "mysql -u $USERNAME -p $PASSWORD -h $HOST -P $PORT < ${path.module}/schema.sql"
+    command = <<EOT
+          mysql -u $USERNAME -p -h $HOST -P $PORT < ${path.module}/schema.sql
+          $PASSWORD
+          EOT
 
     environment = {
       USERNAME = module.db.rds_cluster_master_username
