@@ -1,15 +1,10 @@
 locals {
-  name   = "${terraform.workspace}-mantarray-db"
-  region = "us-east-1"
+  name = "${terraform.workspace}-mantarray-db"
   tags = {
     Application = "mantarray-db"
     Environment = terraform.workspace
   }
 }
-provider "aws" {
-  region = local.region
-}
-
 resource "random_password" "master_password" {
   length  = 10
   special = false
