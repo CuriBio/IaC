@@ -54,7 +54,7 @@ module "db" {
   apply_immediately = true
 
   username               = var.master_username
-  password               = "testingDBsetup1234"
+  password               = var.master_password
   create_random_password = false
   publicly_accessible    = true
 
@@ -69,10 +69,10 @@ resource "null_resource" "setup_db" {
   provisioner "local-exec" {
     command = "mysql -u $USERNAME -h $HOST -P $PORT --password=$PASSWORD < ${path.module}/schema.sql;"
     environment = {
-      USERNAME = module.db.rds_cluster_master_username
+      USERNAME = var.username
       HOST     = module.db.rds_cluster_instance_endpoints[0]
       PORT     = module.db.rds_cluster_port
-      PASSWORD = "testingDBsetup1234"
+      PASSWORD = var.master_password
     }
   }
 }
