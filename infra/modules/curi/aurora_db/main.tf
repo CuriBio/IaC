@@ -65,15 +65,15 @@ module "db" {
 }
 
 resource "null_resource" "setup_db" {
-  depends_on = [module.db, output.rds_cluster_instance_endpoints, output.rds_cluster_port, random_password.master_password]
+  depends_on = [module.db.username, module.db.rds_cluster_instance_endpoints, module.db.rds_cluster_port]
   provisioner "local-exec" {
     command = "mysql -u $USERNAME -p $PASSWORD -h $HOST -P $PORT < ${path.module}/schema.sql"
 
     environment = {
       USERNAME = module.db.username
       PASSWORD = "testingDBsetup1234"
-      HOST     = output.rds_cluster_instance_endpoints[0]
-      PORT     = output.rds_cluster_port
+      HOST     = module.db.rds_cluster_instance_endpoints[0]
+      PORT     = module.db.rds_cluster_port
     }
   }
 }
