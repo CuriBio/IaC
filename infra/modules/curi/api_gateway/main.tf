@@ -15,6 +15,15 @@ resource "aws_apigatewayv2_api" "example" {
 #   }
 # }
 
+
+resource "aws_cloudwatch_log_group" "api_gw" {
+  name = "${terraform.workspace}/aws/api_gw/${aws_apigatewayv2_api.example.name}"
+  tags = {
+    Environment = terraform.workspace
+    Application = "api-gw"
+  }
+}
+
 resource "aws_iam_role" "iam_for_lambda" {
   name = "${terraform.workspace}-iam_for_lambda"
 
@@ -62,4 +71,22 @@ resource "aws_apigatewayv2_stage" "example" {
   api_id      = aws_apigatewayv2_api.example.id
   name        = "${terraform.workspace}-example-stage"
   auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gw.arn
+
+    format = jsonencode({
+      requestId               = "$context.requestId"
+      sourceIp                = "$context.identity.sourceIp"
+      requestTime             = "$context.requestTime"
+      protocol                = "$context.protocol"
+      httpMethod              = "$context.httpMethod"
+      resourcePath            = "$context.resourcePath"
+      routeKey                = "$context.routeKey"
+      status                  = "$context.status"
+      responseLength          = "$context.responseLength"
+      integrationErrorMessage = "$context.integrationErrorMessage"
+      }
+    )
+  }
 }
