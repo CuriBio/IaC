@@ -68,7 +68,7 @@ resource "null_resource" "setup_db" {
   provisioner "local-exec" {
     command = "mysql -u $USERNAME -h $HOST -P $PORT --password=$PASSWORD < ${path.module}/schema.sql;"
     environment = {
-      USERNAME = var.db_username
+      USERNAME = format(var.db_username)
       HOST     = module.db.rds_cluster_instance_endpoints[0]
       PORT     = module.db.rds_cluster_port
       PASSWORD = format(var.db_password)
