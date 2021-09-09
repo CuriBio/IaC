@@ -52,7 +52,7 @@ module "db" {
   instance_type  = var.instance_type
 
   subnets = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
-  vpc_id  = aws_default_subnet.default_vpc.id
+  vpc_id  = aws_default_vpc.default_vpc.id
 
   replica_count     = 1
   apply_immediately = true
