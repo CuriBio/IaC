@@ -59,6 +59,7 @@ resource "aws_apigatewayv2_route" "example" {
 }
 
 resource "aws_apigatewayv2_stage" "example" {
-  api_id = aws_apigatewayv2_api.example.id
-  name   = "${terraform.workspace}-example-stage"
+  api_id      = aws_apigatewayv2_api.example.id
+  name        = "${terraform.workspace}-example-stage"
+  auto_deploy = true
 }
