@@ -67,16 +67,17 @@ module "db" {
 resource "null_resource" "setup_db" {
   depends_on = [module.db]
   provisioner "local-exec" {
-    command = <<EOT
-          mysql -u $USERNAME -p -h $HOST -P $PORT < ${path.module}/schema.sql;
-          $PASSWORD
-          EOT
-
+    command = "mysql -u $USERNAME -p -h $HOST -P $PORT < ${path.module}/schema.sql;"
     environment = {
       USERNAME = module.db.rds_cluster_master_username
-      PASSWORD = "testingDBsetup1234"
       HOST     = module.db.rds_cluster_instance_endpoints[0]
       PORT     = module.db.rds_cluster_port
+    }
+  }
+  provisioner "local-exec" {
+    command = "$PASSWORD"
+    environment = {
+      PASSWORD = "testingDBsetup1234"
     }
   }
 }
