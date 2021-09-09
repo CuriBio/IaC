@@ -12,6 +12,6 @@ variable "master_username" {
 variable "master_password" {
   description = "RDS password"
   type        = string
-  value       = "testDBsetup1234"
+  default     = "testDBsetup1234"
   sensitive   = true
 }
