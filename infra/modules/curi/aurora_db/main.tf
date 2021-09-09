@@ -66,7 +66,7 @@ module "db" {
 resource "null_resource" "setup_db" {
   depends_on = [module.db]
   provisioner "local-exec" {
-    command = "MYSQL_PWD=$PASSWORD mysql -u $USERNAME -h $HOST -P $PORT < ${path.module}/schema.sql;"
+    command = "mysql -u $USERNAME -h $HOST -P $PORT -p$PASSWORD< ${path.module}/schema.sql;"
     environment = {
       USERNAME = format(var.db_username)
       HOST     = module.db.rds_cluster_instance_endpoints[0]
