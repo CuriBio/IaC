@@ -71,7 +71,7 @@ resource "null_resource" "setup_db" {
       USERNAME = var.db_username
       HOST     = module.db.rds_cluster_instance_endpoints[0]
       PORT     = module.db.rds_cluster_port
-      PASSWORD = sensitive(var.db_password)
+      PASSWORD = format(var.db_password)
     }
   }
 }
