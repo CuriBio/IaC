@@ -26,13 +26,23 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
   tags        = local.tags
 }
 
-# Data sources to get VPC and subnets
-data "aws_vpc" "default" {
-  default = true
+# Providing a reference to our default VPC
+resource "aws_default_vpc" "default_vpc" {
 }
-data "aws_subnet_ids" "all" {
-  vpc_id = data.aws_vpc.default.id
+
+# Providing a reference to our default subnets
+resource "aws_default_subnet" "default_subnet_a" {
+  availability_zone = "us-east-1a"
 }
+
+resource "aws_default_subnet" "default_subnet_b" {
+  availability_zone = "us-east-1b"
+}
+
+resource "aws_default_subnet" "default_subnet_c" {
+  availability_zone = "us-east-1c"
+}
+
 module "db" {
   source = "terraform-aws-modules/rds-aurora/aws"
 
@@ -41,8 +51,8 @@ module "db" {
   engine_version = "5.7.mysql_aurora.2.09.2"
   instance_type  = var.instance_type
 
-  subnets = data.aws_subnet_ids.all.ids
-  vpc_id  = data.aws_vpc.default.id
+  subnets = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
+  vpc_id  = aws_default_subnet.default_vpc.id
 
   replica_count     = 1
   apply_immediately = true
