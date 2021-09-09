@@ -68,7 +68,7 @@ resource "null_resource" "setup_db" {
   depends_on = [module.db]
   provisioner "local-exec" {
     command = <<EOT
-          mysql -u $USERNAME -p -h $HOST -P $PORT < ${path.module}/schema.sql
+          mysql -u $USERNAME -p -h $HOST -P $PORT < ${path.module}/schema.sql;
           $PASSWORD
           EOT
 
