@@ -12,5 +12,5 @@ export AWS_SECRET_ACCESS_KEY=$(echo $SESSION | jq -r ".Credentials.SecretAccessK
 unset AWS_SESSION_TOKEN
 export AWS_SESSION_TOKEN=$(echo $SESSION | jq -r ".Credentials.SessionToken")
 
-aws ecr get-login-password --region us-east-1 | docker login --password-stdin --username AWS $ECR_REPO
+aws ecr ≈ --region us-east-1 | docker login --password-stdin --username AWS $ECR_REPO
 docker push $ECR_REPO:"$TAG"
