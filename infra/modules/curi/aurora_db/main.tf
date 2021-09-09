@@ -54,11 +54,26 @@ module "db" {
   apply_immediately = true
 
   username               = var.master_username
-  password               = random_password.master_password.result
+  password               = "testingDBsetup1234"
   create_random_password = false
+  publicly_accessible    = true
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.cluster_parameter_group.id
 
   tags = local.tags
+}
+
+resource "null_resource" "setup_db" {
+  depends_on = [module.db, output.rds_cluster_instance_endpoints, output.rds_cluster_port, random_password.master_password]
+  provisioner "local-exec" {
+    command = "mysql -u $USERNAME -p $PASSWORD -h $HOST -P $PORT < ${path.module}/schema.sql"
+
+    environment = {
+      USERNAME = module.db.username
+      PASSWORD = "testingDBsetup1234"
+      HOST     = output.rds_cluster_instance_endpoints[0]
+      PORT     = output.rds_cluster_port
+    }
+  }
 }
