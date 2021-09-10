@@ -50,7 +50,7 @@ module "db" {
   subnets                             = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
   vpc_id                              = aws_default_vpc.default_vpc.id
   iam_database_authentication_enabled = true
-  iam_roles                           = [aws_iam_role.dbConnectRole]
+  iam_roles                           = [aws_iam_role.dbConnectRole.assume_role_policy]
 
   replica_count     = 1
   apply_immediately = true
