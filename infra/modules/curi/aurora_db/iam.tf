@@ -10,6 +10,10 @@ data "aws_iam_policy_document" "assume_role_policy" {
   statement {
     actions = ["rds-db:connect"]
     effect  = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:rds-db:us-east-1:077346344852:dbuser:cluster-CHFYU2HG6ZHXEYTJK5CWZZFRWQ/*"]
+    }
   }
 }
 
