@@ -46,7 +46,7 @@ resource "aws_security_group" "rds" {
 resource "aws_security_group_rule" "ingress_cidr_blocks" {
   description       = "Allow inbound traffic from CIDR blocks"
   type              = "ingress"
-  from_port         = 0
+  from_port         = 3306
   to_port           = 3306
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
