@@ -74,7 +74,6 @@ module "db" {
   vpc_id                              = aws_default_vpc.default_vpc.id
   allowed_security_groups             = [aws_security_group.rds.id]
   iam_database_authentication_enabled = true
-  iam_roles                           = [var.role_arn]
 
   replica_count     = 1
   apply_immediately = true
