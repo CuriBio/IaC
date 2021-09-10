@@ -73,6 +73,7 @@ module "db" {
   subnets                 = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
   vpc_id                  = aws_default_vpc.default_vpc.id
   allowed_security_groups = [aws_security_group.rds.id]
+  iam_database_authentication_enabled = true
 
   replica_count     = 1
   apply_immediately = true
