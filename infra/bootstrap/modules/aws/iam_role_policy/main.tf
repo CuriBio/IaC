@@ -33,10 +33,7 @@ resource "aws_iam_role_policy" "policy" {
           "ecs:*",
           "vpc:*",
           "rds:*",
-          "logs:CreateLogGroup",
-          "logs:DeleteLogGroup",
-          "logs:DescribeLogGroups",
-          "logs:ListTagsLogGroup",
+          "logs:*",
           "iam:CreateRole",
           "iam:PassRole",
           "iam:CreatePolicy",
@@ -57,6 +54,7 @@ resource "aws_iam_role_policy" "policy" {
           "iam:DetachRolePolicy",
           "iam:UpdateAssumeRolePolicy",
           "iam:TagRole",
+          "iam:CreateServiceLinkedRole",
           "lambda:CreateFunction",
           "lambda:DeleteFunction",
           "lambda:GetFunction",
@@ -80,6 +78,7 @@ resource "aws_iam_role_policy" "policy" {
           "acm:ListTagsForCertificate",
           "acm:DeleteCertificate",
           "acm:RequestCertificate",
+          "apigateway:*",
         ]
         Effect   = "Allow"
         Resource = "*"
