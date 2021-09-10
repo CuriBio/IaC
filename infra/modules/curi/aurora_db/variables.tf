@@ -14,3 +14,8 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "role_arn" {
+  type        = string
+  description = "role arn w/permission to assume role"
+}
