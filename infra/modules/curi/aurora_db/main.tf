@@ -49,7 +49,7 @@ resource "aws_security_group_rule" "ingress_cidr_blocks" {
   from_port         = 3306
   to_port           = 3306
   protocol          = "tcp"
-  cidr_blocks       = aws_default_vpc.default_vpc.cidr_block
+  cidr_blocks       = [aws_default_vpc.default_vpc.cidr_block]
   security_group_id = aws_security_group.rds.id
 }
 
