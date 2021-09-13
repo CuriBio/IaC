@@ -23,6 +23,14 @@ resource "aws_cloudwatch_log_group" "api_gw" {
   }
 }
 
+# resource "aws_cloudwatch_log_group" "sdk_upload" {
+#   name = "/aws/lambda/${terraform.workspace}-${var.sdk_upload_function_name}"
+#   tags = {
+#     Environment = terraform.workspace
+#     Application = "sdk-upload"
+#   }
+# }
+
 resource "aws_lambda_permission" "lambda_permission" {
   statement_id  = "AllowSDKUploadAPIInvoke"
   action        = "lambda:InvokeFunction"
