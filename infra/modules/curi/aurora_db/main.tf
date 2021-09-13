@@ -71,8 +71,8 @@ module "db" {
   engine_version = "5.7.mysql_aurora.2.09.2"
   instance_type  = var.instance_type
 
-  subnets = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
-  vpc_id  = aws_default_vpc.default_vpc.id
+  subnets                = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
+  vpc_id                 = aws_default_vpc.default_vpc.id
   vpc_security_group_ids = [aws_default_vpc.default_vpc.default_security_group_id]
 
   replica_count       = 2
