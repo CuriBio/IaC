@@ -15,13 +15,23 @@ resource "aws_apigatewayv2_api" "example" {
 #   }
 # }
 
-
 resource "aws_cloudwatch_log_group" "api_gw" {
   name = "${terraform.workspace}/aws/api_gw/${aws_apigatewayv2_api.example.name}"
   tags = {
     Environment = terraform.workspace
     Application = "api-gw"
   }
+}
+
+resource "aws_lambda_permission" "lambda_permission" {
+  statement_id  = "AllowSDKUploadAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = "${terraform.workspace}-${var.sdk_upload_function_name}"
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/*/* part allows invocation from any stage, method and resource path
+  # within API Gateway.
+  source_arn = "${aws_apigatewayv2_api.example.execution_arn}/*/*/*"
 }
 
 resource "aws_iam_role" "iam_for_lambda" {
