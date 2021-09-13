@@ -49,7 +49,7 @@ resource "aws_security_group_rule" "ingress_cidr_blocks" {
   from_port         = 3306
   to_port           = 3306
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = aws_default_vpc.default_vpc.cidr_block
   security_group_id = aws_security_group.rds.id
 }
 
@@ -70,13 +70,12 @@ module "db" {
   engine_version = "5.7.mysql_aurora.2.09.2"
   instance_type  = var.instance_type
 
-  subnets                             = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id, aws_default_subnet.default_subnet_c.id]
+  subnets                             = [aws_default_subnet.default_subnet_a.id]
   vpc_id                              = aws_default_vpc.default_vpc.id
-  allowed_security_groups             = [aws_security_group.rds.id]
-  iam_database_authentication_enabled = true
 
   replica_count     = 1
   apply_immediately = true
+  skip_final_snapshot = true
 
   username               = var.db_username
   password               = var.db_password
