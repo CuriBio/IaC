@@ -34,6 +34,8 @@ resource "aws_iam_role_policy" "policy" {
           "vpc:*",
           "rds:*",
           "logs:*",
+          "lambda:*",
+          "apigateway:*",
           "iam:CreateRole",
           "iam:PassRole",
           "iam:CreatePolicy",
@@ -55,10 +57,6 @@ resource "aws_iam_role_policy" "policy" {
           "iam:UpdateAssumeRolePolicy",
           "iam:TagRole",
           "iam:CreateServiceLinkedRole",
-          "lambda:CreateFunction",
-          "lambda:DeleteFunction",
-          "lambda:GetFunction",
-          "lambda:ListVersionsByFunction",
           "route53:CreateHostedZone",
           "route53:GetChange",
           "route53:GetHostedZone",
@@ -78,7 +76,6 @@ resource "aws_iam_role_policy" "policy" {
           "acm:ListTagsForCertificate",
           "acm:DeleteCertificate",
           "acm:RequestCertificate",
-          "apigateway:*",
         ]
         Effect   = "Allow"
         Resource = "*"
