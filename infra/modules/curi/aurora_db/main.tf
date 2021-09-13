@@ -70,11 +70,11 @@ module "db" {
   engine_version = "5.7.mysql_aurora.2.09.2"
   instance_type  = var.instance_type
 
-  subnets                             = [aws_default_subnet.default_subnet_a.id]
-  vpc_id                              = aws_default_vpc.default_vpc.id
+  subnets = [aws_default_subnet.default_subnet_a.id]
+  vpc_id  = aws_default_vpc.default_vpc.id
 
-  replica_count     = 1
-  apply_immediately = true
+  replica_count       = 1
+  apply_immediately   = true
   skip_final_snapshot = true
 
   username               = var.db_username

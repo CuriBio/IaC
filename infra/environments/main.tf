@@ -104,7 +104,6 @@ module "aurora_database" {
   instance_type = var.instance_type
   db_username   = var.db_username
   db_password   = var.db_password
-  role_arn      = var.role_arn
 
 }
 
