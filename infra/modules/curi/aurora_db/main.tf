@@ -44,7 +44,7 @@ resource "aws_security_group" "rds" {
 
 
 resource "aws_security_group_rule" "ingress_cidr_blocks" {
-  description       = "Allow inbound traffic from CIDR blocks"
+  description       = "Allow all inbound traffic"
   type              = "ingress"
   from_port         = 3306
   to_port           = 3306
@@ -81,23 +81,9 @@ module "db" {
   username               = var.db_username
   password               = var.db_password
   create_random_password = false
-  publicly_accessible    = true
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.cluster_parameter_group.id
 
   tags = local.tags
-}
-
-resource "null_resource" "setup_db" {
-  depends_on = [module.db]
-  provisioner "local-exec" {
-    command = "mysql -u $USERNAME -h $HOST -P $PORT -p$PASSWORD < ${path.module}/schema.sql;"
-    environment = {
-      USERNAME = format(var.db_username)
-      HOST     = module.db.rds_cluster_instance_endpoints[0]
-      PORT     = module.db.rds_cluster_port
-      PASSWORD = format(var.db_password)
-    }
-  }
 }
