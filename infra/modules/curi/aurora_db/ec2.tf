@@ -42,8 +42,9 @@ resource "null_resource" "ssh_ec2_connection" {
       "sudo yum install mysql-community-server",
       "sudo systemctl enable mysqld",
       "sudo systemctl start mysqld",
-      "mysql -u ${format(var.db_username)} -p${format(var.db_password)} -h ${module.db.rds_cluster_instance_endpoints[0]} -P ${module.db.rds_cluster_port}",
-      "create database if not exists ec2_test;"
+      "mysql -u ${format(var.db_username)} -p${format(var.db_password)} -h ${module.db.rds_cluster_instance_endpoints[0]} -P ${module.db.rds_cluster_port} < ${path.module}/schema.sql;",
     ]
   }
+
+  tags = local.tags
 }
