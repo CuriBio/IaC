@@ -25,7 +25,7 @@ resource "aws_instance" "ec2" {
 }
 
 resource "null_resource" "ssh_ec2_connection" {
-  depends_on = [aws_instance.ec2.public_ip, tls_private_key.test_db_key]
+  depends_on = [aws_instance.ec2, tls_private_key.test_db_key]
   connection {
     type        = "ssh"
     host        = aws_instance.ec2.public_ip
