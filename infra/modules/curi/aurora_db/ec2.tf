@@ -45,6 +45,4 @@ resource "null_resource" "ssh_ec2_connection" {
       "mysql -u ${format(var.db_username)} -p${format(var.db_password)} -h ${module.db.rds_cluster_instance_endpoints[0]} -P ${module.db.rds_cluster_port} < ${path.module}/schema.sql;",
     ]
   }
-
-  tags = local.tags
 }
