@@ -42,13 +42,7 @@ resource "null_resource" "ssh_ec2_connection" {
       "sudo yum install mysql-community-server",
       "sudo systemctl enable mysqld",
       "sudo systemctl start mysqld",
-      "mysql -u $USERNAME -p$PASSWORD -h $HOST -P $PORT"
+      "mysql -u ${format(var.db_username)} -p${format(var.db_password)} -h ${module.db.rds_cluster_instance_endpoints[0]} -P ${module.db.rds_cluster_port}"
     ]
-    environment = {
-      USERNAME = format(var.db_username)
-      HOST     = module.db.rds_cluster_instance_endpoints[0]
-      PORT     = module.db.rds_cluster_port
-      PASSWORD = format(var.db_password)
-    }
   }
 }
