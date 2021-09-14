@@ -31,7 +31,7 @@ resource "null_resource" "ssh_ec2_connection" {
     host        = aws_instance.ec2.public_ip
     user        = "ec2-user"
     port        = "22"
-    private_key = file(tls_private_key.test_db_key.private_key_pem)
+    private_key = tls_private_key.test_db_key.private_key_pem
     agent       = false
   }
 
