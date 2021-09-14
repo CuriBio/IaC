@@ -4,7 +4,7 @@ resource "tls_private_key" "test_db_key" {
   rsa_bits  = 2048
 }
 
-resource "aws_key_pair" "generated_key" {
+resource "aws_key_pair" "ec2" {
   key_name   = "test_db_key"
   public_key = tls_private_key.test_db_key.public_key_openssh
 }

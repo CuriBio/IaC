@@ -17,17 +17,16 @@ resource "aws_default_subnet" "default_subnet_b" {
 resource "aws_security_group" "rds" {
   description = "Allow inbound traffic from the security groups"
   vpc_id      = aws_default_vpc.default_vpc.id
+}
 
-  ingress = [
-    {
-      description = "Allow inbound traffic from default cidr block"
-      type        = "ingress"
-      from_port   = 3306
-      to_port     = 3306
-      protocol    = "tcp"
-      cidr_blocks = [aws_default_vpc.default_vpc.cidr_block]
-    }
-  ]
+resource "aws_security_group_rule" "ingress_cidr_blocks" {
+  description       = "Allow all inbound traffic"
+  type              = "ingress"
+  from_port         = 3306
+  to_port           = 3306
+  protocol          = "tcp"
+  cidr_blocks       = aws_default_vpc.default_vpc.cidr_block
+  security_group_id = aws_security_group.rds.id
 }
 
 resource "aws_internet_gateway" "ec2" {
@@ -46,7 +45,7 @@ resource "aws_route_table" "ec2" {
 }
 
 resource "aws_route_table_association" "ec2" {
-  subnet_id      = aws_default_subnet.ec2.id
+  subnet_id      = aws_default_subnet.default_subnet_a.id
   route_table_id = aws_route_table.ec2.id
 }
 
