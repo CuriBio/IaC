@@ -16,9 +16,7 @@ resource "aws_instance" "ec2" {
   key_name                    = aws_key_pair.ec2.key_name
   subnet_id                   = aws_default_subnet.default_subnet_a.id
 
-  vpc_security_group_ids = [
-    aws_security_group.ec2.id,
-  ]
+  vpc_security_group_ids = [aws_security_group.ec2.id]
 
   tags = local.tags
 
