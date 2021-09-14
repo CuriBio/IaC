@@ -29,26 +29,6 @@ resource "aws_security_group_rule" "ingress_cidr_blocks" {
   security_group_id = aws_security_group.rds.id
 }
 
-resource "aws_internet_gateway" "ec2" {
-  vpc_id = aws_default_vpc.default_vpc.id
-
-  tags = local.tags
-}
-
-resource "aws_route_table" "ec2" {
-  vpc_id = aws_default_vpc.default_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.ec2.id
-  }
-}
-
-resource "aws_route_table_association" "ec2" {
-  subnet_id      = aws_default_subnet.default_subnet_a.id
-  route_table_id = aws_route_table.ec2.id
-}
-
 resource "aws_security_group" "ec2" {
   name   = "ec2_sg"
   vpc_id = aws_default_vpc.default_vpc.id
