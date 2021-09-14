@@ -1,1 +1,1 @@
-CREATE DATABASE IF NOT EXISTS test_schema;
+CREATE DATABASE test_schema;

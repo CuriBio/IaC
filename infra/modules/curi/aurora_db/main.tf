@@ -30,8 +30,9 @@ module "db" {
   subnets                = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
   vpc_id                 = aws_default_vpc.default_vpc.id
   vpc_security_group_ids = [aws_default_vpc.default_vpc.default_security_group_id]
+  create_security_group  = false
 
-  replica_count       = 2
+  replica_count       = 1
   apply_immediately   = true
   skip_final_snapshot = true
 
