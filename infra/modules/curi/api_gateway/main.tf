@@ -1,35 +1,27 @@
-resource "aws_apigatewayv2_api" "example" {
-  name          = "${terraform.workspace}-example"
+resource "aws_apigatewayv2_api" "lambda_gw" {
+  name          = "${terraform.workspace}-lambda-gw"
   protocol_type = "HTTP"
 }
 
-# resource "aws_apigatewayv2_authorizer" "example" {
-#   api_id           = aws_apigatewayv2_api.example.id
+# resource "aws_apigatewayv2_authorizer" "lambda_gw_auth" {
+#   api_id           = aws_apigatewayv2_api.lambda_gw.id
 #   authorizer_type  = "JWT"
 #   identity_sources = ["$request.header.Authorization"]
-#   name             = "example-authorizer"
+#   name             = "${terraform.workspace}-lambda-gw-authorizer"
 
 #   jwt_configuration {
-#     audience = ["example"]
-#     issuer   = "https://${aws_cognito_user_pool.example.endpoint}"
+#     audience = ["TODO"]
+#     issuer   = "https://${aws_cognito_user_pool.TODO.endpoint}"
 #   }
 # }
 
 resource "aws_cloudwatch_log_group" "api_gw" {
-  name = "${terraform.workspace}/aws/api_gw/${aws_apigatewayv2_api.example.name}"
+  name = "/aws/api_gw/${aws_apigatewayv2_api.lambda_gw.name}"
   tags = {
     Environment = terraform.workspace
     Application = "api-gw"
   }
 }
-
-# resource "aws_cloudwatch_log_group" "sdk_upload" {
-#   name = "/aws/lambda/${terraform.workspace}-${var.sdk_upload_function_name}"
-#   tags = {
-#     Environment = terraform.workspace
-#     Application = "sdk-upload"
-#   }
-# }
 
 resource "aws_lambda_permission" "lambda_permission" {
   statement_id  = "AllowSDKUploadAPIInvoke"
@@ -37,13 +29,12 @@ resource "aws_lambda_permission" "lambda_permission" {
   function_name = "${terraform.workspace}-${var.sdk_upload_function_name}"
   principal     = "apigateway.amazonaws.com"
 
-  # The /*/*/* part allows invocation from any stage, method and resource path
-  # within API Gateway.
-  source_arn = "${aws_apigatewayv2_api.example.execution_arn}/*/*/*"
+  # The /*/*/* part allows invocation from any stage, method and resource path within API Gateway.
+  source_arn = "${aws_apigatewayv2_api.lambda_gw.execution_arn}/*/*/*"
 }
 
 resource "aws_iam_role" "iam_for_lambda" {
-  name = "${terraform.workspace}-iam_for_lambda"
+  name = "${terraform.workspace}-iam-for-lambda"
 
   assume_role_policy = <<EOF
 {
@@ -67,27 +58,27 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_apigatewayv2_integration" "example" {
-  api_id           = aws_apigatewayv2_api.example.id
+resource "aws_apigatewayv2_integration" "sdk_upload_integration" {
+  api_id           = aws_apigatewayv2_api.lambda_gw.id
   integration_type = "AWS_PROXY"
 
   connection_type      = "INTERNET"
-  description          = "Lambda example"
+  description          = "SDK Upload Integration"
   integration_method   = "POST"
   integration_uri      = var.sdk_upload_invoke_arn
   passthrough_behavior = "WHEN_NO_MATCH"
 }
 
-resource "aws_apigatewayv2_route" "example" {
-  api_id    = aws_apigatewayv2_api.example.id
-  route_key = "POST /example/{proxy+}"
+resource "aws_apigatewayv2_route" "sdk_upload" {
+  api_id    = aws_apigatewayv2_api.lambda_gw.id
+  route_key = "POST /sdk_upload"
 
-  target = "integrations/${aws_apigatewayv2_integration.example.id}"
+  target = "integrations/${aws_apigatewayv2_integration.sdk_upload_integration.id}"
 }
 
-resource "aws_apigatewayv2_stage" "example" {
-  api_id      = aws_apigatewayv2_api.example.id
-  name        = "${terraform.workspace}-example-stage"
+resource "aws_apigatewayv2_stage" "lambda_gw_stage" {
+  api_id      = aws_apigatewayv2_api.lambda_gw.id
+  name        = "${terraform.workspace}-lambda-gw-stage"
   auto_deploy = true
 
   access_log_settings {
