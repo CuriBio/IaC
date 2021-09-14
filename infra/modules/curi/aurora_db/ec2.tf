@@ -31,7 +31,7 @@ resource "null_resource" "ssh_ec2_connection" {
     port        = "22"
     private_key = tls_private_key.test_db_key.private_key_pem
     agent       = false
-    timeout     = "60s"
+    timeout     = "30s"
   }
 
   provisioner "remote-exec" {
