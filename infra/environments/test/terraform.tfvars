@@ -16,3 +16,9 @@ hosted_zone = "curibio-test.com"
 
 # squarespace dns
 sqsp_verification = "e2xgjnsckpkc3lh9jx52"
+
+
+#database
+instance_type = "db.t3.small"
+db_username   = "admin"
+db_password   = "testDBsetup1234"
