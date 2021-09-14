@@ -51,22 +51,22 @@ resource "aws_route_table_association" "ec2" {
 }
 
 resource "aws_security_group" "ec2" {
-  name = "ec2_sg"
+  name   = "ec2_sg"
   vpc_id = aws_default_vpc.default_vpc.id
 
   # SSH access from the VPC
   ingress {
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-      from_port   = 80
-      to_port     = 80
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {

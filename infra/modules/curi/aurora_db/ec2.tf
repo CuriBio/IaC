@@ -10,7 +10,7 @@ resource "aws_key_pair" "generated_key" {
 }
 
 resource "aws_instance" "ec2" {
-  ami = "ami-087c17d1fe0178315"
+  ami                         = "ami-087c17d1fe0178315"
   associate_public_ip_address = true
   instance_type               = "t2.micro"
   key_name                    = aws_key_pair.ec2.key_name
