@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sys
@@ -20,7 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def generate_presigned_url(s3_client, object_key, expires_in):
+def generate_presigned_params(s3_client, object_key, expires_in):
     try:
         url = s3_client.generate_presigned_post(
             S3_BUCKET, object_key, Fields=None, Conditions=None, ExpiresIn=expires_in
@@ -35,8 +36,11 @@ def generate_presigned_url(s3_client, object_key, expires_in):
 
 def handler(event, context):
     s3_client = boto3.client("s3")
-    print("print sanity check")  # allow-print
-    logger.info("logger sanity check")
     logger.info(f"event: {event}")
-    url = generate_presigned_url(s3_client, object_key=event["file_name"], expires_in=3600)
-    return {"status": "ok", "url": url}
+    file_name = json.loads(event["body"])["file_name"]
+    presigned_params = generate_presigned_params(s3_client, object_key=file_name, expires_in=3600)
+    return {
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"presigned_params": presigned_params}),
+    }
