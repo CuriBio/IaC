@@ -25,7 +25,7 @@ resource "aws_instance" "ec2" {
 }
 
 resource "null_resource" "ssh_ec2_connection" {
-  depends_on = [aws_instance.ec2, tls_private_key.test_db_key]
+  depends_on = [aws_instance.ec2, tls_private_key.test_db_key, module.db]
   connection {
     type        = "ssh"
     host        = aws_instance.ec2.public_ip
@@ -38,6 +38,17 @@ resource "null_resource" "ssh_ec2_connection" {
   provisioner "remote-exec" {
     inline = [
       "sudo yum update -y",
+      "sudo rpm -Uvh https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm",
+      "sudo yum install mysql-community-server",
+      "sudo systemctl enable mysqld",
+      "sudo systemctl start mysqld",
+      "mysql -u $USERNAME -p$PASSWORD -h $HOST -P $PORT"
     ]
+    environment = {
+      USERNAME = format(var.db_username)
+      HOST     = module.db.rds_cluster_instance_endpoints[0]
+      PORT     = module.db.rds_cluster_port
+      PASSWORD = format(var.db_password)
+    }
   }
 }
