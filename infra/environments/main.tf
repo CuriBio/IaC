@@ -16,6 +16,10 @@ variable "analyzed_bucket" {}
 variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
+#database
+variable "instance_type" {}
+variable "db_username" {}
+variable "db_password" {}
 
 terraform {
   required_version = ">= 0.14.7"
@@ -99,6 +103,14 @@ module "api" {
 
   sdk_upload_function_name = var.sdk_upload_function_name
   sdk_upload_invoke_arn    = module.sdk_analysis.invoke_arn
+}
+
+module "aurora_database" {
+  source = "../modules/curi/aurora_rds"
+
+  instance_type = var.instance_type
+  db_username   = var.db_username
+  db_password   = var.db_password
 }
 
 #module "lambda" {
