@@ -71,6 +71,7 @@ jobs:
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 0.14.7
+        terraform_wrapper: false
 
     - name: 'Create Environment'
       id: tfenv
@@ -101,4 +102,10 @@ jobs:
           })
 
     - name: 'Terraform apply'
+      id: tfapply
       run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
+
+    - name: Call TF output
+      run: |
+        output=$(terraform output rds_cluster_instance_endpoints)
+        echo $output
