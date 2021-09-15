@@ -1,5 +1,8 @@
 locals {
   name = "${terraform.workspace}-mantarray-rds"
+  db_creds = jsondecode(
+    data.aws_secretsmanager_secret_version.creds.secret_string
+  )
   tags = {
     Application = "mantarray-rds"
     Environment = terraform.workspace
@@ -18,6 +21,13 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
   tags        = local.tags
 }
 
+data "aws_secretsmanager_secret" "DBsecrets" {
+  name = "db-creds"
+}
+
+data "aws_secretsmanager_secret_version" "creds" {
+  secret_id = data.aws_secretsmanager_secret.DBsecrets.arn
+}
 
 module "rds" {
   source = "terraform-aws-modules/rds-aurora/aws"
@@ -36,8 +46,8 @@ module "rds" {
   apply_immediately   = true
   skip_final_snapshot = true
 
-  username               = var.db_username
-  password               = var.db_password
+  username               = local.db_creds.username
+  password               = local.db_creds.password
   create_random_password = false
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
