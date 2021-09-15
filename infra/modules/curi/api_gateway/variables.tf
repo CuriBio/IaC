@@ -34,6 +34,16 @@ variable "sdk_upload_invoke_arn" {
   description = "sdk upload lambda function invoke arn"
 }
 
+variable "get_sdk_status_function_name" {
+  type        = string
+  description = "get SDK status lambda name"
+}
+
+variable "get_sdk_status_invoke_arn" {
+  type        = string
+  description = "get SDK status function invoke arn"
+}
+
 
 # variable "function_description" {
 #   type        = string

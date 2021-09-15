@@ -16,6 +16,10 @@ variable "analyzed_bucket" {}
 variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
+# upload/analysis status
+variable "get_sdk_status_image_name" {}
+variable "get_sdk_status_function_name" {}
+
 
 terraform {
   required_version = ">= 0.14.7"
@@ -94,31 +98,27 @@ module "sdk_analysis" {
   function_description = "SDK upload lambda"
 }
 
+
+module "get_sdk_status" {
+  source = "../modules/curi/get_sdk_status"
+
+  # assume role for docker push
+  role_arn = var.role_arn
+
+  # docker image
+  image_name = "${terraform.workspace}-${var.get_sdk_status_image_name}"
+
+  #lambda
+  function_name        = "${terraform.workspace}-${var.get_sdk_status_function_name}"
+  function_description = "Upload/analysis status lambda"
+}
+
+
 module "api" {
   source = "../modules/curi/api_gateway"
 
-  sdk_upload_function_name = var.sdk_upload_function_name
-  sdk_upload_invoke_arn    = module.sdk_analysis.invoke_arn
+  sdk_upload_function_name     = var.sdk_upload_function_name
+  sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn
+  get_sdk_status_function_name = var.get_sdk_status_function_name
+  get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
 }
-
-#module "lambda" {
-#  source = "../modules/curi/lambda"
-
-#  # assume role for docker push
-#  role_arn = var.role_arn
-
-#  # docker image
-#  image_name = "${terraform.workspace}-${var.image_name}"
-#  image_src  = "../../src/lambdas/hello_world"
-
-#  # s3 bucket
-#  data_bucket = "${terraform.workspace}-${var.data_bucket}"
-
-#  #lambda
-#  function_name        = "${terraform.workspace}-${var.function_name}"
-#  function_description = "Hello world lambda"
-
-#  lambda_env = {
-#    WORKSPACE = terraform.workspace
-#  }
-#}
