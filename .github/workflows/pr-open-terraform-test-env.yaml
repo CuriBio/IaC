@@ -107,5 +107,5 @@ jobs:
 
     - name: Call TF output
       run: |
-        output=$(terraform output rds_cluster_instance_endpoints)
+        output=$(terraform output test_iam_role_arn)
         echo $output
