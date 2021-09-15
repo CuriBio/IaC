@@ -102,10 +102,9 @@ jobs:
           })
 
     - name: 'Terraform apply'
-      id: tfapply
       run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
 
     - name: Call TF output
       run: |
-        output=$(terraform output test_iam_role_arn)
+        output=$(terraform output)
         echo $output
