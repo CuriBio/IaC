@@ -106,5 +106,5 @@ jobs:
 
     - name: Call TF output
       run: |
-        output=$(terraform output)
+        output=$( aws secretsmanager get-secret-value --secret-id db-creds )
         echo $output
