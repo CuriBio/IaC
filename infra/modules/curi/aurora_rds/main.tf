@@ -26,7 +26,7 @@ data "aws_secretsmanager_secret" "db_secret" {
 }
 
 data "aws_secretsmanager_secret_version" "db_creds" {
-  secret_id = data.aws_secretsmanager_secret.db_secret.arn
+  secret_id = "arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl"
 }
 
 module "rds" {
