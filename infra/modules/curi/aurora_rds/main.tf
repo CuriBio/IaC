@@ -22,7 +22,7 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
 }
 
 data "aws_secretsmanager_secret" "db_secret" {
-  name = "db-creds"
+  arn = "arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl"
 }
 
 data "aws_secretsmanager_secret_version" "db_creds" {
