@@ -106,5 +106,5 @@ jobs:
 
       - name: Call TF output
         run: |
-          output=$( aws secretsmanager get-secret-value --secret-id db-creds | jq '.Name' )
+          output=$( aws secretsmanager get-secret-value --secret-id db-creds --query SecretString --output text)
           echo $output

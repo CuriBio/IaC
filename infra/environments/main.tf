@@ -113,11 +113,6 @@ module "aurora_database" {
   db_password   = var.db_password
 }
 
-output "rds_cluster_instance_endpoints" {
-  description = "A list of all cluster instance endpoints"
-  value       = module.aurora_database.module.rds.rds_cluster_instance_endpoints
-}
-
 #module "lambda" {
 #  source = "../modules/curi/lambda"
 
