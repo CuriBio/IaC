@@ -106,7 +106,7 @@ jobs:
       - name: 'Terraform apply'
         run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
 
-      - name: Call Terraform outputs
+      - name: Call AWS
         run: |
           output=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password )
           echo $output
