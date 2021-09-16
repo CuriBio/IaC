@@ -15,6 +15,10 @@ sdk_upload_function_name = "sdk-upload-lambda"
 get_sdk_status_image_name    = "get_sdk_status"
 get_sdk_status_function_name = "get-sdk-status"
 
+# auth
+get_auth_image_name    = "get-auth"
+get_auth_function_name = "get-auth"
+
 # downloads/dns
 hosted_zone = "curibio.com"
 

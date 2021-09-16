@@ -20,6 +20,10 @@ variable "sdk_upload_function_name" {}
 variable "get_sdk_status_image_name" {}
 variable "get_sdk_status_function_name" {}
 
+# auth
+variable "get_auth_image_name" {}
+variable "get_auth_function_name" {}
+
 
 terraform {
   required_version = ">= 0.14.7"
@@ -93,7 +97,7 @@ module "sdk_analysis" {
   upload_bucket   = "${terraform.workspace}-${var.upload_bucket}"
   analyzed_bucket = "${terraform.workspace}-${var.analyzed_bucket}"
 
-  #lambda
+  # lambda
   function_name        = "${terraform.workspace}-${var.sdk_upload_function_name}"
   function_description = "SDK upload lambda"
 }
@@ -108,9 +112,25 @@ module "get_sdk_status" {
   # docker image
   image_name = "${terraform.workspace}-${var.get_sdk_status_image_name}"
 
-  #lambda
+  # lambda
   function_name        = "${terraform.workspace}-${var.get_sdk_status_function_name}"
   function_description = "Upload/analysis status lambda"
+}
+
+
+# TODO: this
+module "get_sdk_status" {
+  source = "../modules/curi/get_auth"
+
+  # assume role for docker push
+  role_arn = var.role_arn
+
+  # docker image
+  image_name = "${terraform.workspace}-${var.get_get_auth_image_name}"
+
+  # lambda
+  function_name        = "${terraform.workspace}-${var.get_auth_function_name}"
+  function_description = "Get auth tokens lambda"
 }
 
 

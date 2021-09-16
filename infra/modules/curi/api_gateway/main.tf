@@ -127,10 +127,39 @@ resource "aws_apigatewayv2_integration" "get_sdk_status_integration" {
   passthrough_behavior = "WHEN_NO_MATCH"
 }
 
-resource "aws_lambda_permission" "sdk_upload_lambda_permission" {
-  statement_id  = "AllowSDKUploadAPIInvoke"
+resource "aws_lambda_permission" "sdk_status_lambda_permission" {
+  statement_id  = "AllowSDKStatusAPIInvoke"
   action        = "lambda:InvokeFunction"
   function_name = "${terraform.workspace}-${var.get_sdk_status_function_name}"
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/*/* part allows invocation from any stage, method and resource path within API Gateway.
+  source_arn = "${aws_apigatewayv2_api.lambda_gw.execution_arn}/*/*/*"
+}
+
+
+resource "aws_apigatewayv2_route" "get_auth" {
+  api_id    = aws_apigatewayv2_api.lambda_gw.id
+  route_key = "POST /get_auth"
+
+  target = "integrations/${aws_apigatewayv2_integration.get_auth_integration.id}"
+}
+
+resource "aws_apigatewayv2_integration" "get_auth_integration" {
+  api_id           = aws_apigatewayv2_api.lambda_gw.id
+  integration_type = "AWS_PROXY"
+
+  connection_type      = "INTERNET"
+  description          = "Get auth integration"
+  integration_method   = "POST"
+  integration_uri      = var.get_auth_invoke_arn
+  passthrough_behavior = "WHEN_NO_MATCH"
+}
+
+resource "aws_lambda_permission" "get_auth_lambda_permission" {
+  statement_id  = "AllowGetAuthAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = "${terraform.workspace}-${var.get_auth_function_name}"
   principal     = "apigateway.amazonaws.com"
 
   # The /*/*/* part allows invocation from any stage, method and resource path within API Gateway.
