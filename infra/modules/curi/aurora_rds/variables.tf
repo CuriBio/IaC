@@ -14,9 +14,3 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
-
-variable "key_pair_name" {
-  description = "RDS password"
-  default     = "db_key_pair"
-  sensitive   = true
-}
