@@ -108,5 +108,7 @@ jobs:
 
       - name: Call AWS secrets
         run: |
-          output=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password )
-          echo $output
+          DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password )
+          DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .username )
+
+          echo $DB_USERNAME
