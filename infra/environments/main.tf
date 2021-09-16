@@ -118,19 +118,20 @@ module "get_sdk_status" {
 }
 
 
-# TODO: this
-module "get_sdk_status" {
+module "get_auth" {
   source = "../modules/curi/get_auth"
 
   # assume role for docker push
   role_arn = var.role_arn
 
   # docker image
-  image_name = "${terraform.workspace}-${var.get_get_auth_image_name}"
+  image_name = "${terraform.workspace}-${var.get_auth_image_name}"
 
   # lambda
   function_name        = "${terraform.workspace}-${var.get_auth_function_name}"
   function_description = "Get auth tokens lambda"
+
+  client_id = module.api.cognito_pool_client_id
 }
 
 
@@ -141,4 +142,6 @@ module "api" {
   sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn
   get_sdk_status_function_name = var.get_sdk_status_function_name
   get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
+  get_auth_function_name       = var.get_auth_function_name
+  get_auth_invoke_arn          = module.get_auth.invoke_arn
 }

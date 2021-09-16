@@ -17,3 +17,8 @@ variable "function_description" {
   type        = string
   description = "lambda description"
 }
+
+variable "client_id" {
+  type        = string
+  description = "cognito user pool client ID"
+}

@@ -7,6 +7,17 @@ resource "aws_cognito_user_pool" "lambda_gw_pool" {
   name = "${terraform.workspace}-lambda-gw-pool"
 }
 
+resource "aws_cognito_user_pool_client" "lambda_gw_pool_client" {
+  name = "${terraform.workspace}-lambda-gw-pool-client"
+
+  user_pool_id = aws_cognito_user_pool.lambda_gw_pool.id
+
+  # allowed_oauth_flows_user_pool_client = true
+  # allowed_oauth_flows - (Optional) List of allowed OAuth flows (code, implicit, client_credentials).
+  # allowed_oauth_scopes - (Optional) List of allowed OAuth scopes (phone, email, openid, profile, and aws.cognito.signin.user.admin).
+  explicit_auth_flows = ["USER_PASSWORD_AUTH"]
+}
+
 resource "aws_apigatewayv2_authorizer" "lambda_gw_auth" {
   api_id           = aws_apigatewayv2_api.lambda_gw.id
   authorizer_type  = "JWT"
@@ -14,8 +25,8 @@ resource "aws_apigatewayv2_authorizer" "lambda_gw_auth" {
   name             = "${terraform.workspace}-lambda-gw-authorizer"
 
   jwt_configuration {
-    # audience = ["example"]
-    issuer = "https://${aws_cognito_user_pool.lambda_gw_pool.endpoint}"
+    audience = [aws_apigatewayv2_stage.lambda_gw_stage.invoke_url]
+    issuer   = "https://${aws_cognito_user_pool.lambda_gw_pool.endpoint}"
   }
 }
 

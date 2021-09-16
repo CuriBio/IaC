@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import sys
 
 import boto3
@@ -23,7 +24,7 @@ def get_tokens(username: str, password: str):
     response = client.initiate_auth(
         AuthFlow="USER_PASSWORD_AUTH",
         AuthParameters={"USERNAME": username, "PASSWORD": password},
-        ClientId="TODO",
+        ClientId=os.getenv("COGNITO_USER_POOL_CLIENT_ID"),
     )
 
     # response = {

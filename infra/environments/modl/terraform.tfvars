@@ -15,7 +15,7 @@ get_sdk_status_image_name    = "get_sdk_status"
 get_sdk_status_function_name = "get-sdk-status"
 
 # auth
-get_auth_image_name    = "get-auth"
+get_auth_image_name    = "get_auth"
 get_auth_function_name = "get-auth"
 
 # downloads/dns
