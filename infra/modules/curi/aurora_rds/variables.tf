@@ -17,6 +17,6 @@ variable "db_password" {
 
 variable "key_pair_name" {
   description = "RDS password"
-  value       = "db_key_pair"
+  default     = "db_key_pair"
   sensitive   = true
 }
