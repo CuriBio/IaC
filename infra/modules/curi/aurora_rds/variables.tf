@@ -14,3 +14,9 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "key_pair_name" {
+  description = "RDS password"
+  value       = "db_key_pair"
+  sensitive   = true
+}
