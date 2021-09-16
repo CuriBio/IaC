@@ -106,8 +106,20 @@ jobs:
       - name: 'Terraform apply'
         run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
 
-      - name: Call AWS secrets
+      - name: Setup SSH Key
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          KEY: ${{ aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' | jq -r .private_key }}
         run: |
-          DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password )
-          DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .username )
-          DB_PUBLIC_KEY=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' | jq -r .public_key )
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< $KEY
+      - name: SSH into EC2
+        env:
+          HOST: 3.15.196.238
+          USERNAME: ec2-user
+          KEY: ${{ aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' | jq -r .private_key }}
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          DB_PASSWORD: ${{ aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password }}
+          DB_USERNAME: ${{ aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .username }}
+        run: |
+          echo $DB_USERNAME
