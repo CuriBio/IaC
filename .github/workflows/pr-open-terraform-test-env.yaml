@@ -123,4 +123,4 @@ jobs:
           KEY=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' )
           DB_HOST=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .host )
 
-          ssh -o StrictHostKeyChecking=no $USERNAME@ec2-54-226-191-183.compute-1.amazonaws.com "${ mysql -u $DB_USERNAME -p$DB_PASSWORD -h $HOST -e 'CREATE DATABASE test_db;' }"
+          ssh -o StrictHostKeyChecking=no $USERNAME@ec2-54-226-191-183.compute-1.amazonaws.com <<EOF #!/bin/bash mysql -u $DB_USERNAME -p$DB_PASSWORD -h $HOST -e 'CREATE DATABASE test_db;' EOF
