@@ -21,6 +21,19 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
   tags        = local.tags
 }
 
+# Providing a reference to our default VPC
+resource "aws_default_vpc" "default_vpc" {}
+
+# Providing a reference to our default subnets
+resource "aws_default_subnet" "default_subnet_a" {
+  availability_zone = "us-east-1a"
+}
+
+resource "aws_default_subnet" "default_subnet_b" {
+  availability_zone = "us-east-1b"
+}
+
+
 data "aws_secretsmanager_secret" "db_secret" {
   name = "db-creds"
 }
@@ -39,7 +52,7 @@ module "rds" {
 
   subnets                = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
   vpc_id                 = aws_default_vpc.default_vpc.id
-  vpc_security_group_ids = [aws_default_vpc.default_vpc.default_security_group_id, aws_security_group.rds.id]
+  vpc_security_group_ids = [aws_default_vpc.default_vpc.default_security_group_id]
   create_security_group  = false
 
   replica_count       = 1

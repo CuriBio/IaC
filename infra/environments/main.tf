@@ -18,9 +18,6 @@ variable "sdk_upload_function_name" {}
 
 #database
 variable "instance_type" {}
-variable "db_username" {}
-variable "db_password" {}
-
 terraform {
   required_version = ">= 0.14.7"
 
@@ -109,8 +106,6 @@ module "aurora_database" {
   source = "../modules/curi/aurora_rds"
 
   instance_type = var.instance_type
-  db_username   = var.db_username
-  db_password   = var.db_password
 }
 
 #module "lambda" {
