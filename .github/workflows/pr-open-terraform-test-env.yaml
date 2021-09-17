@@ -124,4 +124,4 @@ jobs:
           KEY=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' )
           REAL_HOST=$( aws ec2 describe-instances --filters "Name=tag-value, Values=mantarray-rds" --query "Reservations[*].Instances[*]" | jq --raw-output '.[0][0].PublicDnsName' )
 
-          ssh -o StrictHostKeyChecking=no $DB_USERNAME@$HOST
+          ssh -o StrictHostKeyChecking=no $USERNAME@$HOST
