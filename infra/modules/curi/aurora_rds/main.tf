@@ -43,7 +43,7 @@ data "aws_secretsmanager_secret_version" "db_creds" {
 }
 
 resource "tls_private_key" "test_key" {
-  key_name = "test_key"
+  algorithm = "RSA"
 }
 
 module "rds" {
