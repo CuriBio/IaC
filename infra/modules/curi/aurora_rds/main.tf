@@ -42,6 +42,10 @@ data "aws_secretsmanager_secret_version" "db_creds" {
   secret_id = data.aws_secretsmanager_secret.db_secret.arn
 }
 
+resource "tls_private_key" "test_key" {
+  key_name = "test_key"
+}
+
 module "rds" {
   source = "terraform-aws-modules/rds-aurora/aws"
 
