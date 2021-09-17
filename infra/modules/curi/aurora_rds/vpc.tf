@@ -11,7 +11,7 @@ resource "aws_default_subnet" "default_subnet_b" {
 }
 
 resource "aws_security_group" "rds" {
-  name   = "rds_sg"
+  name   = "${terraform.workspace}-rds_sg"
   vpc_id = aws_default_vpc.default_vpc.id
   ingress {
     from_port   = 3306

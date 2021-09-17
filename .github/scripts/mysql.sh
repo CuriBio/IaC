@@ -1,2 +1,4 @@
 #!/bin/bash
-echo $username hi
+set -ex
+
+echo example

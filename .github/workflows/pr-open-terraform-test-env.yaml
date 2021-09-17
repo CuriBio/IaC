@@ -123,4 +123,4 @@ jobs:
           KEY=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' )
           HOST=$( aws ec2 describe-instances --filters "Name=tag-value, Values=mantarray-rds" --query "Reservations[*].Instances[*]" | jq --raw-output '.[0][0].PublicDnsName' )
 
-          ssh -o StrictHostKeyChecking=no $USERNAME@ec2-35-171-16-87.compute-1.amazonaws.com  "bash -s" < ./.github/scripts/mysql.sh "$USERNAME"
+          ssh -o StrictHostKeyChecking=no $USERNAME@ec2-35-171-16-87.compute-1.amazonaws.com  "bash -s" < ./.github/scripts/mysql.sh
