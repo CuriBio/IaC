@@ -25,7 +25,7 @@ resource "aws_apigatewayv2_authorizer" "lambda_gw_auth" {
   name             = "${terraform.workspace}-lambda-gw-authorizer"
 
   jwt_configuration {
-    audience = [aws_apigatewayv2_stage.lambda_gw_stage.invoke_url]
+    audience = [aws_cognito_user_pool_client.lambda_gw_pool_client.id]
     issuer   = "https://${aws_cognito_user_pool.lambda_gw_pool.endpoint}"
   }
 }
