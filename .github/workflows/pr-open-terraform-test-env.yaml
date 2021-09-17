@@ -112,7 +112,7 @@ jobs:
         run: |
           KEY=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq '.SecretString' )
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-          ssh-add $KEY
+          ssh-add - <<< "${KEY}"
       - name: SSH into EC2
         env:
           USERNAME: ec2-user
