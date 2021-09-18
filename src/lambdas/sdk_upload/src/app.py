@@ -23,15 +23,15 @@ logger = logging.getLogger(__name__)
 
 def generate_presigned_params(s3_client, object_key, expires_in):
     try:
-        url = s3_client.generate_presigned_post(
+        params = s3_client.generate_presigned_post(
             S3_BUCKET, object_key, Fields=None, Conditions=None, ExpiresIn=expires_in
         )
-        logger.info(f"Got presigned URL: {url}")
+        logger.info(f"Got presigned URL params: {params}")
     except ClientError:
-        logger.exception("Couldn't get a presigned URL")
+        logger.exception("Couldn't get presigned URL params")
         raise
 
-    return url
+    return params
 
 
 def handler(event, context):

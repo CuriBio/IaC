@@ -8,13 +8,9 @@ resource "aws_cognito_user_pool" "lambda_gw_pool" {
 }
 
 resource "aws_cognito_user_pool_client" "lambda_gw_pool_client" {
-  name = "${terraform.workspace}-lambda-gw-pool-client"
-
+  name         = "${terraform.workspace}-lambda-gw-pool-client"
   user_pool_id = aws_cognito_user_pool.lambda_gw_pool.id
 
-  # allowed_oauth_flows_user_pool_client = true
-  # allowed_oauth_flows - (Optional) List of allowed OAuth flows (code, implicit, client_credentials).
-  # allowed_oauth_scopes - (Optional) List of allowed OAuth scopes (phone, email, openid, profile, and aws.cognito.signin.user.admin).
   explicit_auth_flows = ["USER_PASSWORD_AUTH"]
 }
 
@@ -122,9 +118,13 @@ resource "aws_lambda_permission" "sdk_upload_lambda_permission" {
 
 resource "aws_apigatewayv2_route" "get_sdk_status" {
   api_id    = aws_apigatewayv2_api.lambda_gw.id
-  route_key = "POST /get_sdk_status"
+  route_key = "GET /get_sdk_status"
 
   target = "integrations/${aws_apigatewayv2_integration.get_sdk_status_integration.id}"
+
+  # TODO uncomment these once it is done being tested
+  # authorizer_id      = aws_apigatewayv2_authorizer.lambda_gw_auth.id
+  # authorization_type = "JWT"
 }
 
 resource "aws_apigatewayv2_integration" "get_sdk_status_integration" {

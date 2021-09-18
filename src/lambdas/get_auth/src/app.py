@@ -27,25 +27,6 @@ def get_tokens(username: str, password: str):
     )
     logger.info(f"initiate_auth response: {response}")
 
-    # response = {
-    #     "ChallengeName": "SMS_MFA"|"SOFTWARE_TOKEN_MFA"|"SELECT_MFA_TYPE"|"MFA_SETUP"|"PASSWORD_VERIFIER"|"CUSTOM_CHALLENGE"|"DEVICE_SRP_AUTH"|"DEVICE_PASSWORD_VERIFIER"|"ADMIN_NO_SRP_AUTH"|"NEW_PASSWORD_REQUIRED",
-    #     "Session": "string",
-    #     "ChallengeParameters": {
-    #         "string": "string"
-    #     },
-    #     "AuthenticationResult": {
-    #         "AccessToken": "string",
-    #         "ExpiresIn": 123,
-    #         "TokenType": "string",
-    #         "RefreshToken": "string",
-    #         "IdToken": "string",
-    #         "NewDeviceMetadata": {
-    #             "DeviceKey": "string",
-    #             "DeviceGroupKey": "string"
-    #         }
-    #     }
-    # }
-
     result = response["AuthenticationResult"]
     return {
         "access_token": result["AccessToken"],
@@ -61,7 +42,11 @@ def handler(event, context):
         token_dict = get_tokens(event_body["username"], event_body["password"])
     except ClientError as e:
         logger.info(f"Error: {e}")
-        return {"statusCode": 401}
+        return {
+            "statusCode": 401,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"message": "Invalid credentials"}),
+        }
 
     return {
         "statusCode": 200,
