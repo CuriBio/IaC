@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 
 def get_status(upload_id: str):
     # TODO:
-    # query DB for upload_id and return the status
-    # figure out if error will be raised if upload_id is not present in table. If not, then return some kind of error msg or raise an error
+    #   query DB for upload_id and return the status
+    #   figure out if error will be raised if upload_id is not present in table. If not, then return some kind of error msg or raise an error
     return ""
 
 

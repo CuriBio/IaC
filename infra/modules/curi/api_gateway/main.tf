@@ -122,7 +122,7 @@ resource "aws_apigatewayv2_route" "get_sdk_status" {
 
   target = "integrations/${aws_apigatewayv2_integration.get_sdk_status_integration.id}"
 
-  # TODO uncomment these once it is done being tested
+  # TODO: uncomment these once it is done being tested
   # authorizer_id      = aws_apigatewayv2_authorizer.lambda_gw_auth.id
   # authorization_type = "JWT"
 }
@@ -138,7 +138,7 @@ resource "aws_apigatewayv2_integration" "get_sdk_status_integration" {
   passthrough_behavior = "WHEN_NO_MATCH"
 }
 
-resource "aws_lambda_permission" "sdk_status_lambda_permission" {
+resource "aws_lambda_permission" "get_sdk_status_lambda_permission" {
   statement_id  = "AllowSDKStatusAPIInvoke"
   action        = "lambda:InvokeFunction"
   function_name = "${terraform.workspace}-${var.get_sdk_status_function_name}"
