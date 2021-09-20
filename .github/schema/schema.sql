@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS mantarray_recordings;
 
-USE DATABASE mantarray_recordings;
+USE mantarray_recordings;
 
 CREATE TABLE IF NOT EXISTS s3_objects {
   bucket_id int REFERENCES uploaded_s3_objects(id)
