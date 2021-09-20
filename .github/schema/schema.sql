@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS s3_objects {
 }
 
 CREATE TABLE IF NOT EXISTS uploaded_s3_objects {
-  id int NOT NULL AUTO_INCREMENT,
+  id int NOT NULL AUTO_INCREMENT
   bucket varchar
   object_key varchar
   created_at datetime
