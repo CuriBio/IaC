@@ -5,7 +5,7 @@ locals {
   )
   tags = {
     Application = "mantarray-db"
-    Environment = terraform.workspace
+    Identifier = terraform.workspace
   }
 }
 resource "aws_db_parameter_group" "parameter_group" {
