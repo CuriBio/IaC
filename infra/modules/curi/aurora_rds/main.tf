@@ -1,10 +1,10 @@
 locals {
-  name = "${terraform.workspace}-mantarray-db"
+  name = "${terraform.workspace}-mantarray-rds"
   db_creds = jsondecode(
     data.aws_secretsmanager_secret_version.db_creds.secret_string
   )
   tags = {
-    Application = "mantarray-db"
+    Application = "mantarray-rds"
     Identifier = terraform.workspace
   }
 }
