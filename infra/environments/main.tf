@@ -135,8 +135,15 @@ module "get_auth" {
 }
 
 
+module "sdk_status_db" {
+  source = "../modules/curi/sdk_status_db"
+}
+
+
 module "api" {
   source = "../modules/curi/api_gateway"
+
+  # sdk_status_db_arn = module.sdk_status_db.db_arn  # TODO
 
   sdk_upload_function_name     = var.sdk_upload_function_name
   sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn

@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 def generate_presigned_params(s3_client, object_key, expires_in):
-    # TODO: try to allow upload_id to be stored as metadata in the S3 file. If it can't be, then the file prefix will also need to be stored in the DB so the ECS task can access it
     upload_id = str(uuid.uuid4())
     fields = {"x-amz-meta-upload-id": upload_id}
     conditions = [{"x-amz-meta-upload-id": upload_id}]
@@ -45,7 +44,7 @@ def handler(event, context):
     logger.info(f"event: {event}")
     file_name = json.loads(event["body"])["file_name"]
     presigned_params, upload_id = generate_presigned_params(s3_client, object_key=file_name, expires_in=3600)
-    # TODO: store upload_id in DB with status "analysis_pending"
+    # TODO: store upload_id in DB with status "analysis pending"
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},

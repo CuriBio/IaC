@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 import tempfile
 import time
 
@@ -13,7 +14,15 @@ SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
 
 
-logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
+# remove AWS pre-config that interferes with custom config
+root = logging.getLogger()
+if root.handlers:
+    for handler in root.handlers:
+        root.removeHandler(handler)
+# set up custom basic config
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout
+)
 logger = logging.getLogger(__name__)
 
 
@@ -39,6 +48,8 @@ if __name__ == "__main__":
                         ):
                             bucket = record["s3"]["bucket"]["name"]
                             key = record["s3"]["object"]["key"]
+                            # TODO: get upload_id from metadata
+                            # TODO: before analysis, change status in DB to "analysis running"
 
                             with tempfile.TemporaryDirectory(dir="/tmp") as tmpdir:
                                 try:
@@ -46,6 +57,7 @@ if __name__ == "__main__":
                                     s3_client.download_file(bucket, key, f"{tmpdir}/{key}")
                                 except Exception as e:
                                     logger.error(f"Failed to download {bucket}/{key}: {e}")
+                                    # TODO: change status in DB to "error accessing file"
                                     continue
 
                                 try:
@@ -54,15 +66,18 @@ if __name__ == "__main__":
                                     r.write_xlsx(tmpdir, file_name=file_name)
                                 except Exception as e:
                                     logger.error(f"SDK analysis failed: {e}")
+                                    # TODO: change status in DB to "error during analysis"
                                     continue
 
                                 try:
                                     with open(f"{tmpdir}/{file_name}", "rb") as f:
                                         s3_client.upload_fileobj(f, S3_UPLOAD_BUCKET, file_name)
+                                    # TODO: change status in DB to "analysis complete"
                                 except Exception as e:
                                     logger.error(
                                         f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{file_name}: {e}"
                                     )
+                                    # TODO: change status in DB to "error during analysis file upload"
 
                 sqs_client.delete_message(QueueUrl=SQS_URL, ReceiptHandle=message["ReceiptHandle"])
         except ClientError:
