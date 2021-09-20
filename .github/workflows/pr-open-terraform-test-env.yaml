@@ -121,6 +121,7 @@ jobs:
           DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password )
           DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .username )
           KEY=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' )
+          DB_HOST=$( aws rds describe-db-cluster-endpoints --filters="Name=db-cluster-endpoint-type, Values=writer" | jq --raw-output ".[][].Endpoint" )
           HOST=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .host )
 
           scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./.github/scripts/schema.sql $USERNAME@ec2-54-226-191-183.compute-1.amazonaws.com:/tmp
