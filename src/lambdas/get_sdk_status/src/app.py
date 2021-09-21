@@ -1,6 +1,12 @@
 import json
 import logging
+import os
 import sys
+
+import boto3
+
+
+SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
 
 
 # remove AWS pre-config that interferes with custom config
@@ -16,10 +22,14 @@ logger = logging.getLogger(__name__)
 
 
 def get_status(upload_id: str):
-    # TODO:
-    #   query DB for upload_id and return the status
-    #   figure out if error will be raised if upload_id is not present in table. If not, then return some kind of error msg or raise an error
-    return ""
+    db_client = boto3.client("dynamodb")
+    db_response = db_client.get_item(TableName=SDK_STATUS_TABLE, Key={"upload_id": {"S": upload_id}},)
+    try:
+        item = db_response["Item"]
+    except KeyError:
+        return None
+    status = list(item["sdk_status"].values())[0]
+    return status
 
 
 def handler(event, context):
@@ -29,22 +39,22 @@ def handler(event, context):
     try:
         upload_id = event_params["upload_id"]
     except KeyError:
+        logger.info("Request missing upload_id param")
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
             "body": json.dumps({"message": "Missing upload_id param"}),
         }
-    try:
-        status = get_status(upload_id)
-    except Exception as e:
-        logger.info(f"Error: {e}")  # temp log to figure out what errors (if any) can come up here
+
+    status = get_status(upload_id)
+    if status is None:
         logger.info(f"invalid upload_id: {upload_id}")
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
             "body": json.dumps({"message": f"Invalid upload_id: {upload_id}"}),
         }
-
+    logger.info(f"Found status: {status} for upload_id: {upload_id}")
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},

@@ -143,7 +143,7 @@ module "sdk_status_db" {
 module "api" {
   source = "../modules/curi/api_gateway"
 
-  # sdk_status_db_arn = module.sdk_status_db.db_arn  # TODO
+  # sdk_status_table_name = module.sdk_status_db.?  # TODO
 
   sdk_upload_function_name     = var.sdk_upload_function_name
   sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn

@@ -41,7 +41,7 @@ def handler(event, context):
     try:
         token_dict = get_tokens(event_body["username"], event_body["password"])
     except ClientError as e:
-        logger.info(f"Error: {e}")
+        logger.info(f"Error: {e}")  # TODO don't use info here
         return {
             "statusCode": 401,
             "headers": {"Content-Type": "application/json"},

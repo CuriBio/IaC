@@ -9,6 +9,8 @@ from botocore.exceptions import ClientError
 
 
 S3_BUCKET = os.environ.get("S3_BUCKET")
+SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
+
 
 # remove AWS pre-config that interferes with custom config
 root = logging.getLogger()
@@ -44,7 +46,14 @@ def handler(event, context):
     logger.info(f"event: {event}")
     file_name = json.loads(event["body"])["file_name"]
     presigned_params, upload_id = generate_presigned_params(s3_client, object_key=file_name, expires_in=3600)
-    # TODO: store upload_id in DB with status "analysis pending"
+
+    db_client = boto3.client("dynamodb")
+    db_client.put_item(
+        TableName=SDK_STATUS_TABLE,
+        Item={"upload_id": {"S": upload_id}, "sdk_status": {"S": "analysis pending"}},
+        ConditionExpression="attribute_not_exists(upload_id)",
+    )
+
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},

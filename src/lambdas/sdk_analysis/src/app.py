@@ -12,6 +12,7 @@ from curibio.sdk import PlateRecording
 
 SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
+SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
 
 
 # remove AWS pre-config that interferes with custom config
@@ -26,9 +27,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def update_sdk_status(db_client, upload_id, new_status):
+    db_client.update_item(  # TODO: figure out how to handle potential errors with this and put_item
+        TableName=SDK_STATUS_TABLE,
+        Key={"upload_id": {"S": upload_id}},
+        UpdateExpression="SET sdk_status = :val",
+        ExpressionAttributeValues={":val": {"S": new_status}},
+        ConditionExpression="attribute_exists(upload_id)",
+    )
+
+
 if __name__ == "__main__":
     sqs_client = boto3.client("sqs")
     s3_client = boto3.client("s3")
+    db_client = boto3.client("dynamodb")
     logger.info(f"Receiving messages on {SQS_URL}")
 
     while True:
@@ -48,36 +60,40 @@ if __name__ == "__main__":
                         ):
                             bucket = record["s3"]["bucket"]["name"]
                             key = record["s3"]["object"]["key"]
-                            # TODO: get upload_id from metadata
-                            # TODO: before analysis, change status in DB to "analysis running"
+
+                            upload_id = s3_client.head_object(Bucket=bucket, Key=key)["Metadata"]["upload-id"]
 
                             with tempfile.TemporaryDirectory(dir="/tmp") as tmpdir:
                                 try:
-                                    logger.info(f"Download to {bucket}/{key} to {tmpdir}/{key}")
+                                    logger.info(f"Download {bucket}/{key} to {tmpdir}/{key}")
                                     s3_client.download_file(bucket, key, f"{tmpdir}/{key}")
                                 except Exception as e:
                                     logger.error(f"Failed to download {bucket}/{key}: {e}")
-                                    # TODO: change status in DB to "error accessing file"
+                                    update_sdk_status(db_client, upload_id, "error accessing file")
                                     continue
 
                                 try:
+                                    update_sdk_status(db_client, upload_id, "analysis running")
+
                                     file_name = f'{key.split(".")[0]}.xlsx'
                                     r = PlateRecording.from_directory(tmpdir)
                                     r.write_xlsx(tmpdir, file_name=file_name)
                                 except Exception as e:
                                     logger.error(f"SDK analysis failed: {e}")
-                                    # TODO: change status in DB to "error during analysis"
+                                    update_sdk_status(db_client, upload_id, "error during analysis")
                                     continue
 
                                 try:
                                     with open(f"{tmpdir}/{file_name}", "rb") as f:
                                         s3_client.upload_fileobj(f, S3_UPLOAD_BUCKET, file_name)
-                                    # TODO: change status in DB to "analysis complete"
+                                    update_sdk_status(db_client, upload_id, "analysis complete")
                                 except Exception as e:
                                     logger.error(
                                         f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{file_name}: {e}"
                                     )
-                                    # TODO: change status in DB to "error during analysis file upload"
+                                    update_sdk_status(
+                                        db_client, upload_id, "error during upload of analyzed file"
+                                    )
 
                 sqs_client.delete_message(QueueUrl=SQS_URL, ReceiptHandle=message["ReceiptHandle"])
         except ClientError:
