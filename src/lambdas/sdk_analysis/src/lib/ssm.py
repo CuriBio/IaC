@@ -55,3 +55,29 @@ def get_secrets():
         password = parsed_creds_secret['password']
     
         return {"username": username, "password": password, "ssh_pkey": key_secret}
+
+
+def get_endpoints():
+
+    #Create rds and ec2 client to access DNS names
+    rds_client = boto3.client("rds")
+    ec2_client = boto3.client("ec2")
+    rds_endpoint = rds_client.describe_db_cluster_endpoints(Filters=[
+        {
+            'Name': 'db-cluster-endpoint-type',
+            'Values': [
+                'writer',
+            ]
+        },
+    ],)["DBClusterEndpoints"][0]["Endpoint"]
+
+    ec2_endpoint = ec2_client.describe_instances(Filters=[
+        {
+            'Name': 'key-name',
+            'Values': [
+                'db_key_pair',
+            ]
+        },
+    ],)["Reservations"][0]["Instances"][0]["PublicDnsName"]
+    return {"rds_endpoint" :rds_endpoint, "ec2_endpoint": ec2_endpoint}
+
