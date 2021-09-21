@@ -22,3 +22,8 @@ variable "sdk_status_table_name" {
   type        = string
   description = "name of the SDK status table"
 }
+
+variable "sdk_status_table_arn" {
+  type        = string
+  description = "arn of the SDK status table"
+}

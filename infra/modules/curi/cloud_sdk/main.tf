@@ -32,7 +32,12 @@ module "lambda" {
       effect    = "Allow",
       actions   = ["s3:PutObject"],
       resources = ["${aws_s3_bucket.upload_bucket.arn}/*"]
-    }
+    },
+    dynamodb_put = {
+      effect    = "Allow",
+      actions   = ["dynamodb:PutItem"],
+      resources = [var.sdk_status_table_arn]
+    },
   }
 }
 
@@ -67,6 +72,13 @@ module "ecs_task" {
           aws_s3_bucket.analyzed_bucket.arn,
           "${aws_s3_bucket.analyzed_bucket.arn}/*",
         ]
+      },
+      {
+        Action = [
+          "dynamodb:UpdateItem",
+        ]
+        Effect   = "Allow"
+        Resource = var.sdk_status_table_arn
       },
     ]
   })

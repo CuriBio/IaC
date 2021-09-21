@@ -16,5 +16,11 @@ module "lambda" {
     SDK_STATUS_TABLE = var.sdk_status_table_name,
   }
 
-  # attach_policies = {}
+  attach_policies = {
+    dynamodb_get = {
+      effect    = "Allow",
+      actions   = ["dynamodb:GetItem"],
+      resources = [var.sdk_status_table_arn]
+    },
+  }
 }

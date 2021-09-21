@@ -102,6 +102,7 @@ module "sdk_analysis" {
   function_description = "SDK upload lambda"
 
   sdk_status_table_name = module.sdk_status_db.name
+  sdk_status_table_arn  = module.sdk_status_db.arn
 }
 
 
@@ -119,6 +120,7 @@ module "get_sdk_status" {
   function_description = "Upload/analysis status lambda"
 
   sdk_status_table_name = module.sdk_status_db.name
+  sdk_status_table_arn  = module.sdk_status_db.arn
 }
 
 
