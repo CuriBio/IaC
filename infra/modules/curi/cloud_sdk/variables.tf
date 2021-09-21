@@ -32,3 +32,8 @@ variable "function_description" {
   type        = string
   description = "lambda description"
 }
+
+variable "sdk_status_table_name" {
+  type        = string
+  description = "name of the SDK status table"
+}

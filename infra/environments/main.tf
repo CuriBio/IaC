@@ -100,6 +100,8 @@ module "sdk_analysis" {
   # lambda
   function_name        = "${terraform.workspace}-${var.sdk_upload_function_name}"
   function_description = "SDK upload lambda"
+
+  sdk_status_table_name = module.sdk_status_db.name
 }
 
 
@@ -115,6 +117,8 @@ module "get_sdk_status" {
   # lambda
   function_name        = "${terraform.workspace}-${var.get_sdk_status_function_name}"
   function_description = "Upload/analysis status lambda"
+
+  sdk_status_table_name = module.sdk_status_db.name
 }
 
 
@@ -142,8 +146,6 @@ module "sdk_status_db" {
 
 module "api" {
   source = "../modules/curi/api_gateway"
-
-  # sdk_status_table_name = module.sdk_status_db.?  # TODO
 
   sdk_upload_function_name     = var.sdk_upload_function_name
   sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn

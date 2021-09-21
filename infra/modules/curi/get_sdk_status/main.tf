@@ -12,7 +12,9 @@ module "lambda" {
   function_name        = var.function_name
   function_description = "Get upload/analysis status of files"
 
-  lambda_env = {}
+  lambda_env = {
+    SDK_STATUS_TABLE = var.sdk_status_table_name,
+  }
 
   # attach_policies = {}
 }

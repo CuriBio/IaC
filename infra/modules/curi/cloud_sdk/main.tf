@@ -15,8 +15,9 @@ module "lambda" {
   # depends_on = [aws_iam_role_policy_attachment.lambda-attach]
 
   lambda_env = {
-    SQS_NAME  = "${terraform.workspace}-sdk-upload-queue",
-    S3_BUCKET = var.upload_bucket,
+    SQS_NAME         = "${terraform.workspace}-sdk-upload-queue",
+    S3_BUCKET        = var.upload_bucket,
+    SDK_STATUS_TABLE = var.sdk_status_table_name,
     #REGION = var.aws_region
   }
 
@@ -78,7 +79,11 @@ module "ecs_task" {
     {
       "name" : "S3_UPLOAD_BUCKET",
       "value" : aws_s3_bucket.analyzed_bucket.bucket
-    }
+    },
+    {
+      "name" : "SDK_STATUS_TABLE",
+      "value" : var.sdk_status_table_name,
+    },
   ]
 }
 
