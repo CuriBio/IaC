@@ -28,13 +28,22 @@ logger = logging.getLogger(__name__)
 
 
 def update_sdk_status(db_client, upload_id, new_status):
-    db_client.update_item(  # TODO: figure out how to handle potential errors with this and put_item
-        TableName=SDK_STATUS_TABLE,
-        Key={"upload_id": {"S": upload_id}},
-        UpdateExpression="SET sdk_status = :val",
-        ExpressionAttributeValues={":val": {"S": new_status}},
-        ConditionExpression="attribute_exists(upload_id)",
-    )
+    try:
+        db_client.update_item(
+            TableName=SDK_STATUS_TABLE,
+            Key={"upload_id": {"S": upload_id}},
+            UpdateExpression="SET sdk_status = :val",
+            ExpressionAttributeValues={":val": {"S": new_status}},
+            ConditionExpression="attribute_exists(upload_id)",
+        )
+    except ClientError as e:
+        logger.error(f"Error: {e}")
+        if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
+            logger.exception(f"Upload ID: {upload_id} was not found in table {SDK_STATUS_TABLE}")
+            db_client.put_item(
+                TableName=SDK_STATUS_TABLE,
+                Item={"upload_id": {"S": upload_id}, "sdk_status": {"S": new_status}},
+            )
 
 
 if __name__ == "__main__":
