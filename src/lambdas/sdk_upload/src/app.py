@@ -43,8 +43,19 @@ def generate_presigned_params(s3_client, object_key, expires_in):
 
 def handler(event, context):
     s3_client = boto3.client("s3")
+
     logger.info(f"event: {event}")
-    file_name = json.loads(event["body"])["file_name"]
+    event_body = json.loads(event["body"])
+    try:
+        file_name = event_body["file_name"]
+    except KeyError:
+        logger.exception("file_name not found in request body")
+        return {
+            "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"message": "Missing file_name"}),
+        }
+
     presigned_params, upload_id = generate_presigned_params(s3_client, object_key=file_name, expires_in=3600)
 
     db_client = boto3.client("dynamodb")
