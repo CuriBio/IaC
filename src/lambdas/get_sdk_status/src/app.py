@@ -35,11 +35,10 @@ def get_status(upload_id: str):
 def handler(event, context):
     logger.info(f"event: {event}")
 
-    event_params = event["queryStringParameters"]
     try:
-        upload_id = event_params["upload_id"]
+        upload_id = event["queryStringParameters"]["upload_id"]
     except KeyError:
-        logger.info("Request missing upload_id param")
+        logger.exception("Request missing upload_id param")
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
@@ -48,7 +47,7 @@ def handler(event, context):
 
     status = get_status(upload_id)
     if status is None:
-        logger.info(f"invalid upload_id: {upload_id}")
+        logger.exception(f"invalid upload_id: {upload_id}")
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},

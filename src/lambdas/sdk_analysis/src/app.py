@@ -68,7 +68,6 @@ if __name__ == "__main__":
                                 ]
                             except ClientError:
                                 logger.error(f"Error occurred while retrieving head object of {bucket}/{key}")
-                                update_sdk_status(db_client, upload_id, "error retrieving file metadata")
                                 continue
 
                             with tempfile.TemporaryDirectory(dir="/tmp") as tmpdir:
