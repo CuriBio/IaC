@@ -37,7 +37,7 @@ def handler(event, context):
 
     try:
         upload_id = event["queryStringParameters"]["upload_id"]
-    except KeyError:
+    except (KeyError, TypeError):
         logger.exception("Request missing upload_id param")
         return {
             "statusCode": 400,
