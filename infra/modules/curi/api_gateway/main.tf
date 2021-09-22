@@ -122,9 +122,9 @@ resource "aws_apigatewayv2_route" "get_sdk_status" {
 
   target = "integrations/${aws_apigatewayv2_integration.get_sdk_status_integration.id}"
 
-  # TODO: uncomment these once it is done being tested
-  # authorizer_id      = aws_apigatewayv2_authorizer.lambda_gw_auth.id
-  # authorization_type = "JWT"
+  # TODO: test this
+  authorizer_id      = aws_apigatewayv2_authorizer.lambda_gw_auth.id
+  authorization_type = "JWT"
 }
 
 resource "aws_apigatewayv2_integration" "get_sdk_status_integration" {

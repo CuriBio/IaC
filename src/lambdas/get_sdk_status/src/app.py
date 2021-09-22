@@ -49,7 +49,7 @@ def handler(event, context):
     if status is None:
         logger.exception(f"invalid upload_id: {upload_id}")
         return {
-            "statusCode": 400,
+            "statusCode": 404,
             "headers": {"Content-Type": "application/json"},
             "body": json.dumps({"message": f"Invalid upload_id: {upload_id}"}),
         }
