@@ -61,7 +61,15 @@ if __name__ == "__main__":
                             bucket = record["s3"]["bucket"]["name"]
                             key = record["s3"]["object"]["key"]
 
-                            upload_id = s3_client.head_object(Bucket=bucket, Key=key)["Metadata"]["upload-id"]
+                            try:
+                                logger.info(f"Retrieving Head Object of {bucket}/{key}")
+                                upload_id = s3_client.head_object(Bucket=bucket, Key=key)["Metadata"][
+                                    "upload-id"
+                                ]
+                            except ClientError:
+                                logger.error(f"Error occurred while retrieving head object of {bucket}/{key}")
+                                update_sdk_status(db_client, upload_id, "error retrieving file metadata")
+                                continue
 
                             with tempfile.TemporaryDirectory(dir="/tmp") as tmpdir:
                                 try:
