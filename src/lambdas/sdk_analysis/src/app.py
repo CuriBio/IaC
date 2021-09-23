@@ -7,6 +7,7 @@ import time
 import boto3
 from botocore.exceptions import ClientError
 from curibio.sdk import PlateRecording
+from lib.main import handle_db_metadata_insertions
 
 
 SQS_URL = os.environ.get("SQS_URL")
@@ -62,6 +63,17 @@ if __name__ == "__main__":
                                 except Exception as e:
                                     logger.error(
                                         f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{file_name}: {e}"
+                                    )
+
+                                try:
+                                    logger.info(
+                                        f"Inserting {tmpdir}/{file_name} metadata into aurora database"
+                                    )
+                                    with open(f"{tmpdir}/{file_name}", "rb") as file:
+                                        handle_db_metadata_insertions(bucket, key, file, r)
+                                except Exception as e:
+                                    logger.error(
+                                        f"Recording metadata failed to store in aurora database: {e}"
                                     )
 
                 sqs_client.delete_message(QueueUrl=SQS_URL, ReceiptHandle=message["ReceiptHandle"])
