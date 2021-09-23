@@ -6,6 +6,10 @@ import sys
 import boto3
 from botocore.exceptions import ClientError
 
+
+COGNITO_USER_POOL_CLIENT_ID = os.environ.get("COGNITO_USER_POOL_CLIENT_ID")
+
+
 # remove AWS pre-config that interferes with custom config
 root = logging.getLogger()
 if root.handlers:
@@ -23,7 +27,7 @@ def get_tokens(username: str, password: str):
     response = client.initiate_auth(
         AuthFlow="USER_PASSWORD_AUTH",
         AuthParameters={"USERNAME": username, "PASSWORD": password},
-        ClientId=os.getenv("COGNITO_USER_POOL_CLIENT_ID"),
+        ClientId=COGNITO_USER_POOL_CLIENT_ID,
     )
     logger.info(f"initiate_auth response: {response}")
 
@@ -39,7 +43,19 @@ def handler(event, context):
     logger.info(f"event: {event}")
     event_body = json.loads(event["body"])
     try:
-        token_dict = get_tokens(event_body["username"], event_body["password"])
+        username = event_body["username"]
+        password = event_body["password"]
+    except KeyError as e:
+        missing_cred = e.args[0]
+        logger.exception(f"Request missing {missing_cred}")
+        return {
+            "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"message": f"Missing {missing_cred}"}),
+        }
+
+    try:
+        token_dict = get_tokens(username, password)
     except ClientError as e:
         logger.exception(f"Error: {e}")
         return {

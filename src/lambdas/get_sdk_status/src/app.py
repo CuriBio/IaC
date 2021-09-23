@@ -53,7 +53,7 @@ def handler(event, context):
             "headers": {"Content-Type": "application/json"},
             "body": json.dumps({"message": f"Invalid upload_id: {upload_id}"}),
         }
-    logger.info(f"Found status: {status} for upload_id: {upload_id}")  # TODO
+    logger.info(f"Found status: {status} for upload_id: {upload_id}")
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},
