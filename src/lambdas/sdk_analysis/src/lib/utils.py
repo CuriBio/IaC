@@ -1,5 +1,4 @@
 import uuid
-
 import pandas as pd
 
 
@@ -20,7 +19,7 @@ def format_data(meta_sheet, recording_length):
         "barcode": meta_sheet.iloc[0, 2],
         "recording_started_at": meta_sheet.iloc[1, 2],
         "acquisition_started_at": meta_sheet.iloc[2, 2],
-        "file_format_version": meta_sheet.iloc[5, 2],
+        "file_format_version": meta_sheet.iloc[5, 2], 
         "instrument_serial_number": meta_sheet.iloc[6, 2],
         "software_version": meta_sheet.iloc[7, 2],
         "uploading_computer_name": meta_sheet.iloc[10, 2],
