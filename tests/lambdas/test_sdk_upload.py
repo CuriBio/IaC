@@ -36,9 +36,9 @@ def test_sdk_upload__returns_error_code_if_file_name_not_given():
 
 
 def test_sdk_upload__logs_exception_if_file_name_not_given(mocker):
-    spied_log_exception = mocker.spy(sdk_upload.logger, "exception")
+    spied_logger_exception = mocker.spy(sdk_upload.logger, "exception")
     sdk_upload.handler({"body": json.dumps({})}, None)
-    spied_log_exception.assert_called_once_with("file_name not found in request body")
+    spied_logger_exception.assert_called_once_with("file_name not found in request body")
 
 
 def test_sdk_upload__calls_generate_presigned_post_with_correct_values(mocker, mocked_boto3_client):
@@ -77,7 +77,7 @@ def test_sdk_upload__handles_info_logging(mocker, mocked_boto3_client):
     spied_logger_info.assert_any_call(f"Got presigned URL params: {expected_params}")
 
 
-def test_sdk_upload__returns_correct_params_for_a_given_file_name(mocker, mocked_boto3_client):
+def test_sdk_upload__returns_correct_response_for_a_given_file_name(mocker, mocked_boto3_client):
     mocked_s3_client, _ = mocked_boto3_client
 
     expected_params = {"param1": 1, "param2": "val"}

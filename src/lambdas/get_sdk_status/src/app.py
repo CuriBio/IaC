@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 def get_status(upload_id: str):
     db_client = boto3.client("dynamodb")
-    db_response = db_client.get_item(TableName=SDK_STATUS_TABLE, Key={"upload_id": {"S": upload_id}},)
+    db_response = db_client.get_item(TableName=SDK_STATUS_TABLE, Key={"upload_id": {"S": upload_id}})
     try:
         item = db_response["Item"]
     except KeyError:
@@ -53,9 +53,9 @@ def handler(event, context):
             "headers": {"Content-Type": "application/json"},
             "body": json.dumps({"message": f"Invalid upload_id: {upload_id}"}),
         }
-    logger.info(f"Found status: {status} for upload_id: {upload_id}")
+    logger.info(f"Found status: {status} for upload_id: {upload_id}")  # TODO
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},
-        "body": json.dumps(status),
+        "body": json.dumps({"status": status}),
     }
