@@ -11,6 +11,14 @@ analyzed_bucket          = "sdk-analyzed"
 sdk_upload_image_name    = "sdk_upload"
 sdk_upload_function_name = "sdk-upload-lambda"
 
+# upload/analysis status
+get_sdk_status_image_name    = "get_sdk_status"
+get_sdk_status_function_name = "get-sdk-status"
+
+# auth
+get_auth_image_name    = "get_auth"
+get_auth_function_name = "get-auth"
+
 # downloads/dns
 hosted_zone = "curibio-test.com"
 
