@@ -93,7 +93,7 @@ resource "aws_ecs_task_definition" "aws-ecs-task" {
       "options": {
         "awslogs-region": "us-east-1",
         "awslogs-stream-prefix": "sdk-analysis-service",
-        "awslogs-group": "sdk-analysis-test"
+        "awslogs-group": "${aws_cloudwatch_log_group.sdk_analysis_logs.name}"
       }
     },
     "environment": ${jsonencode(var.task_env)}
@@ -103,7 +103,7 @@ EOF
 }
 
 
-resource "aws_cloudwatch_log_group" "sdk-analysis-logs" {
+resource "aws_cloudwatch_log_group" "sdk_analysis_logs" {
   name = "${terraform.workspace}-sdk-analysis"
 
   tags = {

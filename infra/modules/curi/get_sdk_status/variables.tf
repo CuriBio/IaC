@@ -1,22 +1,7 @@
-variable "upload_bucket" {
-  description = "S3 data ingestion bucket"
-  type        = string
-}
-
-variable "analyzed_bucket" {
-  description = "S3 analyzed data bucket"
-  type        = string
-}
-
 variable "image_name" {
   type        = string
   description = "docker image name"
 }
-
-# variable "image_src" {
-#   type        = string
-#   description = "docker image src dir"
-# }
 
 variable "role_arn" {
   type        = string
