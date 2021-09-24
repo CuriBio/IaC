@@ -7,7 +7,9 @@ import time
 import boto3
 from botocore.exceptions import ClientError
 from curibio.sdk import PlateRecording
-from lib.main import handle_db_metadata_insertions
+from .lib.helpers import handle_db_metadata_insertions
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 
 SQS_URL = os.environ.get("SQS_URL")
