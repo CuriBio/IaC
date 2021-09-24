@@ -102,7 +102,7 @@ def test_get_auth__returns_error_code_and_logs_exception_when_invalid_credential
     mocked_cognito_idp_client = mocked_boto3_client
 
     expected_error = ClientError({}, "")
-    mocked_cognito_idp_client.initiate_auth.side_effect = ClientError({}, "")
+    mocked_cognito_idp_client.initiate_auth.side_effect = expected_error
 
     spied_logger_exception = mocker.spy(get_auth.logger, "exception")
 
