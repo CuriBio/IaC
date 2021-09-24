@@ -41,12 +41,7 @@ data "aws_secretsmanager_secret" "db_secret" {
 data "aws_secretsmanager_secret_version" "db_creds" {
   secret_id = data.aws_secretsmanager_secret.db_secret.arn
 }
-<<<<<<< HEAD
-
-module "rds" {
-=======
 module "db" {
->>>>>>> initial_rds
   source = "terraform-aws-modules/rds-aurora/aws"
 
   name           = local.name

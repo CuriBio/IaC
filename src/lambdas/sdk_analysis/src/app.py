@@ -8,9 +8,10 @@ from time import sleep
 import boto3
 from botocore.exceptions import ClientError
 from curibio.sdk import PlateRecording
+
 from .lib.helpers import handle_db_metadata_insertions
-import os, sys
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 
 SQS_URL = os.environ.get("SQS_URL")
@@ -92,18 +93,14 @@ def process_record(record, s3_client, db_client):
         except Exception as e:
             logger.error(f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{file_name}: {e}")
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
-        
+
         # insert meta data into db
         try:
-            logger.info(
-                f"Inserting {tmpdir}/{file_name} metadata into aurora database"
-            )
+            logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
             with open(f"{tmpdir}/{file_name}", "rb") as file:
                 handle_db_metadata_insertions(bucket, key, file, r)
         except Exception as e:
-            logger.error(
-                f"Recording metadata failed to store in aurora database: {e}"
-            )
+            logger.error(f"Recording metadata failed to store in aurora database: {e}")
 
 
 def handler(max_num_loops=0):
