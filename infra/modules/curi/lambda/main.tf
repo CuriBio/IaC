@@ -91,6 +91,6 @@ module "lambda_function_container_image" {
   package_type = "Image"
 
   allowed_triggers         = var.allowed_triggers
-  attach_policy_statements = true
+  attach_policy_statements = length(var.attach_policies) > 0
   policy_statements        = var.attach_policies
 }

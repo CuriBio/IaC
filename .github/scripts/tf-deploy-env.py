@@ -60,7 +60,7 @@ def main():
         colorize = "-no-color" if args.no_color else ""
         subprocess_stream(f"terraform plan {colorize} {tfvars}", capture=True, **shell_args)
     else:  # apply infra
-        subprocess_stream(f"terraform apply -auto-approve {tfvars}", **shell_args)
+        subprocess_stream(f"terraform apply -auto-approve {tfvars}", capture=True, **shell_args)
 
 
 if __name__ == "__main__":

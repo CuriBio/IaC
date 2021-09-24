@@ -12,3 +12,8 @@ output "function_arn" {
   description = "lambda function arn"
   value       = module.lambda_function_container_image.lambda_function_arn
 }
+
+output "function_invoke_arn" {
+  description = "lambda function invoke arn"
+  value       = module.lambda_function_container_image.lambda_function_invoke_arn
+}
