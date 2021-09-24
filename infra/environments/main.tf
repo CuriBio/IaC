@@ -16,8 +16,18 @@ variable "analyzed_bucket" {}
 variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
+
 #database
 variable "instance_type" {}
+
+# upload/analysis status
+variable "get_sdk_status_image_name" {}
+variable "get_sdk_status_function_name" {}
+
+# auth
+variable "get_auth_image_name" {}
+variable "get_auth_function_name" {}
+
 terraform {
   required_version = ">= 0.14.7"
 
@@ -90,16 +100,30 @@ module "sdk_analysis" {
   upload_bucket   = "${terraform.workspace}-${var.upload_bucket}"
   analyzed_bucket = "${terraform.workspace}-${var.analyzed_bucket}"
 
-  #lambda
+  # lambda
   function_name        = "${terraform.workspace}-${var.sdk_upload_function_name}"
   function_description = "SDK upload lambda"
+
+  sdk_status_table_name = module.sdk_status_db.name
+  sdk_status_table_arn  = module.sdk_status_db.arn
 }
 
-module "api" {
-  source = "../modules/curi/api_gateway"
 
-  sdk_upload_function_name = var.sdk_upload_function_name
-  sdk_upload_invoke_arn    = module.sdk_analysis.invoke_arn
+module "get_sdk_status" {
+  source = "../modules/curi/get_sdk_status"
+
+  # assume role for docker push
+  role_arn = var.role_arn
+
+  # docker image
+  image_name = "${terraform.workspace}-${var.get_sdk_status_image_name}"
+
+  # lambda
+  function_name        = "${terraform.workspace}-${var.get_sdk_status_function_name}"
+  function_description = "Upload/analysis status lambda"
+
+  sdk_status_table_name = module.sdk_status_db.name
+  sdk_status_table_arn  = module.sdk_status_db.arn
 }
 
 module "aurora_database" {
@@ -111,21 +135,35 @@ module "aurora_database" {
 #module "lambda" {
 #  source = "../modules/curi/lambda"
 
-#  # assume role for docker push
-#  role_arn = var.role_arn
+module "get_auth" {
+  source = "../modules/curi/get_auth"
 
-#  # docker image
-#  image_name = "${terraform.workspace}-${var.image_name}"
-#  image_src  = "../../src/lambdas/hello_world"
+  # assume role for docker push
+  role_arn = var.role_arn
 
-#  # s3 bucket
-#  data_bucket = "${terraform.workspace}-${var.data_bucket}"
+  # docker image
+  image_name = "${terraform.workspace}-${var.get_auth_image_name}"
 
-#  #lambda
-#  function_name        = "${terraform.workspace}-${var.function_name}"
-#  function_description = "Hello world lambda"
+  # lambda
+  function_name        = "${terraform.workspace}-${var.get_auth_function_name}"
+  function_description = "Get auth tokens lambda"
 
-#  lambda_env = {
-#    WORKSPACE = terraform.workspace
-#  }
-#}
+  client_id = module.api.cognito_pool_client_id
+}
+
+
+module "sdk_status_db" {
+  source = "../modules/curi/sdk_status_db"
+}
+
+
+module "api" {
+  source = "../modules/curi/api_gateway"
+
+  sdk_upload_function_name     = var.sdk_upload_function_name
+  sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn
+  get_sdk_status_function_name = var.get_sdk_status_function_name
+  get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
+  get_auth_function_name       = var.get_auth_function_name
+  get_auth_invoke_arn          = module.get_auth.invoke_arn
+}
