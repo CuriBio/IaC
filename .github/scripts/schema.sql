@@ -6,8 +6,7 @@ CREATE TABLE IF NOT EXISTS s3_objects (
   bucket_id int REFERENCES uploaded_s3_objects(id),
   stored_at datetime,
   kilobytes bigint,
-  crc32 varchar(255),
-  crc32_embedded_position tinyint,
+  md5 varchar(255),
   PRIMARY KEY (bucket_id)
 );
 
@@ -15,10 +14,9 @@ CREATE TABLE IF NOT EXISTS uploaded_s3_objects (
   id int NOT NULL AUTO_INCREMENT,
   bucket varchar(255),
   object_key varchar(255),
-  created_at datetime,
-  crc32_confirmed_after_upload_at datetime,
+  md5_confirmed_after_upload_at datetime,
   upload_interruptions int,
-  crc32_failures int,
+  md5_failures int,
   upload_started_at datetime,
   original_file_path varchar(255),
   uploading_computer_name varchar(255),

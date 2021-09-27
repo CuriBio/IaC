@@ -118,5 +118,5 @@ jobs:
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${KEY}"
 
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./.github/schema/schema.sql ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com:/tmp
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./.github/scripts/schema.sql ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com:/tmp
           ssh -o StrictHostKeyChecking=no ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com "mysql -u $DB_USERNAME -p$DB_PASSWORD -h iac-253-mantarray-rds-1.cya18gqzi4zd.us-east-1.rds.amazonaws.com < /tmp/schema.sql"
