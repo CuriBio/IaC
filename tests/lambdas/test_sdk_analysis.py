@@ -6,7 +6,9 @@ import pytest
 
 from ..test_utils import import_lambda
 
-sdk_analysis = import_lambda("sdk_analysis", mock_imports=["curibio.sdk", "paramiko", "pymysql", "sshtunnel", "pandas", "lib"])
+sdk_analysis = import_lambda(
+    "sdk_analysis", mock_imports=["curibio.sdk", "paramiko", "pymysql", "sshtunnel", "pandas", "lib"]
+)
 
 TEST_BUCKET_NAME = "test_name"
 TEST_OBJECT_KEY = "test_key"
@@ -335,36 +337,28 @@ def test_process_record__handles_error_raised_while_uploading_file_to_s3(mocker,
     mocked_db_handling.assert_not_called()
 
 
-# def test_process_record__after_successful_upload_logger_handles_failed_aurora_db_insertion(
-#     mocker, mocked_boto3_client
-# ):
-#     spied_logger_info = mocker.spy(sdk_analysis.logger, "info")
-#     mocked_s3_client = mocked_boto3_client["s3"]
-#     expected_upload_id = mocked_s3_client.head_object.return_value["Metadata"]["upload-id"]
+def test_process_record__after_successful_upload_logger_handles_failed_aurora_db_insertion(
+    mocker, mocked_boto3_client
+):
+    spied_logger_error = mocker.spy(sdk_analysis.logger, "error")
+    mocked_s3_client = mocked_boto3_client["s3"]
+    expected_upload_id = mocked_s3_client.head_object.return_value["Metadata"]["upload-id"]
 
-#     expected_upload_bucket = "test_url"
-#     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
+    expected_upload_bucket = "test_url"
+    mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
 
-#     spied_temporary_dir = mocker.spy(sdk_analysis.tempfile, "TemporaryDirectory")
-#     mocked_open = mocker.patch("builtins.open", autospec=True)
-#     mocked_update_status = mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
-#     mocked_PR_instance = mocker.patch.object(sdk_analysis.PlateRecording, "from_directory")
-#     mocked_db_handling = mocker.patch.object(sdk_analysis.db, "handle_db_metadata_insertions")
+    mocker.spy(sdk_analysis.tempfile, "TemporaryDirectory")
+    mocker.patch("builtins.open", autospec=True)
+    mocked_update_status = mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
+    mocker.patch.object(sdk_analysis.main, "handle_db_metadata_insertions", side_effect=Exception("ERROR"))
 
-#     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
-#     expected_dir_name = spied_temporary_dir.spy_return.name
+    sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
 
-#     mocked_update_status.assert_called_with(
-#         mocked_boto3_client["dynamodb"], expected_upload_id, "analysis complete"
-#     )
-#     mocked_ssm_call = aws.get_ssm_secrets()
+    mocked_update_status.assert_called_with(
+        mocked_boto3_client["dynamodb"], expected_upload_id, "analysis complete"
+    )
 
-#     spied_logger_info.assert_called_with(f"Inserting {expected_dir_name}/{TEST_OBJECT_KEY}.xlsx metadata into aurora database")
-#     mocked_db_handling.assert_called_with(TEST_BUCKET_NAME, TEST_OBJECT_KEY, mocked_open.return_value.__enter__(), mocked_PR_instance.return_value)
-
-#     # con = mocker.patch.object(aws, "get_ssm_secrets", return_value={"username": "test_user", "password": "test_pass"})
-#     mocked_ssm_call.assert_called_once()
-#     assert main.db_username == "test_user"
+    spied_logger_error.assert_called_with("Recording metadata failed to store in aurora database: ERROR")
 
 
 def test_process_record__after_successful_upload_logger_handles_successful_aurora_db_insertion(

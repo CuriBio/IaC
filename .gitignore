@@ -54,5 +54,4 @@ pipeline_outputs/
 *.packaged.yaml
 
 secrets.json
-
 .DS_store
