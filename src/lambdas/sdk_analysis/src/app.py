@@ -9,10 +9,7 @@ import boto3
 from botocore.exceptions import ClientError
 from curibio.sdk import PlateRecording
 
-from .lib.helpers import handle_db_metadata_insertions
-
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-
+from lib import main
 
 SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
@@ -24,6 +21,7 @@ root = logging.getLogger()
 if root.handlers:
     for handler in root.handlers:
         root.removeHandler(handler)
+
 # set up custom basic config
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout
@@ -76,7 +74,6 @@ def process_record(record, s3_client, db_client):
         # handle running sdk analysis
         try:
             update_sdk_status(db_client, upload_id, "analysis running")
-
             file_name = f'{key.split(".")[0]}.xlsx'
             r = PlateRecording.from_directory(tmpdir)
             r.write_xlsx(tmpdir, file_name=file_name)
@@ -93,12 +90,13 @@ def process_record(record, s3_client, db_client):
         except Exception as e:
             logger.error(f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{file_name}: {e}")
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
+            return 
 
-        # insert meta data into db
+        # insert metadata into db if upload was complete
         try:
             logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
             with open(f"{tmpdir}/{file_name}", "rb") as file:
-                handle_db_metadata_insertions(bucket, key, file, r)
+                main.handle_db_metadata_insertions(bucket, key, file, r)
         except Exception as e:
             logger.error(f"Recording metadata failed to store in aurora database: {e}")
 

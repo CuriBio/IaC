@@ -10,3 +10,7 @@ requests==2.25.1
 python-hcl2==2.0.3
 stdlib-utils==0.4.4
 # python-on-whales==0.16.0 # for local testing of lambda function
+paramiko==2.7.2
+sshtunnel==0.4.0
+PyMySQL==1.0.2
+pandas==1.3.3

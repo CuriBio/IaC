@@ -4,17 +4,15 @@ import logging
 import boto3
 from botocore.exceptions import ClientError
 
-
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger()
 
 def get_ssm_secrets():
-
+    # Get db and ec2 credentials to SSH
     key_secret_name = "db-ec2-key-pair"
     creds_secret_name = "db-creds"
 
-    # Create a Secrets Manager client
+    # Create a ssm client
     ssm_client = boto3.client("secretsmanager")
 
     try:
@@ -57,7 +55,7 @@ def get_remote_aws_endpoints():
 
 
 def get_s3_object_contents(bucket: str, key: str):
-    # Grab s3 metadata from aws
+    # Grab s3 object metadata from aws
     s3_client = boto3.client("s3")
 
     try:
