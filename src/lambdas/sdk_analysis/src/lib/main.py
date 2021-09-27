@@ -1,5 +1,6 @@
 from io import StringIO
 import logging
+
 import paramiko
 import pymysql
 from sshtunnel import SSHTunnelForwarder
@@ -19,7 +20,7 @@ ssh_pkey = secrets["ssh_pkey"]
 pkey = StringIO(ssh_pkey)
 k = paramiko.RSAKey.from_private_key(pkey)
 
-# Retrieve db and ec2 IP addesses to SSH    
+# Retrieve db and ec2 IP addesses to SSH
 endpoints = get_remote_aws_endpoints()
 db_host = endpoints["rds_endpoint"]
 ssh_host = endpoints["ec2_endpoint"]
@@ -30,7 +31,7 @@ db_name = "mantarray_recordings"
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger()
 
-#Queries
+# Queries
 insert_into_uploaded_s3_table = """
     INSERT INTO uploaded_s3_objects(bucket, object_key, upload_started_at, uploading_computer_name)
     VALUES (%s, %s, NOW(), %s);
@@ -50,6 +51,7 @@ insert_into_mantarray_raw_files = """
 insert_into_s3_objects = """
     INSERT INTO s3_objects(bucket_id, kilobytes, stored_at) VALUES (SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1, %s, %s);
     """
+
 
 def handle_db_metadata_insertions(bucket: str, key: str, file, r):
     """ Open an SSH tunnel and connect using a username and password. Query database.
@@ -115,4 +117,3 @@ def handle_db_metadata_insertions(bucket: str, key: str, file, r):
 
         tunnel.close()
     return
-

@@ -8,7 +8,6 @@ from time import sleep
 import boto3
 from botocore.exceptions import ClientError
 from curibio.sdk import PlateRecording
-
 from lib import main
 
 SQS_URL = os.environ.get("SQS_URL")
@@ -90,7 +89,7 @@ def process_record(record, s3_client, db_client):
         except Exception as e:
             logger.error(f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{file_name}: {e}")
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
-            return 
+            return
 
         # insert metadata into db if upload was complete
         try:

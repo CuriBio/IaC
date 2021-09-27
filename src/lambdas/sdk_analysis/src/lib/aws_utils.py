@@ -7,6 +7,7 @@ from botocore.exceptions import ClientError
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger()
 
+
 def get_ssm_secrets():
     # Get db and ec2 credentials to SSH
     key_secret_name = "db-ec2-key-pair"
