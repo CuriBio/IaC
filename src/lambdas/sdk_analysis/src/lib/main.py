@@ -10,22 +10,7 @@ from .aws_utils import get_s3_object_contents
 from .aws_utils import get_ssm_secrets
 from .helpers import load_data_to_dataframe
 
-# Retrieve DB creds
-secrets = get_ssm_secrets()
-db_username = secrets["username"]
-db_password = secrets["password"]
-
-# Change private key into correct format
-ssh_pkey = secrets["ssh_pkey"]
-pkey = StringIO(ssh_pkey)
-k = paramiko.RSAKey.from_private_key(pkey)
-
-# Retrieve db and ec2 IP addesses to SSH
-endpoints = get_remote_aws_endpoints()
-db_host = endpoints["rds_endpoint"]
-ssh_host = endpoints["ec2_endpoint"]
-ssh_user = "ec2-user"
-db_name = "mantarray_recordings"
+INFO_DICT = {}
 
 # set logger
 logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
@@ -55,22 +40,27 @@ insert_into_s3_objects = """
 
 def handle_db_metadata_insertions(bucket: str, key: str, file, r):
     """ Open an SSH tunnel and connect using a username and password. Query database.
-
         Args:
             file: .xlsx file containing aggregated metadata for recording
             r: PlateRecording instance for individual well data
     """
 
+    if not INFO_DICT:
+        set_info_dict()
+
     with SSHTunnelForwarder(
-        (ssh_host, 22), ssh_username=ssh_user, ssh_pkey=k, remote_bind_address=(db_host, 3306)
+        (INFO_DICT["ssh_host"], 22),
+        ssh_username=INFO_DICT["ssh_user"],
+        ssh_pkey=INFO_DICT["k"],
+        remote_bind_address=(INFO_DICT["db_host"], 3306),
     ) as tunnel:
         # should this be a different host once deployed?
         try:
             conn = pymysql.connect(
                 host="127.0.0.1",
-                user=db_username,
-                passwd=db_password,
-                db=db_name,
+                user=INFO_DICT["db_username"],
+                passwd=INFO_DICT["db_password"],
+                db=INFO_DICT["db_name"],
                 port=tunnel.local_bind_port,
             )
             logger.info("Successful ssh connection to Aurora database")
@@ -117,3 +107,22 @@ def handle_db_metadata_insertions(bucket: str, key: str, file, r):
 
         tunnel.close()
     return
+
+
+def set_info_dict():
+    # Retrieve DB creds
+    secrets = get_ssm_secrets()
+    INFO_DICT["db_username"] = secrets["username"]
+    INFO_DICT["db_password"] = secrets["password"]
+
+    # Change private key into correct format
+    ssh_pkey = secrets["ssh_pkey"]
+    pkey = StringIO(ssh_pkey)
+    INFO_DICT["k"] = paramiko.RSAKey.from_private_key(pkey)
+
+    # Retrieve db and ec2 IP addesses to SSH
+    endpoints = get_remote_aws_endpoints()
+    INFO_DICT["db_host"] = endpoints["rds_endpoint"]
+    INFO_DICT["ssh_host"] = endpoints["ec2_endpoint"]
+    INFO_DICT["ssh_user"] = "ec2-user"
+    INFO_DICT["db_name"] = "mantarray_recordings"

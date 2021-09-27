@@ -7,7 +7,7 @@ import pytest
 from ..test_utils import import_lambda
 
 sdk_analysis = import_lambda(
-    "sdk_analysis", mock_imports=["curibio.sdk", "paramiko", "pymysql", "sshtunnel", "pandas", "lib"]
+    "sdk_analysis", mock_imports=["curibio.sdk", "paramiko", "pymysql", "sshtunnel", "pandas"]
 )
 
 TEST_BUCKET_NAME = "test_name"
@@ -133,14 +133,9 @@ def test_sdk_analysis__does_not_process_message_or_record_from_sqs_queue_that_is
 def test_sdk_analysis__processes_each_record_of_each_record_of_each_message_from_sqs_queue(
     mocker, mocked_boto3_client
 ):
-    (
-        mocked_sqs_client,
-        mocked_s3_client,
-        mocked_dynamodb_client,
-        mocked_ec2_client,
-        mocked_rds_client,
-        mocked_ssm_client,
-    ) = mocked_boto3_client.values()
+    mocked_sqs_client = mocked_boto3_client["sqs"]
+    mocked_s3_client = mocked_boto3_client["s3"]
+    mocked_dynamodb_client = mocked_boto3_client["dynamodb"]
 
     test_num_records = 5
     test_records = [
@@ -322,7 +317,9 @@ def test_process_record__handles_error_raised_while_uploading_file_to_s3(mocker,
     mocked_update_status = mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
     mocker.patch.object(sdk_analysis.PlateRecording, "from_directory", autospec=True)
     spied_logger_error = mocker.spy(sdk_analysis.logger, "error")
-    mocked_db_handling = mocker.patch.object(sdk_analysis.main, "handle_db_metadata_insertions")
+    mocked_db_handling = mocker.patch.object(
+        sdk_analysis.main, "handle_db_metadata_insertions", autospec=True
+    )
 
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
     expected_dir_name = spied_temporary_dir.spy_return.name
@@ -374,8 +371,10 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     spied_temporary_dir = mocker.spy(sdk_analysis.tempfile, "TemporaryDirectory")
     mocked_open = mocker.patch("builtins.open", autospec=True)
     mocked_update_status = mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
-    mocked_PR_instance = mocker.patch.object(sdk_analysis.PlateRecording, "from_directory")
-    mocked_db_handling = mocker.patch.object(sdk_analysis.main, "handle_db_metadata_insertions")
+    mocked_PR_instance = mocker.patch.object(sdk_analysis.PlateRecording, "from_directory", autospec=True)
+    mocked_db_handling = mocker.patch.object(
+        sdk_analysis.main, "handle_db_metadata_insertions", autospec=True
+    )
 
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
     expected_dir_name = spied_temporary_dir.spy_return.name
