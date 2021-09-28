@@ -106,7 +106,7 @@ jobs:
       - name: 'Terraform apply'
         run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
 
-      - name: Setup SSH
+      - name: Setup SSH and DB
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
