@@ -16,6 +16,9 @@ variable "analyzed_bucket" {}
 variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
+#database
+variable "instance_type" {}
+
 # upload/analysis status
 variable "get_sdk_status_image_name" {}
 variable "get_sdk_status_function_name" {}
@@ -123,6 +126,14 @@ module "get_sdk_status" {
   sdk_status_table_arn  = module.sdk_status_db.arn
 }
 
+module "aurora_database" {
+  source = "../modules/curi/aurora_rds"
+
+  instance_type = var.instance_type
+}
+
+#module "lambda" {
+#  source = "../modules/curi/lambda"
 
 module "get_auth" {
   source = "../modules/curi/get_auth"

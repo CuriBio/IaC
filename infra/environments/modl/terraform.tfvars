@@ -23,3 +23,6 @@ hosted_zone = "curibio-modl.com"
 
 # squarespace dns
 sqsp_verification = "862laeb5r7tfnxngc2mc"
+
+#database
+instance_type = "db.t3.small"

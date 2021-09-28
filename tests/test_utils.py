@@ -1,7 +1,5 @@
-import importlib.machinery
 import os
 import sys
-import types
 from unittest.mock import Mock
 
 from stdlib_utils import resource_path
@@ -15,8 +13,20 @@ def import_lambda(lambda_name, mock_imports=None):
         for mod_to_mock in mock_imports:
             sys.modules[mod_to_mock] = Mock()
 
-    mod_path = resource_path(os.path.join(os.pardir, "src", "lambdas", lambda_name, "src", "app.py"))
-    loader = importlib.machinery.SourceFileLoader(lambda_name, mod_path)
-    mod = types.ModuleType(loader.name)
-    loader.exec_module(mod)
-    return mod
+    sys.path.append(resource_path(os.path.join(os.pardir, "src", "lambdas", lambda_name, "src")))
+    error = None
+
+    try:
+        import app
+    except Exception as e:
+        error = e
+
+    sys.path.pop()
+
+    if error:
+        raise error
+
+    sys.modules[lambda_name] = sys.modules["app"]
+    del sys.modules["app"]
+
+    return app
