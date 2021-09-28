@@ -410,9 +410,9 @@ def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3
         return_value={"rds_endpoint": "test_db_host", "ec2_endpoint": "test_ssh_host"},
     )
 
-    mocker.patch("builtins.open", autospec=True)
     mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
-
+    mocker.patch("builtins.open", autospec=True)
+    mocker.patch.object(sdk_analysis.PlateRecording, "from_directory", autospec=True)
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
 
     expected_info_dict = {
@@ -425,8 +425,39 @@ def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3
         "ssh_user": "ec2-user",
         "db_localhost": "127.0.0.1",
     }
-
     assert sdk_analysis.main.INFO_DICT == expected_info_dict
+
+
+def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_connection(
+    mocker, mocked_boto3_client
+):
+    mocked_s3_client = mocked_boto3_client["s3"]
+    format_spy = mocker.patch.object(sdk_analysis.main, "load_data_to_dataframe", autospec=True)
+
+    test_info_dict = {
+        "db_host": "test_db_host",
+        "db_name": "mantarray_recordings",
+        "db_password": "test_password",
+        "db_username": "test_username",
+        "k": "p_key",
+        "ssh_host": "test_ssh_host",
+        "ssh_user": "ec2-user",
+        "db_localhost": "127.0.0.1",
+    }
+
+    mocker.patch.object(sdk_analysis.main, "set_info_dict", return_value=test_info_dict)
+    mocker.patch.object(sdk_analysis.main, "SSHTunnelForwarder", autospec=True)
+    mocker.patch.object(sdk_analysis.main.pymysql, "connect")
+
+    expected_upload_bucket = "test_url"
+    mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
+
+    mocked_open = mocker.patch("builtins.open", autospec=True)
+    mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
+    mocked_PR_instance = mocker.patch.object(sdk_analysis.PlateRecording, "from_directory", autospec=True)
+    sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
+
+    format_spy.assert_called_with(mocked_open.return_value.__enter__(), mocked_PR_instance.return_value)
 
 
 def test_process_record__handles_info_logging(mocker, mocked_boto3_client):

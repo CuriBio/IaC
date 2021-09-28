@@ -67,12 +67,12 @@ def handle_db_metadata_insertions(bucket: str, key: str, file, r):
         except Exception as e:
             logger.error(f"Failed connection to Aurora database: {e}")
 
-        cur = conn.cursor()
-
         formatted_data = load_data_to_dataframe(file, r)
         metadata = formatted_data["metadata"]
         well_data = formatted_data["well_data"]
         s3_size = get_s3_object_contents(bucket, key)
+
+        cur = conn.cursor()
 
         try:
             uploaded_s3_tuple = (bucket, key, metadata["uploading_computer_name"])
