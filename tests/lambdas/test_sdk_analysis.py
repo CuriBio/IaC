@@ -431,9 +431,6 @@ def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3
 def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_connection(
     mocker, mocked_boto3_client
 ):
-    mocked_s3_client = mocked_boto3_client["s3"]
-    format_spy = mocker.patch.object(sdk_analysis.main, "load_data_to_dataframe", autospec=True)
-
     test_info_dict = {
         "db_host": "test_db_host",
         "db_name": "mantarray_recordings",
@@ -445,12 +442,14 @@ def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_
         "db_localhost": "127.0.0.1",
     }
 
-    mocker.patch.object(sdk_analysis.main, "set_info_dict", return_value=test_info_dict)
-    mocker.patch.object(sdk_analysis.main, "SSHTunnelForwarder", autospec=True)
-    mocker.patch.object(sdk_analysis.main.pymysql, "connect")
-
+    mocked_s3_client = mocked_boto3_client["s3"]
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
+
+    mocker.patch.object(sdk_analysis.main, "set_info_dict", return_value=test_info_dict)
+    mocker.patch.object(sdk_analysis.main, "SSHTunnelForwarder")
+    mocker.patch.object(sdk_analysis.main.pymysql, "connect")
+    format_spy = mocker.patch.object(sdk_analysis.main, "load_data_to_dataframe")
 
     mocked_open = mocker.patch("builtins.open", autospec=True)
     mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)

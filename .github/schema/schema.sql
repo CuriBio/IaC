@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS s3_objects (
   stored_at datetime,
   kilobytes bigint,
   md5 varchar(255),
-  PRIMARY KEY (bucket_id)
+  PRIMARY KEY (bucket_id),
 );
 
 CREATE TABLE IF NOT EXISTS uploaded_s3_objects (
