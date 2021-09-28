@@ -395,11 +395,6 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
 
 def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3_client):
     mocked_s3_client = mocked_boto3_client["s3"]
-    sdk_analysis.main.SSHTunnelForwarder.tunnel = mocker.Mock()
-    sdk_analysis.main.pymysql.connect = mocker.Mock()
-    # mocker.patch.object(sdk_analysis.main.SSHTunnelForwarder, "tunnel", return_value=True)
-    # mocker.patch.object(sdk_analysis.main.pymysql, "connect", return_value=True)
-    format_spy = mocker.spy(sdk_analysis.main, "load_data_to_dataframe")
 
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
@@ -431,7 +426,6 @@ def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3
         "db_localhost": "127.0.0.1",
     }
 
-    format_spy.assert_any_call()
     assert sdk_analysis.main.INFO_DICT == expected_info_dict
 
 
