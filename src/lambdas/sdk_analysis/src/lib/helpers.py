@@ -6,14 +6,14 @@ import pandas as pd
 def load_data_to_dataframe(file, r):
     data = pd.read_excel(file, sheet_name=None, engine="openpyxl")
 
-    recording_length = data["continuous-waveforms"]["Time (seconds)"].iloc[-1] * 1000
+    recording_length = int(data["continuous-waveforms"]["Time (seconds)"].iloc[-1]) * 1000
     formatted_metadata = format_data(data["metadata"], recording_length)
     formatted_well_data = format_well_data(r, recording_length)
 
     return {"metadata": formatted_metadata, "well_data": formatted_well_data}
 
 
-def format_data(meta_sheet, recording_length):
+def format_data(meta_sheet, recording_length: int):
 
     return {
         "barcode": meta_sheet.iloc[0, 2],
@@ -23,14 +23,14 @@ def format_data(meta_sheet, recording_length):
         "instrument_serial_number": meta_sheet.iloc[6, 2],
         "software_version": meta_sheet.iloc[7, 2],
         "uploading_computer_name": meta_sheet.iloc[10, 2],
-        "backend_log_id": meta_sheet.iloc[14, 2],
+        "backend_log_id": meta_sheet.iloc[11, 2],
         "length_centimilliseconds": recording_length,
-        "file_creation_timestamp": meta_sheet.iloc[13, 2],
+        "file_creation_timestamp": meta_sheet.iloc[14, 2],
         "mantarray_recording_session_id": uuid.uuid4(),
     }
 
 
-def format_well_data(r, recording_length):
+def format_well_data(r, recording_length: int):
     well_data = list()
 
     for idx in range(24):

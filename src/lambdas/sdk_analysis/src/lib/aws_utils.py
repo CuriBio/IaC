@@ -9,8 +9,7 @@ logger = logging.getLogger()
 
 
 def get_ssm_secrets():
-    # Get db and ec2 credentials to SSH
-    key_secret_name = "db-ec2-key-pair"
+    # Get db credentials to connect
     creds_secret_name = "db-creds"
 
     # Create a ssm client
@@ -18,7 +17,6 @@ def get_ssm_secrets():
 
     try:
         get_creds_secret_value_response = ssm_client.get_secret_value(SecretId=creds_secret_name)
-        get_key_secret_value_response = ssm_client.get_secret_value(SecretId=key_secret_name)
 
     except ClientError as e:
         logger.error(f"Error retrieving aws secrets: {e}")
@@ -26,33 +24,32 @@ def get_ssm_secrets():
     else:
         # Decrypts secret using the associated KMS CMK.
         # Depending on whether the secret is a string or binary, one of these fields will be populated.
-        key_secret = get_key_secret_value_response["SecretString"]
-
         creds_secret = get_creds_secret_value_response["SecretString"]
         parsed_creds_secret = json.loads(creds_secret)
 
         username = parsed_creds_secret["username"]
         password = parsed_creds_secret["password"]
 
-        return {"username": username, "password": password, "ssh_pkey": key_secret}
+        return {"username": username, "password": password}
 
 
-def get_remote_aws_endpoints():
-    # Create rds and ec2 client to access DNS names
+def get_remote_aws_host():
+    # Create rds client to access DNS name
     rds_client = boto3.client("rds")
-    ec2_client = boto3.client("ec2")
-    try:
-        rds_endpoint = rds_client.describe_db_cluster_endpoints(
-            Filters=[{"Name": "db-cluster-endpoint-type", "Values": ["writer"]}]
-        )["DBClusterEndpoints"][0]["Endpoint"]
 
-        ec2_endpoint = ec2_client.describe_instances(
-            Filters=[{"Name": "key-name", "Values": ["db_key_pair"]}]
-        )["Reservations"][0]["Instances"][0]["PublicDnsName"]
+    try:
+        rds_cluster_id = (
+            rds_client.describe_db_cluster_endpoints().get("DBClusterEndpoints")[0].get("DBClusterIdentifier")
+        )
+        instance_id = rds_cluster_id + "-1"
+
+        instances = rds_client.describe_db_instances(DBInstanceIdentifier=instance_id)
+        rds_host = instances.get("DBInstances")[0].get("Endpoint").get("Address")
+
     except ClientError as e:
         logger.error(f"Error retrieving remote aws endpoints for ec2 and aurora db: {e}")
 
-    return {"rds_endpoint": rds_endpoint, "ec2_endpoint": ec2_endpoint}
+    return rds_host
 
 
 def get_s3_object_contents(bucket: str, key: str):
