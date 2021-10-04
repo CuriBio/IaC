@@ -3,8 +3,6 @@ import logging
 import os
 import sys
 import uuid
-import base64
-import hashlib
 
 import boto3
 from botocore.exceptions import ClientError
@@ -28,11 +26,11 @@ logger = logging.getLogger(__name__)
 
 def generate_presigned_params(s3_client, object_key, expires_in):
     upload_id = str(uuid.uuid4())
-    md5s = base64.b64encode(hashlib.md5().digest())
-
-    fields = {"upload-id": upload_id, "Content-MD5": md5s}
+    # md5s = base64.b64encode(hashlib.md5().digest())
+    # , "Content-MD5": md5s
+    fields = {"upload-id": upload_id}
     conditions = [{"x-amz-meta-upload-id": upload_id}]
- 
+
     try:
         params = s3_client.generate_presigned_post(
             S3_BUCKET, object_key, Fields=fields, Conditions=conditions, ExpiresIn=expires_in
