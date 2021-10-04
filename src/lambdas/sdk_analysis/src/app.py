@@ -91,7 +91,7 @@ def process_record(record, s3_client, db_client):
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
             return
 
-        # insert metadata into db if upload was complete
+        # insert metadata into db
         try:
             logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
             with open(f"{tmpdir}/{file_name}", "rb") as file:
