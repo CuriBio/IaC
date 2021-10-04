@@ -1,7 +1,7 @@
 locals {
   name = "${terraform.workspace}-mantarray-rds"
   db_creds = jsondecode(
-    data.aws_secretsmanager_secret_version.db_creds.secret_string
+    aws_secretsmanager_secret_version.db_creds.secret_string
   )
   tags = {
     Application = "mantarray-rds"
@@ -39,7 +39,7 @@ resource "aws_secretsmanager_secret" "db_secret" {
 }
 
 resource "aws_secretsmanager_secret_version" "db_creds" {
-  secret_id = data.aws_secretsmanager_secret.db_secret.arn
+  secret_id = aws_secretsmanager_secret.db_secret.arn
 }
 module "db" {
   source = "terraform-aws-modules/rds-aurora/aws"
