@@ -34,11 +34,11 @@ resource "aws_default_subnet" "default_subnet_b" {
 }
 
 
-data "aws_secretsmanager_secret" "db_secret" {
+resource "aws_secretsmanager_secret" "db_secret" {
   name = "db-creds"
 }
 
-data "aws_secretsmanager_secret_version" "db_creds" {
+resource "aws_secretsmanager_secret_version" "db_creds" {
   secret_id = data.aws_secretsmanager_secret.db_secret.arn
 }
 module "db" {
