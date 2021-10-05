@@ -7,3 +7,18 @@ output "cognito_pool_client_id" {
   description = "Client ID of cognito user pool"
   value       = aws_cognito_user_pool_client.lambda_gw_pool_client.id
 }
+
+output "source_arn" {
+  description = "api gateway source arn"
+  value       = aws_apigatewayv2_api.lambda_gw.execution_arn
+}
+
+output "api_id" {
+  description = "api id"
+  value = aws_apigatewayv2_api.lambda_gw.id
+}
+
+output "authorizer_id" {
+  description = "authorizer id"
+  value = aws_apigatewayv2_authorizer.lambda_gw_auth.id
+}

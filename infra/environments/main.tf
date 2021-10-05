@@ -106,6 +106,11 @@ module "sdk_analysis" {
 
   sdk_status_table_name = module.sdk_status_db.name
   sdk_status_table_arn  = module.sdk_status_db.arn
+
+  api_gateway_source_arn = module.api.source_arn
+  lambda_api_gw_id = module.api.api_id
+  authorizer_id = module.api.authorizer_id
+  authorization_type = "JWT"
 }
 
 
@@ -124,6 +129,11 @@ module "get_sdk_status" {
 
   sdk_status_table_name = module.sdk_status_db.name
   sdk_status_table_arn  = module.sdk_status_db.arn
+
+  api_gateway_source_arn = module.api.source_arn
+  lambda_api_gw_id = module.api.api_id
+  authorizer_id = module.api.authorizer_id
+  authorization_type = "JWT"
 }
 
 module "aurora_database" {
@@ -149,6 +159,8 @@ module "get_auth" {
   function_description = "Get auth tokens lambda"
 
   client_id = module.api.cognito_pool_client_id
+  api_gateway_source_arn = module.api.source_arn
+  lambda_api_gw_id = module.api.api_id
 }
 
 
@@ -160,10 +172,10 @@ module "sdk_status_db" {
 module "api" {
   source = "../modules/curi/api_gateway"
 
-  sdk_upload_function_name     = var.sdk_upload_function_name
-  sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn
-  get_sdk_status_function_name = var.get_sdk_status_function_name
-  get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
-  get_auth_function_name       = var.get_auth_function_name
-  get_auth_invoke_arn          = module.get_auth.invoke_arn
+  #sdk_upload_function_name     = var.sdk_upload_function_name
+  #sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn
+  #get_sdk_status_function_name = var.get_sdk_status_function_name
+  #get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
+  #get_auth_function_name       = var.get_auth_function_name
+  #get_auth_invoke_arn          = module.get_auth.invoke_arn
 }

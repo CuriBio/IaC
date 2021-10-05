@@ -13,6 +13,38 @@ variable "role_arn" {
   description = "role arn w/permission to assume role"
 }
 
+variable "source_arn" {
+  type = string
+  description = "api gateway source arn"
+}
+
+variable "lambda_api_gw_id" {
+  type = string
+  description = "lambda api gateway id"
+}
+
+variable "integration_method" {
+  type = string
+  description = "lambda api integration method"
+}
+
+variable "authorizer_id" {
+  type = string
+  description = "authorizer id"
+  default = ""
+}
+
+variable "authorization_type" {
+  type = string
+  description = "authorization type"
+  default = ""
+}
+
+variable "route_key" {
+  type = string
+  description = "api route key"
+}
+
 variable "function_name" {
   type        = string
   description = "lambda name"

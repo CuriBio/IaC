@@ -94,3 +94,35 @@ module "lambda_function_container_image" {
   attach_policy_statements = length(var.attach_policies) > 0
   policy_statements        = var.attach_policies
 }
+
+
+resource "aws_lambda_permission" "sdk_upload_lambda_permission" {
+  statement_id  = "AllowAPIInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = var.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/*/* part allows invocation from any stage, method and resource path within API Gateway.
+  source_arn = "${var.source_arn}/*/*/*"
+  #source_arn = "${aws_apigatewayv2_api.lambda_gw.execution_arn}/*/*/*"
+}
+
+resource "aws_apigatewayv2_integration" "lambda_api_integration" {
+  api_id           = var.lambda_api_gw_id
+  #api_id           = aws_apigatewayv2_api.lambda_gw.id
+  integration_type = "AWS_PROXY"
+
+  connection_type      = "INTERNET"
+  description          = var.function_description
+  integration_method   = var.integration_method
+  integration_uri      = module.lambda_function_container_image.lambda_function_invoke_arn
+  passthrough_behavior = "WHEN_NO_MATCH"
+}
+
+resource "aws_apigatewayv2_route" "lambda_route" {
+  api_id    = var.lambda_api_gw_id
+  #"POST /get_auth"
+  route_key = var.route_key
+
+  target = "integrations/${aws_apigatewayv2_integration.lambda_api_integration.id}"
+}
