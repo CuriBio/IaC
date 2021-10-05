@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import uuid
+import hashlib
 
 import boto3
 from botocore.exceptions import ClientError
@@ -26,7 +27,8 @@ logger = logging.getLogger(__name__)
 
 def generate_presigned_params(s3_client, object_key, expires_in):
     upload_id = str(uuid.uuid4())
-    fields = {"x-amz-meta-upload-id": upload_id}
+    md5s = hashlib.md5().hexdigest()
+    fields = {"x-amz-meta-upload-id": upload_id, "Content-MD5": md5s}
     conditions = [{"x-amz-meta-upload-id": upload_id}]
 
     try:
