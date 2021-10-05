@@ -47,8 +47,7 @@ def handler(event, context):
     s3_client = boto3.client("s3")
 
     logger.info(f"event: {event}")
-    formatted_event = json.loads(event)
-    event_body = formatted_event["body"]
+    event_body = json.loads(event["body"])
     try:
         file_name = event_body["file_name"]
     except KeyError:
@@ -73,3 +72,4 @@ def handler(event, context):
         "headers": {"Content-Type": "application/json"},
         "body": json.dumps({"presigned_params": presigned_params, "upload_id": upload_id}),
     }
+
