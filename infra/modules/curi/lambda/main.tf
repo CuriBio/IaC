@@ -96,7 +96,9 @@ module "lambda_function_container_image" {
 }
 
 
-resource "aws_lambda_permission" "sdk_upload_lambda_permission" {
+resource "aws_lambda_permission" "lambda_permission" {
+  depends_on = [module.lambda_function_container_image]
+
   statement_id  = "AllowAPIInvoke"
   action        = "lambda:InvokeFunction"
   function_name = var.function_name
