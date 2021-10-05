@@ -1,8 +1,8 @@
 locals {
   name = "${terraform.workspace}-mantarray-rds"
-  db_creds = jsondecode(
-    aws_secretsmanager_secret_version.db_creds.secret_string
-  )
+  # db_creds = jsondecode(
+  #   aws_secretsmanager_secret_version.db_creds.secret_string
+  # )
   tags = {
     Application = "mantarray-rds"
     Environment = terraform.workspace
@@ -58,8 +58,8 @@ module "db" {
   apply_immediately   = true
   skip_final_snapshot = true
 
-  username               = jsondecode(aws_secretsmanager_secret_version.db_creds.secret_string).username
-  password               = jsondecode(aws_secretsmanager_secret_version.db_creds.secret_string).password
+  username               = jsondecode(aws_secretsmanager_secret_version.db_creds.secret_string)["username"]
+  password               = jsondecode(aws_secretsmanager_secret_version.db_creds.secret_string)["password"]
   create_random_password = false
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
