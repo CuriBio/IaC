@@ -65,5 +65,7 @@ module "db" {
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.cluster_parameter_group.id
 
+  depends_on = [aws_secretsmanager_secret.db_secret, aws_secretsmanager_secret_version.db_creds]
+
   tags = local.tags
 }
