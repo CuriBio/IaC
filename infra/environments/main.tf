@@ -158,6 +158,7 @@ module "sdk_status_db" {
 
 
 module "api" {
+  depends_on = [module.sdk_analysis]
   source = "../modules/curi/api_gateway"
 
   sdk_upload_function_name     = var.sdk_upload_function_name
