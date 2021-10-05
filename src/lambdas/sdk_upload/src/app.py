@@ -26,9 +26,7 @@ logger = logging.getLogger(__name__)
 
 def generate_presigned_params(s3_client, object_key, expires_in):
     upload_id = str(uuid.uuid4())
-    # md5s = base64.b64encode(hashlib.md5().digest())
-    # , "Content-MD5": md5s
-    fields = {"upload-id": upload_id}
+    fields = {"x-amz-meta-upload-id": upload_id}
     conditions = [{"x-amz-meta-upload-id": upload_id}]
 
     try:
@@ -72,4 +70,3 @@ def handler(event, context):
         "headers": {"Content-Type": "application/json"},
         "body": json.dumps({"presigned_params": presigned_params, "upload_id": upload_id}),
     }
-
