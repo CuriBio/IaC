@@ -47,7 +47,8 @@ def handler(event, context):
     s3_client = boto3.client("s3")
 
     logger.info(f"event: {event}")
-    event_body = json.loads(event)
+    formatted_event = json.loads(event)
+    event_body = formatted_event["body"]
     try:
         file_name = event_body["file_name"]
     except KeyError:
