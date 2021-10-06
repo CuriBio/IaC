@@ -5,8 +5,8 @@ import sys
 import uuid
 
 import boto3
-from botocore.exceptions import ClientError
 from botocore.client import Config
+from botocore.exceptions import ClientError
 
 S3_BUCKET = os.environ.get("S3_BUCKET")
 SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
@@ -29,7 +29,7 @@ def generate_presigned_params(s3_client, md5s, object_key, expires_in):
 
     fields = {"x-amz-meta-upload-id": upload_id, "Content-MD5": md5s}
     conditions = [{"x-amz-meta-upload-id": upload_id}, ["starts-with", "$Content-MD5", ""]]
-    
+
     try:
         params = s3_client.generate_presigned_post(
             S3_BUCKET, object_key, Fields=fields, Conditions=conditions, ExpiresIn=expires_in
@@ -43,7 +43,7 @@ def generate_presigned_params(s3_client, md5s, object_key, expires_in):
 
 
 def handler(event, context):
-    s3_client = boto3.client("s3", config=Config(signature_version='s3v4'))
+    s3_client = boto3.client("s3", config=Config(signature_version="s3v4"))
     logger.info(f"event: {event}")
     event_body = json.loads(event["body"])
 

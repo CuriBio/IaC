@@ -145,7 +145,7 @@ module "aurora_database" {
 
   instance_type = var.instance_type
   db_creds_arn  = var.db_creds_arn
-  db_key_arn = var.db_key_arn
+  db_key_arn    = var.db_key_arn
 }
 
 #module "lambda" {

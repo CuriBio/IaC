@@ -83,7 +83,7 @@ def process_record(record, s3_client, db_client):
 
         # handle xlsx file upload
         try:
-            with open(f"{tmpdir}/{file_name}", "rb") as f:    
+            with open(f"{tmpdir}/{file_name}", "rb") as f:
                 s3_client.upload_fileobj(f, S3_UPLOAD_BUCKET, file_name)
             update_sdk_status(db_client, upload_id, "analysis complete")
         except Exception as e:
