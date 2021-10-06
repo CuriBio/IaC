@@ -37,7 +37,7 @@ variable "authorizer_id" {
 variable "authorization_type" {
   type = string
   description = "authorization type"
-  default = ""
+  default = "NONE"
 }
 
 variable "route_key" {
