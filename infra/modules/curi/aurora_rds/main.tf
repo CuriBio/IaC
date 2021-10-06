@@ -58,7 +58,7 @@ module "db" {
   vpc_id                 = aws_default_vpc.default_vpc.id
   vpc_security_group_ids = [aws_default_vpc.default_vpc.default_security_group_id]
   create_security_group  = false
-  kms_key_id             = data.aws_kms_key.db_key.arn
+  kms_key_id             = data.aws_kms_key.alias_key_arn.arn
 
   replica_count       = 1
   apply_immediately   = true
