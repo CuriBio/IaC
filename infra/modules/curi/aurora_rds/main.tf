@@ -37,7 +37,6 @@ resource "aws_default_subnet" "default_subnet_b" {
 
 
 data "aws_secretsmanager_secret" "db_secret" {
-  name = "db-creds"
   arn = "arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl"
 }
 
