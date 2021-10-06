@@ -42,8 +42,8 @@ data "aws_secretsmanager_secret_version" "db_creds" {
   secret_id = data.aws_secretsmanager_secret.db_secret.arn
 }
 
-data "aws_kms_key" "db_key" {
-  key_id = "alias/db-key"
+data "aws_kms_key" "alias_key_arn" {
+  key_id = "arn:aws:kms:us-east-1:077346344852:alias/db-key"
 }
 
 module "db" {
