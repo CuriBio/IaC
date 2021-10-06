@@ -39,6 +39,7 @@ resource "aws_iam_role_policy" "policy" {
           "cognito-idp:*",
           "apigateway:*",
           "secretsmanager:*",
+          "kms:*",
           "iam:CreateRole",
           "iam:PassRole",
           "iam:CreatePolicy",
