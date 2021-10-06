@@ -45,7 +45,7 @@ data "aws_secretsmanager_secret_version" "db_creds" {
 }
 
 data "aws_kms_key" "alias_key_arn" {
-  key_id = "arn:aws:kms:us-east-1:077346344852:alias/db-key"
+  key_id = var.db_key_arn
 }
 
 module "db" {
@@ -72,6 +72,7 @@ module "db" {
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.cluster_parameter_group.id
+  enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]
 
   tags = local.tags
 }

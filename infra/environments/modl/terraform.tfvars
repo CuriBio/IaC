@@ -27,3 +27,4 @@ sqsp_verification = "862laeb5r7tfnxngc2mc"
 #database
 instance_type = "db.t3.small"
 db_creds_arn  = "arn:aws:secretsmanager:us-west-2:725604423866:secret:db-creds-lzF0gX"
+db_key_arn = "arn:aws:kms:us-east-1:077346344852:alias/db-key" #needs to change
