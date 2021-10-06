@@ -13,10 +13,27 @@ variable "image_name" {
   description = "docker image name"
 }
 
-# variable "image_src" {
-#   type        = string
-#   description = "docker image src dir"
-# }
+variable "lambda_api_gw_id" {
+  type        = string
+  description = "lambda api gateway id"
+}
+
+variable "api_gateway_source_arn" {
+  type        = string
+  description = "api gateway source arn"
+}
+
+variable "authorizer_id" {
+  type        = string
+  description = "authorizer id"
+  default     = ""
+}
+
+variable "authorization_type" {
+  type        = string
+  description = "authorization type"
+  default     = "NONE"
+}
 
 variable "role_arn" {
   type        = string
