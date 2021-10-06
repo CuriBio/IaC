@@ -18,6 +18,7 @@ variable "sdk_upload_function_name" {}
 
 #database
 variable "instance_type" {}
+variable "db_creds_arn" {}
 
 # upload/analysis status
 variable "get_sdk_status_image_name" {}
