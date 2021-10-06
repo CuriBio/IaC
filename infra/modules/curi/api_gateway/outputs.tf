@@ -15,10 +15,10 @@ output "source_arn" {
 
 output "api_id" {
   description = "api id"
-  value = aws_apigatewayv2_api.lambda_gw.id
+  value       = aws_apigatewayv2_api.lambda_gw.id
 }
 
 output "authorizer_id" {
   description = "authorizer id"
-  value = aws_apigatewayv2_authorizer.lambda_gw_auth.id
+  value       = aws_apigatewayv2_authorizer.lambda_gw_auth.id
 }

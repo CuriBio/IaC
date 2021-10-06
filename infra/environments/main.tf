@@ -89,7 +89,7 @@ module "jupyter_notebook" {
 
 
 module "sdk_analysis" {
-  source = "../modules/curi/cloud_sdk"
+  source     = "../modules/curi/cloud_sdk"
   depends_on = [module.api]
 
   # assume role for docker push
@@ -110,14 +110,14 @@ module "sdk_analysis" {
   sdk_status_table_arn  = module.sdk_status_db.arn
 
   api_gateway_source_arn = module.api.source_arn
-  lambda_api_gw_id = module.api.api_id
-  authorizer_id = module.api.authorizer_id
-  authorization_type = "JWT"
+  lambda_api_gw_id       = module.api.api_id
+  authorizer_id          = module.api.authorizer_id
+  authorization_type     = "JWT"
 }
 
 
 module "get_sdk_status" {
-  source = "../modules/curi/get_sdk_status"
+  source     = "../modules/curi/get_sdk_status"
   depends_on = [module.api]
 
   # assume role for docker push
@@ -134,23 +134,23 @@ module "get_sdk_status" {
   sdk_status_table_arn  = module.sdk_status_db.arn
 
   api_gateway_source_arn = module.api.source_arn
-  lambda_api_gw_id = module.api.api_id
-  authorizer_id = module.api.authorizer_id
-  authorization_type = "JWT"
+  lambda_api_gw_id       = module.api.api_id
+  authorizer_id          = module.api.authorizer_id
+  authorization_type     = "JWT"
 }
 
 module "aurora_database" {
   source = "../modules/curi/aurora_rds"
 
   instance_type = var.instance_type
-  db_creds_arn = var.db_creds_arn
+  db_creds_arn  = var.db_creds_arn
 }
 
 #module "lambda" {
 #  source = "../modules/curi/lambda"
 
 module "get_auth" {
-  source = "../modules/curi/get_auth"
+  source     = "../modules/curi/get_auth"
   depends_on = [module.api]
 
   # assume role for docker push
@@ -163,9 +163,9 @@ module "get_auth" {
   function_name        = "${terraform.workspace}-${var.get_auth_function_name}"
   function_description = "Get auth tokens lambda"
 
-  client_id = module.api.cognito_pool_client_id
+  client_id              = module.api.cognito_pool_client_id
   api_gateway_source_arn = module.api.source_arn
-  lambda_api_gw_id = module.api.api_id
+  lambda_api_gw_id       = module.api.api_id
 }
 
 

@@ -14,34 +14,34 @@ variable "role_arn" {
 }
 
 variable "source_arn" {
-  type = string
+  type        = string
   description = "api gateway source arn"
 }
 
 variable "lambda_api_gw_id" {
-  type = string
+  type        = string
   description = "lambda api gateway id"
 }
 
 variable "integration_method" {
-  type = string
+  type        = string
   description = "lambda api integration method"
 }
 
 variable "authorizer_id" {
-  type = string
+  type        = string
   description = "authorizer id"
-  default = ""
+  default     = ""
 }
 
 variable "authorization_type" {
-  type = string
+  type        = string
   description = "authorization type"
-  default = "NONE"
+  default     = "NONE"
 }
 
 variable "route_key" {
-  type = string
+  type        = string
   description = "api route key"
 }
 

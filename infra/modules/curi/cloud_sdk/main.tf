@@ -13,11 +13,11 @@ module "lambda" {
   function_description = "Handle sdk data upload"
 
   # api gateway source arn
-  source_arn = var.api_gateway_source_arn
-  lambda_api_gw_id = var.lambda_api_gw_id
+  source_arn         = var.api_gateway_source_arn
+  lambda_api_gw_id   = var.lambda_api_gw_id
   integration_method = "POST"
-  route_key = "POST /sdk_upload"
-  authorizer_id = var.authorizer_id
+  route_key          = "POST /sdk_upload"
+  authorizer_id      = var.authorizer_id
   authorization_type = var.authorization_type
 
   # attach_policy = aws_iam_role.policy.arn

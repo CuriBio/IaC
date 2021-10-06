@@ -14,7 +14,7 @@ variable "image_name" {
 }
 
 variable "lambda_api_gw_id" {
-  type = string
+  type        = string
   description = "lambda api gateway id"
 }
 
@@ -24,15 +24,15 @@ variable "api_gateway_source_arn" {
 }
 
 variable "authorizer_id" {
-  type = string
+  type        = string
   description = "authorizer id"
-  default = ""
+  default     = ""
 }
 
 variable "authorization_type" {
-  type = string
+  type        = string
   description = "authorization type"
-  default = "NONE"
+  default     = "NONE"
 }
 
 variable "role_arn" {
