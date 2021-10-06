@@ -1,4 +1,4 @@
-name: 'Open/Update PR not into Prod'
+name: 'Open/Update PR in Test'
 on:
   workflow_dispatch:
     inputs:
@@ -77,7 +77,7 @@ jobs:
 
       - name: 'Create Environment'
         id: tfenv
-        run: python ./.github/scripts/tf-deploy-env.py --workspace modl --no-color
+        run: python ./.github/scripts/tf-deploy-env.py --workspace test --no-color
 
       - name: 'Terraform plan dev output'
         uses: actions/github-script@v3.1
