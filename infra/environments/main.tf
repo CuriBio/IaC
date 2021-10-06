@@ -90,7 +90,7 @@ module "jupyter_notebook" {
 
 module "sdk_analysis" {
   source     = "../modules/curi/cloud_sdk"
-  depends_on = [module.api]
+  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
@@ -118,7 +118,7 @@ module "sdk_analysis" {
 
 module "get_sdk_status" {
   source     = "../modules/curi/get_sdk_status"
-  depends_on = [module.api]
+  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
@@ -151,7 +151,7 @@ module "aurora_database" {
 
 module "get_auth" {
   source     = "../modules/curi/get_auth"
-  depends_on = [module.api]
+  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
