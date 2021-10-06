@@ -140,6 +140,7 @@ module "aurora_database" {
   source = "../modules/curi/aurora_rds"
 
   instance_type = var.instance_type
+  db_creds_arn = var.db_creds_arn
 }
 
 #module "lambda" {
