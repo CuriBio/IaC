@@ -43,7 +43,7 @@ def generate_presigned_params(s3_client, md5s, object_key, expires_in):
 
 
 def handler(event, context):
-    s3_client = boto3.client("s3", config=Config(signature_version="s3v4"))
+    s3_client = boto3.client("s3")
     logger.info(f"event: {event}")
     event_body = json.loads(event["body"])
 
@@ -59,9 +59,8 @@ def handler(event, context):
 
     try:
         md5s = event["headers"]["Content-MD5"]
-        logger.info(f"event headers: {event['headers']}")
     except KeyError:
-        logger.exception(f"Content-MD5 header not found in request: {event['headers']}")
+        logger.exception("Content-MD5 header not found in request")
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},

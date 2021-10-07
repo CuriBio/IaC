@@ -32,17 +32,16 @@ insert_into_mantarray_raw_files = """
     """
 
 insert_into_s3_objects = """
-    INSERT INTO s3_objects(object_id, kilobytes, stored_at) VALUES (%s, %s, %s);
+    INSERT INTO s3_objects(object_id, kilobytes, stored_at, md5) VALUES (%s, %s, %s, %s);
     """
 
 select_last_object_id = """SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1"""
 
 
-def handle_db_metadata_insertions(bucket: str, key: str, file, r):
-    """ Open an SSH tunnel and connect using a username and password. Query database.
-        Args:
-            file: .xlsx file containing aggregated metadata for recording
-            r: PlateRecording instance for individual well data
+def handle_db_metadata_insertions(bucket: str, key: str, args: list):
+    """
+        args:
+            contains <file>.xlsx, individual well data, and the md5 hash
     """
 
     if not INFO_DICT:
@@ -60,7 +59,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, file, r):
         logger.error(f"Failed connection to Aurora database: {e}")
         return
 
-    formatted_data = load_data_to_dataframe(file, r)
+    formatted_data = load_data_to_dataframe(args[0], args[1])
     metadata = formatted_data["metadata"]
     well_data = formatted_data["well_data"]
     s3_size = get_s3_object_contents(bucket, key)
@@ -81,7 +80,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, file, r):
         )
         cur.execute(insert_into_mantarray_recording_sessions, recording_session_tuple)
 
-        s3_object_tuple = (select_last_object_id, s3_size, metadata["file_creation_timestamp"])
+        s3_object_tuple = (select_last_object_id, s3_size, metadata["file_creation_timestamp"], args[2])
         cur.execute(insert_into_s3_objects, s3_object_tuple)
 
         logger.info("Executing queries to the database in relation to aggregated metadata")
