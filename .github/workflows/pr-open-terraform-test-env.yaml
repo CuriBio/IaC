@@ -106,17 +106,17 @@ jobs:
       - name: 'Terraform apply'
         run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
 
-      - name: Setup SSH and DB
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: |
-          KEY=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' )
-          DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password )
-          DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .username )
-          DB_HOST=$( aws rds describe-db-instances --db-instance-identifier "iac-${{ github.event.pull_request.number }}-mantarray-rds-1" | jq --raw-output ".[][].Endpoint.Address" )
+      # - name: Setup SSH and DB
+      #   env:
+      #     SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      #   run: |
+      #     KEY=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8  | jq --raw-output '.SecretString' )
+      #     DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password )
+      #     DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .username )
+      #     DB_HOST=$( aws rds describe-db-instances --db-instance-identifier "iac-${{ github.event.pull_request.number }}-mantarray-rds-1" | jq --raw-output ".[][].Endpoint.Address" )
 
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-          ssh-add - <<< "${KEY}"
+      #     ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+      #     ssh-add - <<< "${KEY}"
 
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./.github/schema/schema.sql ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com:/tmp
-          ssh -o StrictHostKeyChecking=no ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com "mysql -u $DB_USERNAME -p$DB_PASSWORD -h $DB_HOST < /tmp/schema.sql"
+      #     scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./.github/schema/schema.sql ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com:/tmp
+      #     ssh -o StrictHostKeyChecking=no ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com "mysql -u $DB_USERNAME -p$DB_PASSWORD -h $DB_HOST < /tmp/schema.sql"

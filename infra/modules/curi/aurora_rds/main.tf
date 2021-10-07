@@ -44,10 +44,6 @@ data "aws_secretsmanager_secret_version" "db_creds" {
   secret_id = data.aws_secretsmanager_secret.db_secret.id
 }
 
-data "aws_kms_key" "alias_key_arn" {
-  key_id = var.db_key_arn
-}
-
 module "db" {
   source = "terraform-aws-modules/rds-aurora/aws"
 
@@ -60,7 +56,6 @@ module "db" {
   vpc_id                 = aws_default_vpc.default_vpc.id
   vpc_security_group_ids = [aws_default_vpc.default_vpc.default_security_group_id]
   create_security_group  = false
-  kms_key_id             = data.aws_kms_key.alias_key_arn.arn
 
   replica_count       = 1
   apply_immediately   = true
