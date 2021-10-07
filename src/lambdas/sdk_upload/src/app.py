@@ -5,7 +5,6 @@ import sys
 import uuid
 
 import boto3
-from botocore.client import Config
 from botocore.exceptions import ClientError
 
 S3_BUCKET = os.environ.get("S3_BUCKET")

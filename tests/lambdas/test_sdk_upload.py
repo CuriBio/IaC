@@ -40,6 +40,7 @@ def test_sdk_upload__logs_exception_if_file_name_not_given(mocker):
     sdk_upload.handler({"body": json.dumps({})}, None)
     spied_logger_exception.assert_called_once_with("file_name not found in request body")
 
+
 def test_sdk_upload__logs_exception_if_content_md5_header_is_not_present(mocker):
     spied_logger_exception = mocker.spy(sdk_upload.logger, "exception")
     response = sdk_upload.handler({"body": json.dumps({"file_name": ""})}, None)
@@ -51,6 +52,7 @@ def test_sdk_upload__logs_exception_if_content_md5_header_is_not_present(mocker)
         "body": json.dumps({"message": "Missing Content-MD5 header"}),
     }
 
+
 def test_sdk_upload__calls_generate_presigned_post_with_correct_values(mocker, mocked_boto3_client):
     mocked_s3_client, _ = mocked_boto3_client
 
@@ -59,7 +61,9 @@ def test_sdk_upload__calls_generate_presigned_post_with_correct_values(mocker, m
     spied_uuid4 = mocker.spy(sdk_upload.uuid, "uuid4")
 
     test_file_name = "test_file"
-    sdk_upload.handler({"body": json.dumps({"file_name": test_file_name}),"headers": {"Content-MD5": ""}}, None)
+    sdk_upload.handler(
+        {"body": json.dumps({"file_name": test_file_name}), "headers": {"Content-MD5": ""}}, None
+    )
 
     expected_upload_id = str(spied_uuid4.spy_return)
     expected_fields = {"x-amz-meta-upload-id": expected_upload_id, "Content-MD5": ""}
@@ -95,7 +99,9 @@ def test_sdk_upload__returns_correct_response_for_a_given_file_name(mocker, mock
     spied_uuid4 = mocker.spy(sdk_upload.uuid, "uuid4")
 
     test_file_name = "test_file"
-    response = sdk_upload.handler({"body": json.dumps({"file_name": test_file_name}), "headers": {"Content-MD5": ""}}, None)
+    response = sdk_upload.handler(
+        {"body": json.dumps({"file_name": test_file_name}), "headers": {"Content-MD5": ""}}, None
+    )
     assert response == {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},
@@ -111,7 +117,9 @@ def test_sdk_upload__puts_item_into_dynamodb_table_correctly(mocker, mocked_boto
     spied_uuid4 = mocker.spy(sdk_upload.uuid, "uuid4")
 
     test_file_name = "test_file"
-    sdk_upload.handler({"body": json.dumps({"file_name": test_file_name}), "headers": {"Content-MD5": ""}}, None)
+    sdk_upload.handler(
+        {"body": json.dumps({"file_name": test_file_name}), "headers": {"Content-MD5": ""}}, None
+    )
     mocked_dynamodb_client.put_item.assert_called_once_with(
         TableName=expected_table_name,
         Item={"upload_id": {"S": str(spied_uuid4.spy_return)}, "sdk_status": {"S": "analysis pending"}},
@@ -128,16 +136,19 @@ def test_sdk_upload__logs_exception_when_generate_presigned_post_raises_ClientEr
     spied_logger_exception = mocker.spy(sdk_upload.logger, "exception")
 
     with pytest.raises(ClientError):
-        sdk_upload.handler({"body": json.dumps({ "file_name": "" }), "headers": {"Content-MD5": ""}}, None)
+        sdk_upload.handler({"body": json.dumps({"file_name": ""}), "headers": {"Content-MD5": ""}}, None)
     spied_logger_exception.assert_called_once_with("Couldn't get presigned URL params")
 
 
 def test_sdk_upload__errors_if_content_md5_header_is_not_valid_format(mocked_boto3_client):
     mocked_s3_client, _ = mocked_boto3_client
 
-    expected_params = {"param1": 1, "param2": "val", 'Content-MD5': b'1B2M2Y8AsgTpgAmY7PhCfg=='}
+    expected_params = {"param1": 1, "param2": "val", "Content-MD5": b"1B2M2Y8AsgTpgAmY7PhCfg=="}
     mocked_s3_client.generate_presigned_post.return_value = expected_params
 
     with pytest.raises(TypeError):
-        response = sdk_upload.handler({"body": json.dumps({"file_name": ""}), "headers": {"Content-MD5": b'1B2M2Y8AsgTpgAmY7PhCfg=='}}, None)
+        response = sdk_upload.handler(
+            {"body": json.dumps({"file_name": ""}), "headers": {"Content-MD5": b"1B2M2Y8AsgTpgAmY7PhCfg=="}},
+            None,
+        )
         assert response == "Object of type bytes is not JSON serializable"
