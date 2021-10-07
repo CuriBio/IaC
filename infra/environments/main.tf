@@ -19,7 +19,6 @@ variable "sdk_upload_function_name" {}
 #database
 variable "instance_type" {}
 variable "db_creds_arn" {}
-variable "db_key_arn" {}
 
 # upload/analysis status
 variable "get_sdk_status_image_name" {}
@@ -145,7 +144,6 @@ module "aurora_database" {
 
   instance_type = var.instance_type
   db_creds_arn  = var.db_creds_arn
-  db_key_arn    = var.db_key_arn
 }
 
 #module "lambda" {
