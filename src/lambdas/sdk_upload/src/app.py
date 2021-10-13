@@ -7,7 +7,6 @@ import uuid
 import boto3
 from botocore.exceptions import ClientError
 
-
 S3_BUCKET = os.environ.get("S3_BUCKET")
 SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
 
@@ -24,10 +23,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def generate_presigned_params(s3_client, object_key, expires_in):
+def generate_presigned_params(s3_client, md5s, object_key, expires_in):
     upload_id = str(uuid.uuid4())
-    fields = {"x-amz-meta-upload-id": upload_id}
-    conditions = [{"x-amz-meta-upload-id": upload_id}]
+
+    fields = {"x-amz-meta-upload-id": upload_id, "Content-MD5": md5s}
+    conditions = [{"x-amz-meta-upload-id": upload_id}, ["starts-with", "$Content-MD5", ""]]
 
     try:
         params = s3_client.generate_presigned_post(
@@ -43,9 +43,9 @@ def generate_presigned_params(s3_client, object_key, expires_in):
 
 def handler(event, context):
     s3_client = boto3.client("s3")
-
     logger.info(f"event: {event}")
     event_body = json.loads(event["body"])
+
     try:
         file_name = event_body["file_name"]
     except KeyError:
@@ -56,7 +56,19 @@ def handler(event, context):
             "body": json.dumps({"message": "Missing file_name"}),
         }
 
-    presigned_params, upload_id = generate_presigned_params(s3_client, object_key=file_name, expires_in=3600)
+    try:
+        md5s = event["headers"]["Content-MD5"]
+    except KeyError:
+        logger.exception("Content-MD5 header not found in request")
+        return {
+            "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"message": "Missing Content-MD5 header"}),
+        }
+
+    presigned_params, upload_id = generate_presigned_params(
+        s3_client, md5s, object_key=file_name, expires_in=3600
+    )
 
     db_client = boto3.client("dynamodb")
     db_client.put_item(

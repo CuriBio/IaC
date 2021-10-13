@@ -1,4 +1,6 @@
+import base64
 import copy
+import hashlib
 import json
 
 from botocore.exceptions import ClientError
@@ -283,6 +285,9 @@ def test_process_record__uploads_file_created_by_sdk_analysis_to_s3_bucket_corre
     expected_upload_id = mocked_s3_client.head_object.return_value["Metadata"]["upload-id"]
 
     expected_upload_bucket = "test_url"
+    mocker.patch.object(hashlib, "md5")
+    mocked_base64 = mocker.patch.object(base64, "b64encode")
+    expected_md5 = mocked_base64().decode()
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
 
     spied_temporary_dir = mocker.spy(sdk_analysis.tempfile, "TemporaryDirectory")
@@ -294,8 +299,11 @@ def test_process_record__uploads_file_created_by_sdk_analysis_to_s3_bucket_corre
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
     expected_dir_name = spied_temporary_dir.spy_return.name
     mocked_open.assert_called_with(f"{expected_dir_name}/{TEST_OBJECT_KEY}.xlsx", "rb")
-    mocked_s3_client.upload_fileobj.assert_called_once_with(
-        mocked_open.return_value.__enter__(), expected_upload_bucket, f"{TEST_OBJECT_KEY}.xlsx"
+    mocked_s3_client.put_object.assert_called_once_with(
+        Body=mocked_open.return_value.__enter__(),
+        Bucket=expected_upload_bucket,
+        Key=f"{TEST_OBJECT_KEY}.xlsx",
+        ContentMD5=expected_md5,
     )
     mocked_update_status.assert_called_with(
         mocked_boto3_client["dynamodb"], expected_upload_id, "analysis complete"
@@ -305,9 +313,10 @@ def test_process_record__uploads_file_created_by_sdk_analysis_to_s3_bucket_corre
 def test_process_record__handles_error_raised_while_uploading_file_to_s3(mocker, mocked_boto3_client):
     mocked_s3_client = mocked_boto3_client["s3"]
     expected_upload_id = mocked_s3_client.head_object.return_value["Metadata"]["upload-id"]
-
+    mocker.patch.object(hashlib, "md5")
+    mocker.patch.object(base64, "b64encode")
     expected_error = Exception("test_exception")
-    mocked_s3_client.upload_fileobj.side_effect = expected_error
+    mocked_s3_client.put_object.side_effect = expected_error
 
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
@@ -340,6 +349,8 @@ def test_process_record__after_successful_upload_logger_handles_failed_aurora_db
     spied_logger_error = mocker.spy(sdk_analysis.logger, "error")
     mocked_s3_client = mocked_boto3_client["s3"]
     expected_upload_id = mocked_s3_client.head_object.return_value["Metadata"]["upload-id"]
+    mocker.patch.object(hashlib, "md5")
+    mocker.patch.object(base64, "b64encode")
 
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
@@ -364,9 +375,11 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     spied_logger_info = mocker.spy(sdk_analysis.logger, "info")
     mocked_s3_client = mocked_boto3_client["s3"]
     expected_upload_id = mocked_s3_client.head_object.return_value["Metadata"]["upload-id"]
-
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
+    mocker.patch.object(hashlib, "md5")
+    mocked_base64 = mocker.patch.object(base64, "b64encode")
+    expected_md5 = mocked_base64().decode()
 
     spied_temporary_dir = mocker.spy(sdk_analysis.tempfile, "TemporaryDirectory")
     mocked_open = mocker.patch("builtins.open", autospec=True)
@@ -375,6 +388,7 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     mocked_db_handling = mocker.patch.object(
         sdk_analysis.main, "handle_db_metadata_insertions", autospec=True
     )
+    mocker.patch.object(mocked_s3_client, "put_object")
 
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
     expected_dir_name = spied_temporary_dir.spy_return.name
@@ -385,12 +399,9 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     spied_logger_info.assert_called_with(
         f"Inserting {expected_dir_name}/{TEST_OBJECT_KEY}.xlsx metadata into aurora database"
     )
-    mocked_db_handling.assert_called_with(
-        TEST_BUCKET_NAME,
-        TEST_OBJECT_KEY,
-        mocked_open.return_value.__enter__(),
-        mocked_PR_instance.return_value,
-    )
+
+    test_args = [mocked_open.return_value.__enter__(), mocked_PR_instance.return_value, expected_md5]
+    mocked_db_handling.assert_called_with(TEST_BUCKET_NAME, TEST_OBJECT_KEY, test_args)
 
 
 def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3_client):
@@ -398,6 +409,8 @@ def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3
 
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
+    mocker.patch.object(hashlib, "md5")
+    mocker.patch.object(base64, "b64encode")
 
     mocker.patch.object(
         sdk_analysis.main,
@@ -433,6 +446,8 @@ def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_
     }
 
     mocked_s3_client = mocked_boto3_client["s3"]
+    mocker.patch.object(hashlib, "md5")
+    mocker.patch.object(base64, "b64encode")
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
 
@@ -442,6 +457,7 @@ def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_
 
     mocked_open = mocker.patch("builtins.open", autospec=True)
     mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
+    mocker.patch.object(mocked_s3_client, "put_object", autospec=True)
     mocked_PR_instance = mocker.patch.object(sdk_analysis.PlateRecording, "from_directory", autospec=True)
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
 
