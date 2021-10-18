@@ -1,3 +1,7 @@
+resource "aws_iam_service_linked_role" "ecs_service_linked_role" {
+  aws_service_name = "ecs.amazonaws.com"
+}
+
 resource "aws_ecr_repository" "ecr" {
   name                 = "${terraform.workspace}-${var.image_name}"
   image_tag_mutability = "MUTABLE"
