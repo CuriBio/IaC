@@ -104,8 +104,10 @@ def process_record(record, s3_client, db_client):
             with open(f"{tmpdir}/{file_name}", "rb") as file:
                 args = [file, r, md5s]
                 main.handle_db_metadata_insertions(bucket, key, args)
+            update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
         except Exception as e:
             logger.error(f"Recording metadata failed to store in aurora database: {e}")
+            update_sdk_status(db_client, upload_id, "error inserting analysis to database")
 
 
 def handler(max_num_loops=0):
