@@ -26,4 +26,4 @@ sqsp_verification = "862laeb5r7tfnxngc2mc"
 
 #database
 instance_class = "db.t3.small"
-db_creds_arn  = "arn:aws:secretsmanager:us-west-2:725604423866:secret:db-creds-lzF0gX"
+db_creds_arn   = "arn:aws:secretsmanager:us-west-2:725604423866:secret:db-creds-lzF0gX"
