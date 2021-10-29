@@ -37,7 +37,7 @@ resource "aws_default_subnet" "default_subnet_b" {
 
 
 data "aws_secretsmanager_secret" "db_secret" {
-  arn = "arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl"
+  arn = var.db_creds_arn
 }
 
 data "aws_secretsmanager_secret_version" "db_creds" {
@@ -50,19 +50,18 @@ module "db" {
   name           = local.name
   engine         = "aurora-mysql"
   engine_version = "5.7.mysql_aurora.2.09.2"
-  instance_type  = var.instance_type
+  instance_class  = var.instance_class
 
   subnets                = [aws_default_subnet.default_subnet_a.id, aws_default_subnet.default_subnet_b.id]
   vpc_id                 = aws_default_vpc.default_vpc.id
   vpc_security_group_ids = [aws_default_vpc.default_vpc.default_security_group_id]
   create_security_group  = false
 
-  replica_count       = 1
   apply_immediately   = true
   skip_final_snapshot = true
 
-  username               = local.db_creds.username
-  password               = local.db_creds.password
+  master_username               = local.db_creds.username
+  master_password               = local.db_creds.password
   create_random_password = false
 
   db_parameter_group_name         = aws_db_parameter_group.parameter_group.id

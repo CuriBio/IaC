@@ -1,4 +1,4 @@
-variable "instance_type" {
+variable "instance_class" {
   description = "RDS instance type and size"
   type        = string
 }

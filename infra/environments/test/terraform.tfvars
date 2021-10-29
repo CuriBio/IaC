@@ -26,5 +26,5 @@ hosted_zone = "curibio-test.com"
 sqsp_verification = "e2xgjnsckpkc3lh9jx52"
 
 #database
-instance_type = "db.t3.small"
+instance_class = "db.t3.small"
 db_creds_arn  = "arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl"

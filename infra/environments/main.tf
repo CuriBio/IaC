@@ -17,7 +17,7 @@ variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
 #database
-variable "instance_type" {}
+variable "instance_class" {}
 variable "db_creds_arn" {}
 
 # upload/analysis status
@@ -142,7 +142,7 @@ module "get_sdk_status" {
 module "aurora_database" {
   source = "../modules/curi/aurora_rds"
 
-  instance_type = var.instance_type
+  instance_class = var.instance_class
   db_creds_arn  = var.db_creds_arn
 }
 
