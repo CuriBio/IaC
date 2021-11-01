@@ -101,7 +101,7 @@ module "ecs_task" {
           "kms:*",
         ]
         Effect   = "Allow"
-        Resource = "arn:aws:kms:us-east-1:077346344852:key/60d9386e-d165-4d8d-ada7-64d36aeadeea"
+        Resource = data.aws_kms_key.key_alias.arn
       },
       {
         Action = [
@@ -197,4 +197,8 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     queue_arn = aws_sqs_queue.sdk_upload_queue.arn
     events    = ["s3:ObjectCreated:*"]
   }
+}
+
+data "aws_kms_key" "key_alias" {
+  key_id = "alias/aws/rds"
 }
