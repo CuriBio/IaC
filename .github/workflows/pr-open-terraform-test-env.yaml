@@ -114,7 +114,7 @@ jobs:
           DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .password )
           DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .username )
           DB_HOST=$( aws rds describe-db-instances --region=us-east-1 --db-instance-identifier "test-mantarray-rds-one" | jq --raw-output ".[][].Endpoint.Address" )
-          echo $(aws rds describe-db-instances --region=us-east-1 --db-instance-identifier "test-mantarray-rds-one")
+          echo "::set-output name=mix-test::$(aws rds describe-db-instances --region=us-east-1 --db-instance-identifier \"test-mantarray-rds-one\")"
 
 
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
