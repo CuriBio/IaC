@@ -111,9 +111,9 @@ def process_record(record, s3_client, db_client):
 
 
 def handler(max_num_loops=0):
-    sqs_client = boto3.client("sqs", region_name="us-east-1")
+    sqs_client = boto3.client("sqs")
     s3_client = boto3.client("s3")
-    db_client = boto3.client("dynamodb", region_name="us-east-1")
+    db_client = boto3.client("dynamodb")
     logger.info(f"Receiving messages on {SQS_URL}")
 
     num_loops = 0

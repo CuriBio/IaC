@@ -89,6 +89,13 @@ module "ecs_task" {
         Effect   = "Allow"
         Resource = var.sdk_status_table_arn
       },
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+        ]
+        Effect   = "Allow"
+        Resource = var.db_creds_arn
+      },
     ]
   })
 

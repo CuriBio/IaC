@@ -113,6 +113,8 @@ module "sdk_analysis" {
   lambda_api_gw_id       = module.api.api_id
   authorizer_id          = module.api.authorizer_id
   authorization_type     = "JWT"
+
+  db_creds_arn = var.db_creds_arn
 }
 
 

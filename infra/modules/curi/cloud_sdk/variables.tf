@@ -59,3 +59,8 @@ variable "sdk_status_table_arn" {
   type        = string
   description = "arn of the SDK status table"
 }
+
+variable "db_creds_arn" {
+  description = "ARN value for db_creds secret"
+  type        = string
+}
