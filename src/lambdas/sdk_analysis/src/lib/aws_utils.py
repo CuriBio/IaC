@@ -41,8 +41,7 @@ def get_remote_aws_host():
         rds_cluster_id = (
             rds_client.describe_db_cluster_endpoints().get("DBClusterEndpoints")[0].get("DBClusterIdentifier")
         )
-        instance_id = rds_cluster_id + "-1"
-
+        instance_id = rds_cluster_id + "-one"
         instances = rds_client.describe_db_instances(DBInstanceIdentifier=instance_id)
         rds_host = instances.get("DBInstances")[0].get("Endpoint").get("Address")
 
