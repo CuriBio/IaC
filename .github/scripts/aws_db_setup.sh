@@ -1,4 +1,8 @@
 #!/bin/bash
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+aws configure set default.region "us-east-1"
+
 SESSION=$(AWS_PAGER="" aws sts assume-role --region us-east-1 --role-arn $ROLE_ARN --role-session-name terraform --region us-east-1 --output json)
 unset AWS_PROFILE
 
