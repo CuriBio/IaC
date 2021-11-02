@@ -107,8 +107,9 @@ jobs:
         run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
 
       - name: Setup SSH and DB
+      - uses: actions/checkout@v2
         env:
           ROLE_ARN: arn:aws:iam::077346344852:user/terraform_iam_user
         run: |
-          chmod +x "./.github/scripts/aws_db_setup.sh"
-          "./.github/scripts/aws_db_setup.sh ${{ env.ROLE_ARN }}"
+          chmod +x ./.github/scripts/aws_db_setup.sh
+          ./.github/scripts/aws_db_setup.sh ${{ env.ROLE_ARN }}
