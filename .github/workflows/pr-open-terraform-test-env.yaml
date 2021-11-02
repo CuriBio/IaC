@@ -110,4 +110,5 @@ jobs:
         env:
           ROLE_ARN: arn:aws:iam::077346344852:user/terraform_iam_user
         run: |
-          ./.github/scripts/aws_db_setup.sh ${{ env.ROLE_ARN }}
+          chmod +x "./.github/scripts/aws_db_setup.sh"
+          "./.github/scripts/aws_db_setup.sh ${{ env.ROLE_ARN }}"
