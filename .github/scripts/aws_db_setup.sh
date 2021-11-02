@@ -20,6 +20,7 @@ DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsma
 DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl  | jq --raw-output '.SecretString' | jq -r .username )
 DB_HOST=$( aws rds describe-db-instances --region=us-east-1 --db-instance-identifier "test-mantarray-rds-one" | jq --raw-output ".[][].Endpoint.Address" )
 
+eval $(ssh-agent -s)
 ssh-agent -a /tmp/ssh_agent.sock > /dev/null
 ssh-add - <<< "${KEY}"
 
