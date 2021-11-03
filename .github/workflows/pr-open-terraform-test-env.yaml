@@ -111,8 +111,8 @@ jobs:
           TEST_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)
           DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $OUTPUTS)
           DB_CREDS_ARN=$(jq -r .db_creds_arn.value <<< $OUTPUTS)
-          DB_INSTANCE_ID=$(jq -r .db_name.value <<< $OUTPUTS)
+          DB_HOST=$(jq -r .cluster_endpoint.value <<< $OUTPUTS)
           EC2_HOST=$(jq -r .jump_host.value <<< $OUTPUTS)
 
           chmod +x ./.github/scripts/aws_db_setup.sh
-          ./.github/scripts/aws_db_setup.sh $TEST_ROLE_ARN $DB_KEY_ARN $DB_CREDS_ARN $DB_INSTANCE_ID $EC2_HOST
+          ./.github/scripts/aws_db_setup.sh $TEST_ROLE_ARN $DB_KEY_ARN $DB_CREDS_ARN $DB_HOST $EC2_HOST

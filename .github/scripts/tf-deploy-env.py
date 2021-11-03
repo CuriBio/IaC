@@ -53,7 +53,7 @@ def main():
     )
 
     if args.refresh:
-        subprocess_stream(f"terraform refresh {tfvars}", **shell_args)
+        subprocess_stream(f"terraform refresh {tfvars}", capture=True, **shell_args)
 
     if args.output:
         subprocess_stream(f"terraform output -json", capture=True, **shell_args)

@@ -13,6 +13,11 @@ output "db_name" {
   value       = module.aurora_database.db_name
 }
 
+output "db_cluster_endpoint" {
+  description = "rds writer endpoint"
+  value       = module.aurora_database.cluster_endpoint
+}
+
 output "jump_ec2_arn" {
   description = "jump_ec2 arn"
   value       = var.jump_ec2_arn

@@ -2,7 +2,7 @@
 TEST_ROLE_ARN=$1
 DB_KEY_ARN=$2
 DB_CREDS_ARN=$3
-DB_INSTANCE_ID=$4
+DB_HOST=$4
 EC2_HOST=$5
 
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
@@ -24,7 +24,6 @@ export AWS_SESSION_TOKEN=$(echo $SESSION | jq -r ".Credentials.SessionToken")
 KEY=$( aws secretsmanager get-secret-value --secret-id $DB_KEY_ARN | jq --raw-output '.SecretString' )
 DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id $DB_CREDS_ARN  | jq --raw-output '.SecretString' | jq -r .password )
 DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id $DB_CREDS_ARN  | jq --raw-output '.SecretString' | jq -r .username )
-DB_HOST=$( aws rds describe-db-instances --region=us-east-1 --db-instance-identifier $DB_INSTANCE_ID | jq --raw-output ".[][].Endpoint.Address" )
 
 eval $(ssh-agent -s)
 ssh-agent -a /tmp/ssh_agent.sock > /dev/null
