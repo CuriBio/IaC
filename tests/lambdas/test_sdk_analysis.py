@@ -306,7 +306,7 @@ def test_process_record__uploads_file_created_by_sdk_analysis_to_s3_bucket_corre
         ContentMD5=expected_md5,
     )
     mocked_update_status.assert_called_with(
-        mocked_boto3_client["dynamodb"], expected_upload_id, "analysis complete"
+        mocked_boto3_client["dynamodb"], expected_upload_id, "analysis successfully inserted into database"
     )
 
 
@@ -363,7 +363,7 @@ def test_process_record__after_successful_upload_logger_handles_failed_aurora_db
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
 
     mocked_update_status.assert_called_with(
-        mocked_boto3_client["dynamodb"], expected_upload_id, "analysis complete"
+        mocked_boto3_client["dynamodb"], expected_upload_id, "error inserting analysis to database"
     )
 
     spied_logger_error.assert_called_with("Recording metadata failed to store in aurora database: ERROR")
@@ -394,7 +394,7 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     expected_dir_name = spied_temporary_dir.spy_return.name
 
     mocked_update_status.assert_called_with(
-        mocked_boto3_client["dynamodb"], expected_upload_id, "analysis complete"
+        mocked_boto3_client["dynamodb"], expected_upload_id, "analysis successfully inserted into database"
     )
     spied_logger_info.assert_called_with(
         f"Inserting {expected_dir_name}/{TEST_OBJECT_KEY}.xlsx metadata into aurora database"
@@ -448,6 +448,7 @@ def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_
     mocked_s3_client = mocked_boto3_client["s3"]
     mocker.patch.object(hashlib, "md5")
     mocker.patch.object(base64, "b64encode")
+    mocker.patch.object(sdk_analysis.main, "get_remote_aws_host")
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
 

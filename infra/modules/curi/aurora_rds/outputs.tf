@@ -1,9 +1,9 @@
-output "rds_cluster_port" {
-  description = "The port"
-  value       = module.db.rds_cluster_port
+output "db_name" {
+  description = "DB name"
+  value       = local.name
 }
 
-output "rds_cluster_instance_endpoints" {
-  description = "A list of all cluster instance endpoints"
-  value       = module.db.rds_cluster_instance_endpoints
+output "cluster_endpoint" {
+  description = "rds writer endpoint"
+  value       = module.db.cluster_endpoint
 }

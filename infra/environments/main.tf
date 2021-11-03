@@ -17,8 +17,12 @@ variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
 #database
-variable "instance_type" {}
+variable "instance_class" {}
 variable "db_creds_arn" {}
+
+#jump host
+variable "jump_host" {}
+variable "jump_ec2_arn" {}
 
 # upload/analysis status
 variable "get_sdk_status_image_name" {}
@@ -113,6 +117,8 @@ module "sdk_analysis" {
   lambda_api_gw_id       = module.api.api_id
   authorizer_id          = module.api.authorizer_id
   authorization_type     = "JWT"
+
+  db_creds_arn = var.db_creds_arn
 }
 
 
@@ -142,8 +148,8 @@ module "get_sdk_status" {
 module "aurora_database" {
   source = "../modules/curi/aurora_rds"
 
-  instance_type = var.instance_type
-  db_creds_arn  = var.db_creds_arn
+  instance_class = var.instance_class
+  db_creds_arn   = var.db_creds_arn
 }
 
 #module "lambda" {
