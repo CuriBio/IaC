@@ -28,3 +28,7 @@ sqsp_verification = "e2xgjnsckpkc3lh9jx52"
 #database
 instance_class = "db.t3.small"
 db_creds_arn   = "arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl"
+
+#jump host
+jump_ec2_arn = "arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8"
+jump_host    = "ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com"

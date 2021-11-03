@@ -20,6 +20,10 @@ variable "sdk_upload_function_name" {}
 variable "instance_class" {}
 variable "db_creds_arn" {}
 
+#jump host
+variable "jump_host" {}
+variable "jump_ec2_arn" {}
+
 # upload/analysis status
 variable "get_sdk_status_image_name" {}
 variable "get_sdk_status_function_name" {}
