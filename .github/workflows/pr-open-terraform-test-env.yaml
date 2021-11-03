@@ -110,7 +110,7 @@ jobs:
           TEST_ROLE_ARN: arn:aws:iam::077346344852:role/terraform_deploy_role
           DB_KEY_ARN: arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8
           DB_CREDS_ARN: arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl
-          DB_INSTANCE_ID: test-mantarray-rds-one
+          DB_INSTANCE_ID: iac-${{ github.event.pull_request.number }}-mantarray-rds-one
           EC2_HOST: ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com
         run: |
           chmod +x ./.github/scripts/aws_db_setup.sh
