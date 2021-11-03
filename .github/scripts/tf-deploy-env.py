@@ -12,9 +12,10 @@ def subprocess_stream(*args, capture=False, **kwargs):
     try:
         with subprocess.Popen(*args, **kwargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as p:
             for line in p.stdout:
-                sys.stdout.buffer.write(line)
-                sys.stdout.flush()
-                output.append(line)
+                if capture:
+                    sys.stdout.buffer.write(line)
+                    sys.stdout.flush()
+                    output.append(line)
     except subprocess.CalledProcessError as e:
         logger.error(f"Failed {args}, {e}")
         sys.exit(1)
@@ -28,6 +29,8 @@ def main():
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--destroy", action="store_true")
     parser.add_argument("--no-color", action="store_true")
+    parser.add_argument("--output", action="store_true", help="get terraform output")
+    parser.add_argument("--refresh", action="store_true")
     parser.add_argument(
         "--infra_dir", default="./infra/environments/", type=str, help="Terraform infrastructure directory",
     )
@@ -48,6 +51,13 @@ def main():
         f"terraform workspace select {args.workspace} || terraform workspace new {args.workspace}",
         **shell_args,
     )
+
+    if args.refresh:
+        subprocess_stream(f"terraform refresh {tfvars}", capture=True, **shell_args)
+
+    if args.output:
+        subprocess_stream(f"terraform output -json", capture=True, **shell_args)
+        sys.exit(0)
 
     # if destroy then teardown and exit
     if args.destroy:

@@ -106,12 +106,14 @@ jobs:
         run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
 
       - name: Setup SSH and DB
-        env:
-          TEST_ROLE_ARN: arn:aws:iam::077346344852:role/terraform_deploy_role
-          DB_KEY_ARN: arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8
-          DB_CREDS_ARN: arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl
-          DB_INSTANCE_ID: test-mantarray-rds-one
-          EC2_HOST: ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com
         run: |
+          OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --output)
+          echo $OUTPUTS
+          TEST_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)
+          DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $OUTPUTS)
+          DB_CREDS_ARN=$(jq -r .db_creds_arn.value <<< $OUTPUTS)
+          DB_HOST=$(jq -r .db_cluster_endpoint.value <<< $OUTPUTS)
+          EC2_HOST=$(jq -r .jump_host.value <<< $OUTPUTS)
+
           chmod +x ./.github/scripts/aws_db_setup.sh
-          ./.github/scripts/aws_db_setup.sh ${{ env.AWS_ACCESS_KEY_ID }} ${{ env.AWS_SECRET_ACCESS_KEY }} ${{ env.TEST_ROLE_ARN }} ${{ env.DB_KEY_ARN }} ${{ env.DB_CREDS_ARN }} ${{ env.DB_INSTANCE_ID }} ${{ env.EC2_HOST }}
+          ./.github/scripts/aws_db_setup.sh $TEST_ROLE_ARN $DB_KEY_ARN $DB_CREDS_ARN $DB_HOST $EC2_HOST
