@@ -101,7 +101,7 @@ module "ecs_task" {
           "kms:*",
         ]
         Effect   = "Allow"
-        Resource = data.aws_kms_key.key_alias.arn
+        Resource = [data.aws_kms_key.default_key_alias.arn, data.aws_kms_key.db_key_alias.arn]
       },
       {
         Action = [
@@ -199,6 +199,9 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 }
 
-data "aws_kms_key" "key_alias" {
+data "aws_kms_key" "default_key_alias" {
   key_id = "alias/aws/rds"
+}
+data "aws_kms_key" "db_key_alias" {
+  key_id = "alias/db-key"
 }
