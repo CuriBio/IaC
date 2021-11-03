@@ -98,6 +98,22 @@ def process_record(record, s3_client, db_client):
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
             return
 
+        # generate presigned url to download .xlsx file
+        try:
+            logger.info(f"Generating presigned url for {S3_UPLOAD_BUCKET}/{file_name}")
+            url = s3_client.generate_presigned_url(
+                ClientMethod="get_object",
+                Params={"Bucket": S3_UPLOAD_BUCKET, "Key": file_name},
+                ExpiresIn=3600,
+            )
+            update_sdk_status(db_client, upload_id, url)
+        except Exception as e:
+            logger.error(f"Unable to generate presigned url for {S3_UPLOAD_BUCKET}/{file_name}: {e}")
+            update_sdk_status(
+                db_client, upload_id, f"error generating presigned url for {S3_UPLOAD_BUCKET}/{file_name}"
+            )
+            return
+
         # insert metadata into db
         try:
             logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
