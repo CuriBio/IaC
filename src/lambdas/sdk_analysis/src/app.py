@@ -108,8 +108,8 @@ def process_record(record, s3_client, db_client):
         except Exception as e:
             logger.error(f"Recording metadata failed to store in aurora database: {e}")
             update_sdk_status(db_client, upload_id, "error inserting analysis to database")
-            return 
-            
+            return
+
         # generate presigned url to download .xlsx file
         try:
             logger.info(f"Generating presigned url for {S3_UPLOAD_BUCKET}/{file_name}")
@@ -125,6 +125,7 @@ def process_record(record, s3_client, db_client):
                 db_client, upload_id, f"error generating presigned url for {S3_UPLOAD_BUCKET}/{file_name}"
             )
             return
+
 
 def handler(max_num_loops=0):
     sqs_client = boto3.client("sqs")

@@ -1,5 +1,6 @@
 # from io import StringIO
 import logging
+import sys
 
 import pymysql
 
@@ -8,11 +9,17 @@ from .aws_utils import get_s3_object_contents
 from .aws_utils import get_ssm_secrets
 from .helpers import load_data_to_dataframe
 
-INFO_DICT = {}
+# remove AWS pre-config that interferes with custom config
+root = logging.getLogger()
+if root.handlers:
+    for handler in root.handlers:
+        root.removeHandler(handler)
 
-# set logger
-logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
-logger = logging.getLogger()
+# set up custom basic config
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
 
 # Queries
 insert_into_uploaded_s3_table = """
@@ -37,6 +44,8 @@ insert_into_s3_objects = """
 
 select_last_object_id = """SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1"""
 
+INFO_DICT = {}
+
 
 def handle_db_metadata_insertions(bucket: str, key: str, args: list):
     """
@@ -56,8 +65,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
         )
         logger.info("Successful connection to Aurora database")
     except Exception as e:
-        logger.error(f"Failed connection to Aurora database: {e}")
-        return
+        raise Exception(f"Failed connection to Aurora database: {e}")
 
     formatted_data = load_data_to_dataframe(args[0], args[1])
     metadata = formatted_data["metadata"]
@@ -85,8 +93,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
 
         logger.info("Executing queries to the database in relation to aggregated metadata")
     except Exception as e:
-        logger.error(f"Error inserting meta data into database: {e}")
-        return
+        raise Exception(f"Error inserting meta data into database: {e}")
 
     try:
         for well in well_data:
@@ -101,10 +108,9 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
 
         logger.info("Executing queries to the database in relation individual well data")
     except Exception as e:
-        logger.error(f"Error inserting individual well data into database: {e}")
+        raise Exception(f"Error inserting individual well data into database: {e}")
 
     conn.commit()
-    logger.info("Successfully inserted metadata into mantarray_recordings")
 
 
 def set_info_dict():

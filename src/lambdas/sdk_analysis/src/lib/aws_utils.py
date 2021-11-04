@@ -1,11 +1,7 @@
 import json
-import logging
 
 import boto3
 from botocore.exceptions import ClientError
-
-logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
-logger = logging.getLogger()
 
 
 def get_ssm_secrets():
@@ -19,7 +15,7 @@ def get_ssm_secrets():
         get_creds_secret_value_response = ssm_client.get_secret_value(SecretId=creds_secret_name)
 
     except ClientError as e:
-        logger.error(f"Error retrieving aws secrets: {e}")
+        raise ClientError(f"Error retrieving aws secrets: {e}")
 
     else:
         # Decrypts secret using the associated KMS CMK.
@@ -46,7 +42,7 @@ def get_remote_aws_host():
         rds_host = instances.get("DBInstances")[0].get("Endpoint").get("Address")
 
     except ClientError as e:
-        logger.error(f"Error retrieving remote aws endpoints for ec2 and aurora db: {e}")
+        raise ClientError(f"Error retrieving remote aws endpoints for ec2 and aurora db: {e}")
 
     return rds_host
 
@@ -58,6 +54,6 @@ def get_s3_object_contents(bucket: str, key: str):
     try:
         s3_obj_size = s3_client.head_object(Bucket=bucket, Key=key).get("ContentLength") / 1000
     except ClientError as e:  # Get content size in bytes to kb    except ClientError as e:
-        logger.error(f"Error retrieving s3 object size: {e}")
+        raise ClientError(f"Error retrieving s3 object size: {e}")
 
     return s3_obj_size
