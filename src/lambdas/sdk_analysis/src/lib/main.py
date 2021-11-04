@@ -48,7 +48,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
     """
 
     if not INFO_DICT:
-        set_info_dict()
+        set_info_dict(bucket)
 
     try:
         conn = pymysql.connect(
@@ -59,7 +59,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
         )
         logger.info("Successful connection to Aurora database")
     except Exception as e:
-        raise Exception(f"Failed connection to Aurora database: {e}")
+        raise Exception(f"failed db connection: {e}")
 
     formatted_data = load_data_to_dataframe(args[0], args[1])
     metadata = formatted_data["metadata"]
@@ -85,7 +85,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
 
         logger.info("Executing queries to the database in relation to aggregated metadata")
     except Exception as e:
-        raise Exception(f"Error inserting meta data into database: {e}")
+        raise Exception(f"in aggregated metadata: {e}")
 
     try:
         for well in well_data:
@@ -100,18 +100,18 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
 
         logger.info("Executing queries to the database in relation individual well data")
     except Exception as e:
-        raise Exception(f"Error inserting individual well data into database: {e}")
+        raise Exception(f"in individual well data: {e}")
 
     conn.commit()
 
 
-def set_info_dict():
+def set_info_dict(bucket: str):
     # Retrieve DB creds
     secrets = get_ssm_secrets()
     INFO_DICT["db_username"] = secrets["username"]
     INFO_DICT["db_password"] = secrets["password"]
 
     # Retrieve db and ec2 IP addesses to SSH
-    rds_host = get_remote_aws_host()
-    INFO_DICT["db_host"] = rds_host
+    db_host = get_remote_aws_host(bucket)
+    INFO_DICT["db_host"] = db_host
     INFO_DICT["db_name"] = "mantarray_recordings"

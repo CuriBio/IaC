@@ -377,7 +377,8 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     spied_logger_info = mocker.spy(sdk_analysis.logger, "info")
     mocked_s3_client = mocked_boto3_client["s3"]
     expected_upload_id = mocked_s3_client.head_object.return_value["Metadata"]["upload-id"]
-    expected_upload_bucket = "test_url"
+    expected_upload_bucket = "test_bucket"
+    expected_file_name = f"{TEST_OBJECT_KEY}.xlsx"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
     mocker.patch.object(hashlib, "md5")
     mocked_base64 = mocker.patch.object(base64, "b64encode")
@@ -403,7 +404,7 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     )
 
     test_args = [mocked_open.return_value.__enter__(), mocked_PR_instance.return_value, expected_md5]
-    mocked_db_handling.assert_called_with(TEST_BUCKET_NAME, TEST_OBJECT_KEY, test_args)
+    mocked_db_handling.assert_called_with(expected_upload_bucket, expected_file_name, test_args)
 
 
 def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3_client):

@@ -48,7 +48,6 @@ CREATE TABLE IF NOT EXISTS mantarray_raw_files (
   length_centimilliseconds int,
   recording_started_at datetime,
   mantarray_recording_session_id varchar(255) REFERENCES mantarray_recording_sessions(mantarray_recording_session_id),
-  PRIMARY KEY (well_index)
 );
 
 CREATE TABLE IF NOT EXISTS mantarray_recording_sessions (
