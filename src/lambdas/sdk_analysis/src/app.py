@@ -10,7 +10,6 @@ from time import sleep
 import boto3
 from botocore.exceptions import ClientError
 from curibio.sdk import PlateRecording
-from lib import main
 
 SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
@@ -99,16 +98,16 @@ def process_record(record, s3_client, db_client):
             return
 
         # insert metadata into db
-        try:
-            logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
-            with open(f"{tmpdir}/{file_name}", "rb") as file:
-                args = [file, r, md5s]
-                main.handle_db_metadata_insertions(bucket, key, args)
-            update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
-        except Exception as e:
-            logger.error(f"Recording metadata failed to store in aurora database: {e}")
-            update_sdk_status(db_client, upload_id, "error inserting analysis to database")
-            return
+        # try:
+        #     logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
+        #     with open(f"{tmpdir}/{file_name}", "rb") as file:
+        #         args = [file, r, md5s]
+        #         main.handle_db_metadata_insertions(bucket, key, args)
+        #     update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
+        # except Exception as e:
+        #     logger.error(f"Recording metadata failed to store in aurora database: {e}")
+        #     update_sdk_status(db_client, upload_id, "error inserting analysis to database")
+        #     return
 
         # generate presigned url to download .xlsx file
         try:
