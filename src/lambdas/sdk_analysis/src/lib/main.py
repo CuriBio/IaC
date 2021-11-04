@@ -17,14 +17,14 @@ logger = logging.getLogger(__name__)
 
 # Queries
 insert_into_uploaded_s3_table = """
-    INSERT INTO uploaded_s3_objects(bucket, object_key, upload_started_at, uploading_computer_name)
-    VALUES (%s, %s, NOW(), %s);
+    INSERT INTO uploaded_s3_objects(bucket, object_key, upload_started_at)
+    VALUES (%s, %s, NOW());
     """
 
 insert_into_mantarray_recording_sessions = """
-    INSERT INTO mantarray_recording_sessions(mantarray_recording_session_id, instrument_serial_number, backend_log_id, acquisition_started_at, length_centimilliseconds,
+    INSERT INTO mantarray_recording_sessions(mantarray_recording_session_id, instrument_serial_number, length_centimilliseconds,
     recording_started_at)
-    VALUES (%s, %s, %s, %s, %s, %s);
+    VALUES (%s, %s, %s, %s);
     """
 
 insert_into_mantarray_raw_files = """
@@ -69,14 +69,12 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
     cur = conn.cursor()
 
     try:
-        uploaded_s3_tuple = (bucket, key, metadata["uploading_computer_name"])
+        uploaded_s3_tuple = (bucket, key)
         cur.execute(insert_into_uploaded_s3_table, uploaded_s3_tuple)
 
         recording_session_tuple = (
             metadata["mantarray_recording_session_id"],
             metadata["instrument_serial_number"],
-            metadata["backend_log_id"],
-            metadata["acquisition_started_at"],
             metadata["length_centimilliseconds"],
             metadata["recording_started_at"],
         )
