@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import json
 import logging
 import os
@@ -8,7 +10,7 @@ from time import sleep
 import boto3
 from botocore.exceptions import ClientError
 from curibio.sdk import PlateRecording
-
+from lib import main
 
 SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
@@ -20,6 +22,7 @@ root = logging.getLogger()
 if root.handlers:
     for handler in root.handlers:
         root.removeHandler(handler)
+
 # set up custom basic config
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout
@@ -54,6 +57,7 @@ def process_record(record, s3_client, db_client):
     try:
         logger.info(f"Retrieving Head Object of {bucket}/{key}")
         upload_id = s3_client.head_object(Bucket=bucket, Key=key)["Metadata"]["upload-id"]
+
     except ClientError as e:
         logger.error(f"Error occurred while retrieving head object of {bucket}/{key}: {e}")
         return
@@ -72,7 +76,6 @@ def process_record(record, s3_client, db_client):
         # handle running sdk analysis
         try:
             update_sdk_status(db_client, upload_id, "analysis running")
-
             file_name = f'{key.split(".")[0]}.xlsx'
             r = PlateRecording.from_directory(tmpdir)
             r.write_xlsx(tmpdir, file_name=file_name)
@@ -84,11 +87,27 @@ def process_record(record, s3_client, db_client):
         # handle xlsx file upload
         try:
             with open(f"{tmpdir}/{file_name}", "rb") as f:
-                s3_client.upload_fileobj(f, S3_UPLOAD_BUCKET, file_name)
+                contents = f.read()
+                md5 = hashlib.md5(contents).digest()
+                md5s = base64.b64encode(md5).decode()
+
+                s3_client.put_object(Body=f, Bucket=S3_UPLOAD_BUCKET, Key=file_name, ContentMD5=md5s)
             update_sdk_status(db_client, upload_id, "analysis complete")
         except Exception as e:
             logger.error(f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{file_name}: {e}")
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
+            return
+
+        # insert metadata into db
+        try:
+            logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
+            with open(f"{tmpdir}/{file_name}", "rb") as file:
+                args = [file, r, md5s]
+                main.handle_db_metadata_insertions(bucket, key, args)
+            update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
+        except Exception as e:
+            logger.error(f"Recording metadata failed to store in aurora database: {e}")
+            update_sdk_status(db_client, upload_id, "error inserting analysis to database")
 
 
 def handler(max_num_loops=0):

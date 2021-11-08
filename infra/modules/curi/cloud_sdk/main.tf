@@ -11,6 +11,15 @@ module "lambda" {
   # lambda
   function_name        = var.function_name
   function_description = "Handle sdk data upload"
+
+  # api gateway source arn
+  source_arn         = var.api_gateway_source_arn
+  lambda_api_gw_id   = var.lambda_api_gw_id
+  integration_method = "POST"
+  route_key          = "POST /sdk_upload"
+  authorizer_id      = var.authorizer_id
+  authorization_type = var.authorization_type
+
   # attach_policy = aws_iam_role.policy.arn
   # depends_on = [aws_iam_role_policy_attachment.lambda-attach]
 
@@ -79,6 +88,28 @@ module "ecs_task" {
         ]
         Effect   = "Allow"
         Resource = var.sdk_status_table_arn
+      },
+      {
+        Action = [
+          "secretsmanager:GetSecretValue",
+        ]
+        Effect   = "Allow"
+        Resource = var.db_creds_arn
+      },
+      {
+        Action = [
+          "kms:*",
+        ]
+        Effect   = "Allow"
+        Resource = data.aws_kms_key.key_alias.arn
+      },
+      {
+        Action = [
+          "rds:DescribeDBClusterEndpoints",
+          "rds:DescribeDBInstances",
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:rds:us-east-1:077346344852:*"
       },
     ]
   })
@@ -166,4 +197,8 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     queue_arn = aws_sqs_queue.sdk_upload_queue.arn
     events    = ["s3:ObjectCreated:*"]
   }
+}
+
+data "aws_kms_key" "key_alias" {
+  key_id = "alias/aws/rds"
 }

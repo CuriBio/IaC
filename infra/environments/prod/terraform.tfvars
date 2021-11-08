@@ -24,3 +24,11 @@ hosted_zone = "curibio.com"
 
 # squarespace dns
 sqsp_verification = "a6a6hxwse7f7keb3h845"
+
+#database
+instance_class = "db.t3.small"
+db_creds_arn   = "arn:aws:secretsmanager:us-east-1:245339368379:secret:db-creds-hdEvmn"
+
+#jump host
+jump_ec2_arn = "arn:aws:secretsmanager:us-east-1:245339368379:secret:db-ec2-key-pair-FRSQ2E"
+jump_host    = "ec2-user@jump.curibio.com"

@@ -1,4 +1,4 @@
-name: 'Open/Update PR not into Prod'
+name: 'Open/Update PR in Test'
 on:
   workflow_dispatch:
     inputs:
@@ -8,7 +8,7 @@ on:
         default: ''
   pull_request:
     branches-ignore:
-    - main
+      - main
 
 jobs:
   terraform:
@@ -17,9 +17,9 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - "ubuntu-20.04"
+          - 'ubuntu-20.04'
         python-version:
-            - 3.9
+          - 3.9
 
     runs-on: ${{ matrix.os }}
 
@@ -27,78 +27,93 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_VAR_user_id: ${{ github.actor }}
-
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_OUTPUT: json
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: 'Setup Python'
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: 'Setup Python'
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Display Python version
-      run: |
-        python -c "import sys; print(sys.version)"
-        python -m venv venv
+      - name: Display Python version
+        run: |
+          python -c "import sys; print(sys.version)"
+          python -m venv venv
 
-    - name: Activate virtual environment (Linux/MacOS)
-      if: runner.os == 'Linux' || runner.os == 'macOS'
-      run: . venv/bin/activate
+      - name: Activate virtual environment (Linux/MacOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: . venv/bin/activate
 
-    - name: Display Pip Version and confirm environment empty
-      run: |
-        pip -V
-        pip freeze
+      - name: Display Pip Version and confirm environment empty
+        run: |
+          pip -V
+          pip freeze
 
-    - name: Cache Python dependencies
-      uses: actions/cache@v2.1.4
-      env:
-        cache-name: cache-pip
-      with:
-        path: ~/.cache/pip
-        key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('requirements*.txt') }}
-        restore-keys: |
-          ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
+      - name: Cache Python dependencies
+        uses: actions/cache@v2.1.4
+        env:
+          cache-name: cache-pip
+        with:
+          path: ~/.cache/pip
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('requirements*.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
 
-    - name: Install Dev Dependencies
-      run: pip install -r requirements-dev.txt
+      - name: Install Dev Dependencies
+        run: pip install -r requirements-dev.txt
 
-    - name: Log full installed packages
-      run: pip freeze
+      - name: Log full installed packages
+        run: pip freeze
 
-    - name: 'Terraform setup'
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 0.14.7
+      - name: 'Terraform setup'
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.14.7
+          terraform_wrapper: false
 
-    - name: 'Create Environment'
-      id: tfenv
-      run: python ./.github/scripts/tf-deploy-env.py --workspace modl --no-color
+      - name: 'Create Environment'
+        id: tfenv
+        run: python ./.github/scripts/tf-deploy-env.py --workspace test --no-color
 
-    - name: 'Terraform plan dev output'
-      uses: actions/github-script@v3.1
-      env:
-        PLAN: "terraform\n${{ steps.tfenv.outputs.stdout }}"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `
-          <details><summary>Show Plan</summary>
+      - name: 'Terraform plan dev output'
+        uses: actions/github-script@v3.1
+        env:
+          PLAN: "terraform\n${{ steps.tfenv.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `
+            <details><summary>Show Plan</summary>
 
-          \`\`\` terraform
-          ${process.env.PLAN}
-          \`\`\`
+            \`\`\` terraform
+            ${process.env.PLAN}
+            \`\`\`
 
-          </details>
+            </details>
 
-          Pusher: @${{ github.actor }}`;
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+            Pusher: @${{ github.actor }}`;
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
 
-    - name: 'Terraform apply'
-      run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
+      - name: 'Terraform apply'
+        run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --apply
+
+      - name: Setup SSH and DB
+        run: |
+          OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --output)
+          echo $OUTPUTS
+          TEST_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)
+          DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $OUTPUTS)
+          DB_CREDS_ARN=$(jq -r .db_creds_arn.value <<< $OUTPUTS)
+          DB_HOST=$(jq -r .db_cluster_endpoint.value <<< $OUTPUTS)
+          EC2_HOST=$(jq -r .jump_host.value <<< $OUTPUTS)
+
+          chmod +x ./.github/scripts/aws_db_setup.sh
+          ./.github/scripts/aws_db_setup.sh $TEST_ROLE_ARN $DB_KEY_ARN $DB_CREDS_ARN $DB_HOST $EC2_HOST

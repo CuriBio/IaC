@@ -16,6 +16,14 @@ variable "analyzed_bucket" {}
 variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
+#database
+variable "instance_class" {}
+variable "db_creds_arn" {}
+
+#jump host
+variable "jump_host" {}
+variable "jump_ec2_arn" {}
+
 # upload/analysis status
 variable "get_sdk_status_image_name" {}
 variable "get_sdk_status_function_name" {}
@@ -86,6 +94,7 @@ module "jupyter_notebook" {
 
 module "sdk_analysis" {
   source = "../modules/curi/cloud_sdk"
+  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
@@ -103,11 +112,19 @@ module "sdk_analysis" {
 
   sdk_status_table_name = module.sdk_status_db.name
   sdk_status_table_arn  = module.sdk_status_db.arn
+
+  api_gateway_source_arn = module.api.source_arn
+  lambda_api_gw_id       = module.api.api_id
+  authorizer_id          = module.api.authorizer_id
+  authorization_type     = "JWT"
+
+  db_creds_arn = var.db_creds_arn
 }
 
 
 module "get_sdk_status" {
   source = "../modules/curi/get_sdk_status"
+  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
@@ -121,11 +138,26 @@ module "get_sdk_status" {
 
   sdk_status_table_name = module.sdk_status_db.name
   sdk_status_table_arn  = module.sdk_status_db.arn
+
+  api_gateway_source_arn = module.api.source_arn
+  lambda_api_gw_id       = module.api.api_id
+  authorizer_id          = module.api.authorizer_id
+  authorization_type     = "JWT"
 }
 
+module "aurora_database" {
+  source = "../modules/curi/aurora_rds"
+
+  instance_class = var.instance_class
+  db_creds_arn   = var.db_creds_arn
+}
+
+#module "lambda" {
+#  source = "../modules/curi/lambda"
 
 module "get_auth" {
   source = "../modules/curi/get_auth"
+  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
@@ -137,7 +169,9 @@ module "get_auth" {
   function_name        = "${terraform.workspace}-${var.get_auth_function_name}"
   function_description = "Get auth tokens lambda"
 
-  client_id = module.api.cognito_pool_client_id
+  client_id              = module.api.cognito_pool_client_id
+  api_gateway_source_arn = module.api.source_arn
+  lambda_api_gw_id       = module.api.api_id
 }
 
 
@@ -149,10 +183,10 @@ module "sdk_status_db" {
 module "api" {
   source = "../modules/curi/api_gateway"
 
-  sdk_upload_function_name     = var.sdk_upload_function_name
-  sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn
-  get_sdk_status_function_name = var.get_sdk_status_function_name
-  get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
-  get_auth_function_name       = var.get_auth_function_name
-  get_auth_invoke_arn          = module.get_auth.invoke_arn
+  #sdk_upload_function_name     = var.sdk_upload_function_name
+  #sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn
+  #get_sdk_status_function_name = var.get_sdk_status_function_name
+  #get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
+  #get_auth_function_name       = var.get_auth_function_name
+  #get_auth_invoke_arn          = module.get_auth.invoke_arn
 }
