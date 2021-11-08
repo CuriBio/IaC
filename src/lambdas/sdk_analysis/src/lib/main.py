@@ -1,5 +1,6 @@
 # from io import StringIO
 import logging
+import sys
 
 import pymysql
 
@@ -8,22 +9,22 @@ from .aws_utils import get_s3_object_contents
 from .aws_utils import get_ssm_secrets
 from .helpers import load_data_to_dataframe
 
-INFO_DICT = {}
-
-# set logger
-logging.basicConfig(format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO)
-logger = logging.getLogger()
+# set up custom basic config
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
 
 # Queries
 insert_into_uploaded_s3_table = """
-    INSERT INTO uploaded_s3_objects(bucket, object_key, upload_started_at, uploading_computer_name)
-    VALUES (%s, %s, NOW(), %s);
+    INSERT INTO uploaded_s3_objects(bucket, object_key, upload_started_at)
+    VALUES (%s, %s, NOW());
     """
 
 insert_into_mantarray_recording_sessions = """
-    INSERT INTO mantarray_recording_sessions(mantarray_recording_session_id, instrument_serial_number, backend_log_id, acquisition_started_at, length_centimilliseconds,
+    INSERT INTO mantarray_recording_sessions(mantarray_recording_session_id, instrument_serial_number, length_centimilliseconds,
     recording_started_at)
-    VALUES (%s, %s, %s, %s, %s, %s);
+    VALUES (%s, %s, %s, %s);
     """
 
 insert_into_mantarray_raw_files = """
@@ -37,6 +38,8 @@ insert_into_s3_objects = """
 
 select_last_object_id = """SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1"""
 
+INFO_DICT = {}
+
 
 def handle_db_metadata_insertions(bucket: str, key: str, args: list):
     """
@@ -45,7 +48,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
     """
 
     if not INFO_DICT:
-        set_info_dict()
+        set_info_dict(bucket)
 
     try:
         conn = pymysql.connect(
@@ -56,8 +59,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
         )
         logger.info("Successful connection to Aurora database")
     except Exception as e:
-        logger.error(f"Failed connection to Aurora database: {e}")
-        return
+        raise Exception(f"failed db connection: {e}")
 
     formatted_data = load_data_to_dataframe(args[0], args[1])
     metadata = formatted_data["metadata"]
@@ -67,14 +69,12 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
     cur = conn.cursor()
 
     try:
-        uploaded_s3_tuple = (bucket, key, metadata["uploading_computer_name"])
+        uploaded_s3_tuple = (bucket, key)
         cur.execute(insert_into_uploaded_s3_table, uploaded_s3_tuple)
 
         recording_session_tuple = (
             metadata["mantarray_recording_session_id"],
             metadata["instrument_serial_number"],
-            metadata["backend_log_id"],
-            metadata["acquisition_started_at"],
             metadata["length_centimilliseconds"],
             metadata["recording_started_at"],
         )
@@ -85,8 +85,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
 
         logger.info("Executing queries to the database in relation to aggregated metadata")
     except Exception as e:
-        logger.error(f"Error inserting meta data into database: {e}")
-        return
+        raise Exception(f"in aggregated metadata: {e}")
 
     try:
         for well in well_data:
@@ -101,19 +100,18 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
 
         logger.info("Executing queries to the database in relation individual well data")
     except Exception as e:
-        logger.error(f"Error inserting individual well data into database: {e}")
+        raise Exception(f"in individual well data: {e}")
 
     conn.commit()
-    logger.info("Successfully inserted metadata into mantarray_recordings")
 
 
-def set_info_dict():
+def set_info_dict(bucket: str):
     # Retrieve DB creds
     secrets = get_ssm_secrets()
     INFO_DICT["db_username"] = secrets["username"]
     INFO_DICT["db_password"] = secrets["password"]
 
     # Retrieve db and ec2 IP addesses to SSH
-    rds_host = get_remote_aws_host()
-    INFO_DICT["db_host"] = rds_host
+    db_host = get_remote_aws_host(bucket)
+    INFO_DICT["db_host"] = db_host
     INFO_DICT["db_name"] = "mantarray_recordings"
