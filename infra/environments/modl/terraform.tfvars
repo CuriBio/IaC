@@ -26,7 +26,7 @@ sqsp_verification = "862laeb5r7tfnxngc2mc"
 
 #database
 instance_class = "db.t3.small"
-db_creds_arn   = "arn:aws:secretsmanager:us-west-2:725604423866:secret:db-creds-lzF0gX"
+db_creds_arn   = "arn:aws:secretsmanager:us-east-1:725604423866:secret:db-creds-jjqva5"
 
 #jump host
 jump_ec2_arn = "arn:aws:secretsmanager:us-east-1:725604423866:secret:db-ec2-key-pair-D29xQo"
