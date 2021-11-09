@@ -27,24 +27,6 @@ def get_ssm_secrets():
         return {"username": username, "password": password}
 
 
-def get_remote_aws_host(bucket: str):
-    # Create rds client to access DNS name
-    rds_client = boto3.client("rds")
-    workspace = bucket.split("-sdk-analyzed")[0]
-
-    try:
-        rds_clusters = rds_client.describe_db_cluster_endpoints().get("DBClusterEndpoints")
-        for endpoint in rds_clusters:
-            if workspace in endpoint.get("DBClusterIdentifier"):
-                instance_id = endpoint.get("DBClusterIdentifier") + "-one"
-                db_instances = rds_client.describe_db_instances(DBInstanceIdentifier=instance_id)
-                db_host = db_instances.get("DBInstances")[0].get("Endpoint").get("Address")
-                return db_host
-
-    except ClientError as e:
-        raise ClientError(f"error retrieving remote host: {e}")
-
-
 def get_s3_object_contents(bucket: str, key: str):
     # Grab s3 object metadata from aws
     s3_client = boto3.client("s3")

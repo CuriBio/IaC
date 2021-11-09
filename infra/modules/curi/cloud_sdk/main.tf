@@ -127,6 +127,10 @@ module "ecs_task" {
       "name" : "SDK_STATUS_TABLE",
       "value" : var.sdk_status_table_name,
     },
+    {
+      "name" : "DB_CLUSTER_ENDPOINT",
+      "value" : var.db_cluster_endpoint
+    }
   ]
 }
 

@@ -118,7 +118,8 @@ module "sdk_analysis" {
   authorizer_id          = module.api.authorizer_id
   authorization_type     = "JWT"
 
-  db_creds_arn = var.db_creds_arn
+  db_creds_arn        = var.db_creds_arn
+  db_cluster_endpoint = module.aurora_database.cluster_endpoint
 }
 
 
