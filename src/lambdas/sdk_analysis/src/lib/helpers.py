@@ -18,14 +18,14 @@ def format_data(meta_sheet, recording_length: int):
     return {
         "barcode": meta_sheet.iloc[0, 2],
         "recording_started_at": meta_sheet.iloc[1, 2],
-        "acquisition_started_at": meta_sheet.iloc[2, 2],
-        "file_format_version": meta_sheet.iloc[5, 2],
-        "instrument_serial_number": meta_sheet.iloc[6, 2],
-        "software_version": meta_sheet.iloc[7, 2],
-        "uploading_computer_name": meta_sheet.iloc[10, 2],
-        "backend_log_id": meta_sheet.iloc[11, 2],
+        # "acquisition_started_at": meta_sheet.iloc[2, 2],
+        "file_format_version": meta_sheet.iloc[4, 2],
+        "instrument_serial_number": meta_sheet.iloc[5, 2],
+        "software_version": meta_sheet.iloc[6, 2],
+        # "uploading_computer_name": meta_sheet.iloc[10, 2],
+        # "backend_log_id": meta_sheet.iloc[11, 2],
         "length_centimilliseconds": recording_length,
-        "file_creation_timestamp": meta_sheet.iloc[14, 2],
+        "file_creation_timestamp": meta_sheet.iloc[11, 2],
         "mantarray_recording_session_id": uuid.uuid4(),
     }
 

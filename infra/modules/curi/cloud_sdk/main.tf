@@ -96,21 +96,6 @@ module "ecs_task" {
         Effect   = "Allow"
         Resource = var.db_creds_arn
       },
-      {
-        Action = [
-          "kms:*",
-        ]
-        Effect   = "Allow"
-        Resource = data.aws_kms_key.key_alias.arn
-      },
-      {
-        Action = [
-          "rds:DescribeDBClusterEndpoints",
-          "rds:DescribeDBInstances",
-        ]
-        Effect   = "Allow"
-        Resource = "arn:aws:rds:us-east-1:077346344852:*"
-      },
     ]
   })
 
@@ -127,6 +112,10 @@ module "ecs_task" {
       "name" : "SDK_STATUS_TABLE",
       "value" : var.sdk_status_table_name,
     },
+    {
+      "name" : "DB_CLUSTER_ENDPOINT",
+      "value" : var.db_cluster_endpoint
+    }
   ]
 }
 
@@ -197,8 +186,4 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     queue_arn = aws_sqs_queue.sdk_upload_queue.arn
     events    = ["s3:ObjectCreated:*"]
   }
-}
-
-data "aws_kms_key" "key_alias" {
-  key_id = "alias/aws/rds"
 }

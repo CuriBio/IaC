@@ -15,7 +15,7 @@ from lib import main
 SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
 SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
-
+DB_CLUSTER_ENDPOINT = os.environ.get("DB_CLUSTER_ENDPOINT")
 
 # remove AWS pre-config that interferes with custom config
 root = logging.getLogger()
@@ -103,11 +103,25 @@ def process_record(record, s3_client, db_client):
             logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
             with open(f"{tmpdir}/{file_name}", "rb") as file:
                 args = [file, r, md5s]
-                main.handle_db_metadata_insertions(bucket, key, args)
+                main.handle_db_metadata_insertions(S3_UPLOAD_BUCKET, file_name, DB_CLUSTER_ENDPOINT, args)
             update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
         except Exception as e:
             logger.error(f"Recording metadata failed to store in aurora database: {e}")
             update_sdk_status(db_client, upload_id, "error inserting analysis to database")
+            return
+
+        # generate presigned url to download .xlsx file
+        try:
+            logger.info(f"Generating presigned url for {S3_UPLOAD_BUCKET}/{file_name}")
+            url = s3_client.generate_presigned_url(
+                ClientMethod="get_object",
+                Params={"Bucket": S3_UPLOAD_BUCKET, "Key": file_name},
+                ExpiresIn=3600,
+            )
+            update_sdk_status(db_client, upload_id, url)
+        except Exception as e:
+            logger.error(f"Unable to generate presigned url for {S3_UPLOAD_BUCKET}/{file_name}: {e}")
+            update_sdk_status(db_client, upload_id, "error generating presigned url")
 
 
 def handler(max_num_loops=0):

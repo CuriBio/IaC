@@ -47,8 +47,7 @@ CREATE TABLE IF NOT EXISTS mantarray_raw_files (
   object_id int REFERENCES uploaded_s3_objects(id),
   length_centimilliseconds int,
   recording_started_at datetime,
-  mantarray_recording_session_id varchar(255) REFERENCES mantarray_recording_sessions(mantarray_recording_session_id),
-  PRIMARY KEY (well_index)
+  mantarray_recording_session_id varchar(255) REFERENCES mantarray_recording_sessions(mantarray_recording_session_id)
 );
 
 CREATE TABLE IF NOT EXISTS mantarray_recording_sessions (

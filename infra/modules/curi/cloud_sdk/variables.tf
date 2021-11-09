@@ -64,3 +64,8 @@ variable "db_creds_arn" {
   description = "ARN value for db_creds secret"
   type        = string
 }
+
+variable "db_cluster_endpoint" {
+  description = "database endpoint"
+  type        = string
+}
