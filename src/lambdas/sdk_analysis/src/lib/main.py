@@ -47,11 +47,11 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
     """
 
     if not INFO_DICT:
-        set_info_dict(bucket)
+        set_info_dict(bucket, db_host)
 
     try:
         conn = pymysql.connect(
-            host=db_host,
+            host=INFO_DICT["db_host"],
             user=INFO_DICT["db_username"],
             passwd=INFO_DICT["db_password"],
             db=INFO_DICT["db_name"],
@@ -104,9 +104,10 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
     conn.commit()
 
 
-def set_info_dict(bucket: str):
+def set_info_dict(bucket: str, db_host: str):
     # Retrieve DB creds
     secrets = get_ssm_secrets()
     INFO_DICT["db_username"] = secrets["username"]
     INFO_DICT["db_password"] = secrets["password"]
+    INFO_DICT["db_host"] = db_host
     INFO_DICT["db_name"] = "mantarray_recordings"
