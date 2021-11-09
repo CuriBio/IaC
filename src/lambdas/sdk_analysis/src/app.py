@@ -15,7 +15,7 @@ from lib import main
 SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
 SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
-
+DB_CLUSTER_ENDPOINT = os.environ.get("DB_CLUSTER_ENDPOINT")
 
 # remove AWS pre-config that interferes with custom config
 root = logging.getLogger()
@@ -103,7 +103,7 @@ def process_record(record, s3_client, db_client):
             logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
             with open(f"{tmpdir}/{file_name}", "rb") as file:
                 args = [file, r, md5s]
-                main.handle_db_metadata_insertions(S3_UPLOAD_BUCKET, file_name, args)
+                main.handle_db_metadata_insertions(S3_UPLOAD_BUCKET, file_name, DB_CLUSTER_ENDPOINT, args)
             update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
         except Exception as e:
             logger.error(f"Recording metadata failed to store in aurora database: {e}")

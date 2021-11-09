@@ -4,7 +4,6 @@ import sys
 
 import pymysql
 
-from .aws_utils import get_remote_aws_host
 from .aws_utils import get_s3_object_contents
 from .aws_utils import get_ssm_secrets
 from .helpers import load_data_to_dataframe
@@ -41,18 +40,18 @@ select_last_object_id = """SELECT id FROM uploaded_s3_objects ORDER BY id DESC L
 INFO_DICT = {}
 
 
-def handle_db_metadata_insertions(bucket: str, key: str, args: list):
+def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: list):
     """
         args:
             contains <file>.xlsx, individual well data, and the md5 hash
     """
 
     if not INFO_DICT:
-        set_info_dict(bucket)
+        set_info_dict()
 
     try:
         conn = pymysql.connect(
-            host=INFO_DICT["db_host"],
+            host=db_host,
             user=INFO_DICT["db_username"],
             passwd=INFO_DICT["db_password"],
             db=INFO_DICT["db_name"],
@@ -105,13 +104,9 @@ def handle_db_metadata_insertions(bucket: str, key: str, args: list):
     conn.commit()
 
 
-def set_info_dict(bucket: str):
+def set_info_dict():
     # Retrieve DB creds
     secrets = get_ssm_secrets()
     INFO_DICT["db_username"] = secrets["username"]
     INFO_DICT["db_password"] = secrets["password"]
-
-    # Retrieve db and ec2 IP addesses to SSH
-    db_host = get_remote_aws_host(bucket)
-    INFO_DICT["db_host"] = db_host
     INFO_DICT["db_name"] = "mantarray_recordings"

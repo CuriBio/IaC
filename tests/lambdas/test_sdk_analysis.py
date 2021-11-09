@@ -8,9 +8,7 @@ import pytest
 
 from ..test_utils import import_lambda
 
-sdk_analysis = import_lambda(
-    "sdk_analysis", mock_imports=["curibio.sdk", "paramiko", "pymysql", "sshtunnel", "pandas"]
-)
+sdk_analysis = import_lambda("sdk_analysis", mock_imports=["curibio.sdk", "pymysql", "pandas"])
 
 TEST_BUCKET_NAME = "test_name"
 TEST_OBJECT_KEY = "test_key"
@@ -21,7 +19,6 @@ TEST_RECORD = {"s3": {"bucket": {"name": TEST_BUCKET_NAME}, "object": {"key": TE
 def fixture_mocked_boto3_client(mocker):
     mocked_sqs_client = mocker.Mock()
     mocked_ssm_client = mocker.Mock()
-    mocked_rds_client = mocker.Mock()
     mocked_s3_client = mocker.Mock()
     mocked_ec2_client = mocker.Mock()
 
@@ -36,8 +33,6 @@ def fixture_mocked_boto3_client(mocker):
             return mocked_s3_client
         if client_type == "dynamodb":
             return mocked_dynamodb_client
-        if client_type == "rds":
-            return mocked_rds_client
         if client_type == "secretsmanager":
             return mocked_ssm_client
         if client_type == "ec2":
@@ -49,7 +44,6 @@ def fixture_mocked_boto3_client(mocker):
         "sqs": mocked_sqs_client,
         "s3": mocked_s3_client,
         "dynamodb": mocked_dynamodb_client,
-        "rds": mocked_rds_client,
         "secretsmanager": mocked_ssm_client,
         "ec2": mocked_ec2_client,
     }
@@ -377,9 +371,13 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     spied_logger_info = mocker.spy(sdk_analysis.logger, "info")
     mocked_s3_client = mocked_boto3_client["s3"]
     expected_upload_id = mocked_s3_client.head_object.return_value["Metadata"]["upload-id"]
+
     expected_upload_bucket = "test_bucket"
+    expected_db_cluster_endpoint = "test_host"
     expected_file_name = f"{TEST_OBJECT_KEY}.xlsx"
+
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
+    mocker.patch.object(sdk_analysis, "DB_CLUSTER_ENDPOINT", expected_db_cluster_endpoint)
     mocker.patch.object(hashlib, "md5")
     mocked_base64 = mocker.patch.object(base64, "b64encode")
     expected_md5 = mocked_base64().decode()
@@ -404,7 +402,9 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     )
 
     test_args = [mocked_open.return_value.__enter__(), mocked_PR_instance.return_value, expected_md5]
-    mocked_db_handling.assert_called_with(expected_upload_bucket, expected_file_name, test_args)
+    mocked_db_handling.assert_called_with(
+        expected_upload_bucket, expected_file_name, expected_db_cluster_endpoint, test_args
+    )
 
 
 def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3_client):
@@ -420,9 +420,6 @@ def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3
         "get_ssm_secrets",
         return_value={"username": "test_username", "password": "test_password"},
     )
-    mocker.patch.object(
-        sdk_analysis.main, "get_remote_aws_host", return_value="test_db_host",
-    )
 
     mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
     mocker.patch("builtins.open", autospec=True)
@@ -430,7 +427,6 @@ def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
 
     expected_info_dict = {
-        "db_host": "test_db_host",
         "db_name": "mantarray_recordings",
         "db_password": "test_password",
         "db_username": "test_username",
@@ -444,15 +440,16 @@ def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_
     mocked_s3_client = mocked_boto3_client["s3"]
     mocker.patch.object(hashlib, "md5")
     mocker.patch.object(base64, "b64encode")
-    mocker.patch.object(sdk_analysis.main, "get_remote_aws_host", return_value="test_db_host")
     mocker.patch.object(
         sdk_analysis.main,
         "get_ssm_secrets",
         return_value={"username": "test_username", "password": "test_password"},
     )
 
+    expected_db_cluster_endpoint = "test_host"
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
+    mocker.patch.object(sdk_analysis, "DB_CLUSTER_ENDPOINT", expected_db_cluster_endpoint)
 
     mocker.patch.object(sdk_analysis.main.pymysql, "connect")
     format_spy = mocker.patch.object(sdk_analysis.main, "load_data_to_dataframe")
