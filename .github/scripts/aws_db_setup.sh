@@ -1,13 +1,15 @@
 #!/bin/bash
+set -x
 TEST_ROLE_ARN=$1
 DB_KEY_ARN=$2
 DB_CREDS_ARN=$3
 DB_HOST=$4
 EC2_HOST=$5
 
-aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-aws configure set default.region "us-east-1"
+# aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+# aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+# aws configure set default.region "us-east-1"
+AWS_REGION=us-east-1
 
 SESSION=$(AWS_PAGER="" aws sts assume-role --region us-east-1 --role-arn $TEST_ROLE_ARN --role-session-name terraform --region us-east-1 --output json)
 unset AWS_PROFILE
