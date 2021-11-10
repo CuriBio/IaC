@@ -109,10 +109,15 @@ jobs:
         run: |
           OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --output)
           TEST_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)
+          echo $TEST_ROLE_ARN
           DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $OUTPUTS)
+          echo $DB_KEY_ARN
           DB_CREDS_ARN=$(jq -r .db_creds_arn.value <<< $OUTPUTS)
+          echo $DB_CREDS_ARN
           DB_HOST=$(jq -r .db_cluster_endpoint.value <<< $OUTPUTS)
+          echo $DB_HOST
           EC2_HOST=$(jq -r .jump_host.value <<< $OUTPUTS)
+          echo $EC2_HOST
 
           chmod +x ./.github/scripts/aws_db_setup.sh
           ./.github/scripts/aws_db_setup.sh $TEST_ROLE_ARN $DB_KEY_ARN $DB_CREDS_ARN $DB_HOST $EC2_HOST
