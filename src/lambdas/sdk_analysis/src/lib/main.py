@@ -16,9 +16,11 @@ logger = logging.getLogger(__name__)
 
 # Queries
 insert_into_uploaded_s3_table = """
-    INSERT INTO uploaded_s3_objects(bucket, object_key, upload_started_at)
-    VALUES (%s, %s, NOW());
+    INSERT INTO uploaded_s3_objects(id, bucket, object_key, upload_started_at)
+    VALUES (NULL, %s, %s, NOW());
     """
+
+select_last_upload_id = """(SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1)"""
 
 insert_into_mantarray_recording_sessions = """
     INSERT INTO mantarray_recording_sessions(mantarray_recording_session_id, instrument_serial_number, length_centimilliseconds,
@@ -26,16 +28,14 @@ insert_into_mantarray_recording_sessions = """
     VALUES (%s, %s, %s, %s);
     """
 
-insert_into_mantarray_raw_files = """
+insert_into_mantarray_raw_files = f"""
     INSERT INTO mantarray_raw_files(well_index, upload_id, length_centimilliseconds, recording_started_at, mantarray_recording_session_id)
-    VALUES (%s, %s, %s, %s, %s);
+    VALUES (%s, {select_last_upload_id}, %s, %s, %s);
     """
 
-insert_into_s3_objects = """
-    INSERT INTO s3_objects(upload_id, kilobytes, stored_at, md5) VALUES (%s, %s, %s, %s);
+insert_into_s3_objects = f"""
+    INSERT INTO s3_objects(upload_id, kilobytes, stored_at, md5) VALUES ({select_last_upload_id}, %s, %s, %s);
     """
-
-select_last_upload_id = """(SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1)"""
 
 INFO_DICT = {}
 
@@ -79,7 +79,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
         )
         cur.execute(insert_into_mantarray_recording_sessions, recording_session_tuple)
 
-        s3_object_tuple = (select_last_upload_id, s3_size, metadata["file_creation_timestamp"], args[2])
+        s3_object_tuple = (s3_size, metadata["file_creation_timestamp"], args[2])
         cur.execute(insert_into_s3_objects, s3_object_tuple)
 
         logger.info("Executing queries to the database in relation to aggregated metadata")
@@ -90,7 +90,6 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
         for well in well_data:
             well_tuple = (
                 well["well_index"],
-                select_last_upload_id,
                 well["length_centimilliseconds"],
                 well["recording_started_at"],
                 metadata["mantarray_recording_session_id"],
