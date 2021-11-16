@@ -27,12 +27,12 @@ insert_into_mantarray_recording_sessions = """
     """
 
 insert_into_mantarray_raw_files = """
-    INSERT INTO mantarray_raw_files(well_index, object_id, length_centimilliseconds, recording_started_at, mantarray_recording_session_id)
+    INSERT INTO mantarray_raw_files(well_index, upload_id, length_centimilliseconds, recording_started_at, mantarray_recording_session_id)
     VALUES (%s, %s, %s, %s, %s);
     """
 
 insert_into_s3_objects = """
-    INSERT INTO s3_objects(object_id, kilobytes, stored_at, md5) VALUES (%s, %s, %s, %s);
+    INSERT INTO s3_objects(upload_id, kilobytes, stored_at, md5) VALUES (%s, %s, %s, %s);
     """
 
 select_last_object_id = """SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1"""
