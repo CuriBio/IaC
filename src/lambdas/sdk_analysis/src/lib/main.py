@@ -35,7 +35,7 @@ insert_into_s3_objects = """
     INSERT INTO s3_objects(upload_id, kilobytes, stored_at, md5) VALUES (%s, %s, %s, %s);
     """
 
-select_last_upload_id = """SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1"""
+select_last_upload_id = """(SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1)"""
 
 INFO_DICT = {}
 
