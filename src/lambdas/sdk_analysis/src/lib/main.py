@@ -35,7 +35,7 @@ insert_into_s3_objects = """
     INSERT INTO s3_objects(upload_id, kilobytes, stored_at, md5) VALUES (%s, %s, %s, %s);
     """
 
-select_last_object_id = """SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1"""
+select_last_upload_id = """SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1"""
 
 INFO_DICT = {}
 
@@ -79,7 +79,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
         )
         cur.execute(insert_into_mantarray_recording_sessions, recording_session_tuple)
 
-        s3_object_tuple = (select_last_object_id, s3_size, metadata["file_creation_timestamp"], args[2])
+        s3_object_tuple = (select_last_upload_id, s3_size, metadata["file_creation_timestamp"], args[2])
         cur.execute(insert_into_s3_objects, s3_object_tuple)
 
         logger.info("Executing queries to the database in relation to aggregated metadata")
@@ -90,7 +90,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
         for well in well_data:
             well_tuple = (
                 well["well_index"],
-                select_last_object_id,
+                select_last_upload_id,
                 well["length_centimilliseconds"],
                 well["recording_started_at"],
                 metadata["mantarray_recording_session_id"],
