@@ -9,4 +9,5 @@ boto3-stubs[s3,sts]==1.17.47.0
 requests==2.25.1
 python-hcl2==2.0.3
 stdlib-utils==0.4.4
+alembic==1.7.5
 # python-on-whales==0.16.0 # for local testing of lambda function
