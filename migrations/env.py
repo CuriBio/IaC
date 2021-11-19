@@ -1,8 +1,11 @@
 from logging.config import fileConfig
-from sqlalchemy import create_engine, MetaData, Table
-from alembic import context
 import os
+
+from alembic import context
 import paramiko
+from sqlalchemy import create_engine
+from sqlalchemy import MetaData
+from sqlalchemy import Table
 from sshtunnel import SSHTunnelForwarder
 
 # access to the values within the .ini file in use.
@@ -10,45 +13,53 @@ config = context.config
 fileConfig(config.config_file_name)
 
 
-#ssh config
-mypkey = paramiko.RSAKey.from_private_key_file(os.environ.get("KEY"))             
+# ssh config
+mypkey = paramiko.RSAKey.from_private_key_file(os.environ.get("KEY"))
 ssh_host = os.environ.get("EC2_HOST")
-ssh_user = 'ec2-user'
-ssh_port = 22  
+ssh_user = "ec2-user"
+ssh_port = 22
 
-#mysql config         
+# mysql config
 sql_hostname = os.environ.get("DB_HOST")
 sql_username = os.environ.get("DB_USER")
 sql_password = os.environ.get("DB_PASSWORD")
-sql_main_database = 'mantarray_recordings'
+sql_main_database = "mantarray_recordings"
 sql_port = 3306
-host = '127.0.0.1'
+host = "127.0.0.1"
 
 # access to the values within the .ini file in use.
 config = context.config
 fileConfig(config.config_file_name)
 
 with SSHTunnelForwarder(
-                (ssh_host, ssh_port),
-                ssh_username=ssh_user,
-                ssh_pkey=mypkey,
-                remote_bind_address=(sql_hostname, sql_port)) as tunnel:              
+    (ssh_host, ssh_port), ssh_username=ssh_user, ssh_pkey=mypkey, remote_bind_address=(sql_hostname, sql_port)
+) as tunnel:
 
     metadata = MetaData()
-    db_url = 'mysql://'+sql_username+':'+sql_password+'@'+host+':'+str(tunnel.local_bind_port)+'/'+sql_main_database
+    db_url = (
+        "mysql://"
+        + sql_username
+        + ":"
+        + sql_password
+        + "@"
+        + host
+        + ":"
+        + str(tunnel.local_bind_port)
+        + "/"
+        + sql_main_database
+    )
     engine = create_engine(db_url)
-    print(db_url)
     with engine.connect() as conn:
-        uploaded_s3_objects = Table('uploaded_s3_objects', metadata, autoload_with=conn)
-        sbs_labware_barcodes = Table('sbs_labware_barcodes', metadata, autoload_with=conn)
-        s3_objects = Table('s3_objects', metadata, autoload_with=conn)
-        mantarray_recording_sessions = Table('mantarray_recording_sessions', metadata, autoload_with=conn)
-        mantarray_raw_files = Table('mantarray_raw_files', metadata, autoload_with=conn)
-        mantarray_frontend_log_files = Table('mantarray_frontend_log_files', metadata, autoload_with=conn)
-        mantarray_backend_log_files = Table('mantarray_backend_log_files', metadata, autoload_with=conn)
-        labware_definitions = Table('labware_definitions', metadata, autoload_with=conn)
-        experiment_labware = Table('experiment_labware', metadata, autoload_with=conn)
-        barcoded_sbs_labware = Table('barcoded_sbs_labware', metadata, autoload_with=conn)
+        uploaded_s3_objects = Table("uploaded_s3_objects", metadata, autoload_with=conn)
+        sbs_labware_barcodes = Table("sbs_labware_barcodes", metadata, autoload_with=conn)
+        s3_objects = Table("s3_objects", metadata, autoload_with=conn)
+        mantarray_recording_sessions = Table("mantarray_recording_sessions", metadata, autoload_with=conn)
+        mantarray_raw_files = Table("mantarray_raw_files", metadata, autoload_with=conn)
+        mantarray_frontend_log_files = Table("mantarray_frontend_log_files", metadata, autoload_with=conn)
+        mantarray_backend_log_files = Table("mantarray_backend_log_files", metadata, autoload_with=conn)
+        labware_definitions = Table("labware_definitions", metadata, autoload_with=conn)
+        experiment_labware = Table("experiment_labware", metadata, autoload_with=conn)
+        barcoded_sbs_labware = Table("barcoded_sbs_labware", metadata, autoload_with=conn)
 
     target_metadata = metadata
 
@@ -74,7 +85,6 @@ with SSHTunnelForwarder(
         with context.begin_transaction():
             context.run_migrations()
 
-
     def run_migrations_online():
         """Run migrations in 'online' mode.
 
@@ -84,12 +94,13 @@ with SSHTunnelForwarder(
         """
         with engine.connect() as connection:
             context.configure(
-                connection=connection, target_metadata=target_metadata, version_table="alembic_version_%s" % config.config_ini_section,
+                connection=connection,
+                target_metadata=target_metadata,
+                version_table="alembic_version_%s" % config.config_ini_section,
             )
 
             with context.begin_transaction():
                 context.run_migrations()
-
 
     if context.is_offline_mode():
         run_migrations_offline()

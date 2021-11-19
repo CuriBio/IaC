@@ -1,12 +1,12 @@
 adapted from: https://alembic.sqlalchemy.org/en/latest/tutorial.html#the-migration-environment
 
-To create a new revision script file: 
-    run: alembic revision -m "basic description for migration" 
+To create a new revision script file:
+    run: alembic revision -m "basic description for migration"
 
 Locate new revision file in /migrations/versions: %%(revision_id)s_%%(basic_description_for_migration)s
 
 Make any modifications to these methods:
-   
+
     def upgrade():
         TODO: additions
 
