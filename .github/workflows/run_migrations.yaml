@@ -1,11 +1,15 @@
-name: 'Run database migrations'
+name: 'Run Database Migration'
 on:
   workflow_dispatch:
-      inputs:
-        workspace:
-          description: 'Enter workspace'
-          required: true
-          default: ''
+    inputs:
+      workspace:
+        description: 'Enter workspace'
+        required: true
+        default: ''
+  pull_request:
+    branches-ignore:
+      - main
+
 jobs:
   migrations:
     name: 'Run database migration'
@@ -70,10 +74,15 @@ jobs:
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 0.14.7
+        terraform_wrapper: false
+
+    - name: 'Create Environment'
+      id: tfenv
+      run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --no-color
 
     - name: Access Terraform outputs
       run: |
-          OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace $WORKSPACE --output)
+          OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --output)
           echo $OUTPUTS
           ASSUMED_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)
           DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $OUTPUTS)

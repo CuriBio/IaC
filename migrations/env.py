@@ -1,6 +1,6 @@
 from logging.config import fileConfig
 import os
-
+from io import StringIO
 from alembic import context
 import paramiko
 from sqlalchemy import create_engine
@@ -12,9 +12,9 @@ from sshtunnel import SSHTunnelForwarder
 config = context.config
 fileConfig(config.config_file_name)
 
-
 # ssh config
-mypkey = paramiko.RSAKey.from_private_key_file(os.environ.get("KEY"))
+pkey = StringIO(os.environ.get("KEY"))
+mypkey = paramiko.RSAKey.from_private_key(pkey)
 ssh_host = os.environ.get("EC2_HOST")
 ssh_user = "ec2-user"
 ssh_port = 22
