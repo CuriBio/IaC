@@ -27,10 +27,6 @@ sql_main_database = "mantarray_recordings"
 sql_port = 3306
 host = "127.0.0.1"
 
-# access to the values within the .ini file in use.
-config = context.config
-fileConfig(config.config_file_name)
-
 with SSHTunnelForwarder(
     (ssh_host, ssh_port), ssh_username=ssh_user, ssh_pkey=mypkey, remote_bind_address=(sql_hostname, sql_port)
 ) as tunnel:

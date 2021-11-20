@@ -78,7 +78,7 @@ jobs:
 
     - name: 'Create Environment'
       id: tfenv
-      run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --no-color
+      run: python ./.github/scripts/tf-deploy-env.py --workspace test --no-color
 
     - name: Access Terraform outputs
       run: |
