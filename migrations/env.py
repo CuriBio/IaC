@@ -1,6 +1,7 @@
+from io import StringIO
 from logging.config import fileConfig
 import os
-from io import StringIO
+
 from alembic import context
 import paramiko
 from sqlalchemy import create_engine
@@ -15,13 +16,14 @@ fileConfig(config.config_file_name)
 # ssh config
 pkey = StringIO(os.environ.get("KEY"))
 mypkey = paramiko.RSAKey.from_private_key(pkey)
-ssh_host = os.environ.get("EC2_HOST")
+# ssh_host = os.environ.get("EC2_HOST")
+ssh_host = "ec2-54-226-191-183.compute-1.amazonaws.com"
 ssh_user = "ec2-user"
 ssh_port = 22
 
 # mysql config
 sql_hostname = os.environ.get("DB_HOST")
-sql_username = os.environ.get("DB_USER")
+sql_username = os.environ.get("DB_USERNAME")
 sql_password = os.environ.get("DB_PASSWORD")
 sql_main_database = "mantarray_recordings"
 sql_port = 3306

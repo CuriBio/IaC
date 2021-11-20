@@ -8,7 +8,10 @@ Locate new revision file in /migrations/versions: %%(revision_id)s_%%(basic_desc
 Make any modifications to these methods:
 
     def upgrade():
-        TODO: additions
+        TODO: additions/altering
 
     def downgrade():
         TODO: deletions
+
+
+Workflow is set to call upgrade HEAD in selected workspace, but can be modified manually before running migration. 
