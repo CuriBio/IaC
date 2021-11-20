@@ -84,11 +84,11 @@ jobs:
       run: |
           OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --output)
           echo $OUTPUTS
-          ASSUMED_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)
-          DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $OUTPUTS)
-          DB_CREDS_ARN=$(jq -r .db_creds_arn.value <<< $OUTPUTS)
-          DB_HOST=$(jq -r .db_cluster_endpoint.value <<< $OUTPUTS)
-          EC2_HOST=$(jq -r .jump_host.value <<< $OUTPUTS)
+          ASSUMED_ROLE_ARN=arn:aws:iam::077346344852:role/terraform_deploy_role
+          DB_KEY_ARN=arn:aws:secretsmanager:us-east-1:077346344852:secret:db-ec2-key-pair-aofYm8
+          DB_CREDS_ARN=arn:aws:secretsmanager:us-east-1:077346344852:secret:db-creds-WszNCl
+          DB_HOST=iac-329-mantarray-rds.cluster-cya18gqzi4zd.us-east-1.rds.amazonaws.com
+          EC2_HOST=ec2-user@jump.curibio-test.com
 
     - name: Run migration script
       run: |
