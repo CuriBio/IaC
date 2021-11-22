@@ -1,15 +1,18 @@
-name: 'Run Database Migration'
+name: 'Dump Prod Data For Migrations'
 on:
   workflow_dispatch:
     inputs:
       workspace:
-        description: 'Enter workspace'
+        description: 'Enter workspace to receive data'
         required: true
-        default: ''
+        default: 'test'
+  pull_request:
+    branches-ignore:
+      - main
 
 jobs:
   migrations:
-    name: 'Run database migration'
+    name: 'Dump prod data'
     strategy:
       fail-fast: false
       matrix:
@@ -26,7 +29,7 @@ jobs:
       TF_VAR_user_id: ${{ github.actor }}
       AWS_DEFAULT_REGION: us-east-1
       AWS_DEFAULT_OUTPUT: json
-      WORKSPACE: ${{ github.event.inputs.workspace }}
+      WORKSPACE: test
 
     steps:
     - name: Checkout
@@ -73,9 +76,20 @@ jobs:
         terraform_version: 0.14.7
         terraform_wrapper: false
 
-    - name: Access Terraform outputs
+    - name: Access prod Terraform outputs
       run: |
-          OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --output)
+        PROD_OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace iac-329 --output)
+        echo $OUTPUTS
+
+        echo "PROD_ASSUMED_ROLE_ARN=$(jq -r .role_arn.value <<< $PROD_OUTPUTS)" >> $GITHUB_ENV
+        echo "PROD_DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $PROD_OUTPUTS)" >> $GITHUB_ENV
+        echo "PROD_DB_CREDS_ARN=$(jq -r .db_creds_arn.value <<< $PROD_OUTPUTS)" >> $GITHUB_ENV
+        echo "PROD_DB_HOST=$(jq -r .db_cluster_endpoint.value <<< $PROD_OUTPUTS)" >> $GITHUB_ENV
+        echo "PROD_EC2_HOST=$(jq -r .jump_host.value <<< $PROD_OUTPUTS)" >> $GITHUB_ENV
+
+    - name: Access ${{ env.WORKSPACE }} Terraform outputs
+      run: |
+          OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace ${{ env.WORKSPACE }} --output)
           echo $OUTPUTS
 
           echo "ASSUMED_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)" >> $GITHUB_ENV
@@ -84,7 +98,7 @@ jobs:
           echo "DB_HOST=$(jq -r .db_cluster_endpoint.value <<< $OUTPUTS)" >> $GITHUB_ENV
           echo "EC2_HOST=$(jq -r .jump_host.value <<< $OUTPUTS)" >> $GITHUB_ENV
 
-    - name: Run migration script
+    - name: Run Dump script
       run: |
-        chmod +x ./.github/scripts/run_migration.sh
-        ./.github/scripts/run_migration.sh
+        chmod +x ./.github/scripts/dump_prod_data.sh
+        ./.github/scripts/dump_prod_data.sh

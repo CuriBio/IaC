@@ -1,9 +1,4 @@
 #!/bin/bash
-ASSUMED_ROLE_ARN=$1
-DB_KEY_ARN=$2
-DB_CREDS_ARN=$3
-DB_HOST=$4
-EC2_HOST=$5
 
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
 aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
@@ -26,6 +21,4 @@ export DB_PASSWORD=$( aws secretsmanager get-secret-value --secret-id $DB_CREDS_
 export DB_USERNAME=$( aws secretsmanager get-secret-value --secret-id $DB_CREDS_ARN  | jq --raw-output '.SecretString' | jq -r .username )
 
 alembic upgrade head
-
-HISTORY=$( alembic history --verbose )
-echo $HISTORY
+alembic history --verbose

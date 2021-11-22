@@ -3,9 +3,9 @@ adapted from: https://alembic.sqlalchemy.org/en/latest/tutorial.html#the-migrati
 To create a new revision script file:
     run: alembic revision -m "basic description for migration"
 
-Locate new revision file in /migrations/versions: %%(revision_id)s_%%(basic_description_for_migration)s
+Locate new revision file in ~/migrations/versions: %%(revision_id)s_%%(basic_description_for_migration)s
 
-Make any modifications to these methods:
+Make desired modifications to these methods:
 
     def upgrade():
         TODO: additions/altering
@@ -13,5 +13,6 @@ Make any modifications to these methods:
     def downgrade():
         TODO: deletions
 
+Update description to include "Revision by: {name}"
 
-Workflow is set to call upgrade HEAD in selected workspace, but can be modified manually before running migration. 
+Workflow is set to call upgrade HEAD in selected workspace, but can be modified manually before running migration in ~/.github/scripts/run_migrations.sh

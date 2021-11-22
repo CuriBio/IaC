@@ -1,4 +1,5 @@
 from io import StringIO
+import logging
 from logging.config import fileConfig
 import os
 
@@ -12,41 +13,44 @@ from sshtunnel import SSHTunnelForwarder
 # access to the values within the .ini file in use.
 config = context.config
 fileConfig(config.config_file_name)
+logger = logging.getLogger("alembic")
 
 # ssh config
 pkey = StringIO(os.environ.get("KEY"))
-mypkey = paramiko.RSAKey.from_private_key(pkey)
-# ssh_host = os.environ.get("EC2_HOST")
-ssh_host = "ec2-54-226-191-183.compute-1.amazonaws.com"
-ssh_user = "ec2-user"
-ssh_port = 22
+P_KEY = paramiko.RSAKey.from_private_key(pkey)
+
+ssh_user_host = os.environ.get("EC2_HOST").split("@")
+SSH_USER = ssh_user_host[0]
+SSH_HOST = ssh_user_host[1]
+SSH_PORT = 22
 
 # mysql config
-sql_hostname = os.environ.get("DB_HOST")
-sql_username = os.environ.get("DB_USERNAME")
-sql_password = os.environ.get("DB_PASSWORD")
-sql_main_database = "mantarray_recordings"
-sql_port = 3306
-host = "127.0.0.1"
+DB_HOST = os.environ.get("DB_HOST")
+DB_USER = os.environ.get("DB_USERNAME")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_NAME = "mantarray_recordings"
+DB_PORT = 3306
+
+LOCAL_HOST = "127.0.0.1"
 
 with SSHTunnelForwarder(
-    (ssh_host, ssh_port), ssh_username=ssh_user, ssh_pkey=mypkey, remote_bind_address=(sql_hostname, sql_port)
+    (SSH_HOST, SSH_PORT), ssh_username=SSH_USER, ssh_pkey=P_KEY, remote_bind_address=(DB_HOST, DB_PORT)
 ) as tunnel:
-
-    metadata = MetaData()
     db_url = (
         "mysql://"
-        + sql_username
+        + DB_USER
         + ":"
-        + sql_password
+        + DB_PASSWORD
         + "@"
-        + host
+        + LOCAL_HOST
         + ":"
         + str(tunnel.local_bind_port)
         + "/"
-        + sql_main_database
+        + DB_NAME
     )
     engine = create_engine(db_url)
+
+    metadata = MetaData()
     with engine.connect() as conn:
         uploaded_s3_objects = Table("uploaded_s3_objects", metadata, autoload_with=conn)
         sbs_labware_barcodes = Table("sbs_labware_barcodes", metadata, autoload_with=conn)
@@ -92,9 +96,7 @@ with SSHTunnelForwarder(
         """
         with engine.connect() as connection:
             context.configure(
-                connection=connection,
-                target_metadata=target_metadata,
-                version_table="alembic_version_%s" % config.config_ini_section,
+                connection=connection, target_metadata=target_metadata, version_table="alembic_version",
             )
 
             with context.begin_transaction():
