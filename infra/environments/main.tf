@@ -33,6 +33,9 @@ variable "get_auth_image_name" {}
 variable "get_auth_function_name" {}
 
 
+# firmware updating
+variable "firmware_bucket" {}
+
 terraform {
   required_version = ">= 0.14.7"
 
@@ -190,4 +193,12 @@ module "api" {
   #get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
   #get_auth_function_name       = var.get_auth_function_name
   #get_auth_invoke_arn          = module.get_auth.invoke_arn
+}
+
+
+module "firmware_updating" {
+  source = "../modules/curi/firmware_updating"
+
+  # s3 bucket
+  firmware_bucket = "${terraform.workspace}-${var.firmware_bucket}"
 }

@@ -31,3 +31,6 @@ db_creds_arn   = "arn:aws:secretsmanager:us-east-1:725604423866:secret:db-creds-
 #jump host
 jump_ec2_arn = "arn:aws:secretsmanager:us-east-1:725604423866:secret:db-ec2-key-pair-D29xQo"
 jump_host    = "ec2-user@jump.curibio-modl.com"
+
+# firmware updating
+firmware_bucket = "firmware-bucket"
