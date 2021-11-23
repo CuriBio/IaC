@@ -32,9 +32,13 @@ variable "get_sdk_status_function_name" {}
 variable "get_auth_image_name" {}
 variable "get_auth_function_name" {}
 
-
 # firmware updating
 variable "firmware_bucket" {}
+variable "get_latest_firmware_image_name" {}
+variable "get_latest_firmware_function_name" {}
+variable "firmware_download_image_name" {}
+variable "firmware_download_function_name" {}
+
 
 terraform {
   required_version = ">= 0.14.7"
@@ -199,6 +203,25 @@ module "api" {
 module "firmware_updating" {
   source = "../modules/curi/firmware_updating"
 
+  # assume role for docker push
+  role_arn = var.role_arn
+
   # s3 bucket
   firmware_bucket = "${terraform.workspace}-${var.firmware_bucket}"
+
+  # docker images
+  image_name_glf = "${terraform.workspace}-${var.get_latest_firmware_image_name}"
+  image_name_fd  = "${terraform.workspace}-${var.firmware_download_image_name}"
+
+  # lambdas
+  function_name_glf        = "${terraform.workspace}-${var.get_latest_firmware_function_name}"
+  function_description_glf = "Get latest firmware lambda"
+
+  function_name_fd        = "${terraform.workspace}-${var.firmware_download_function_name}"
+  function_description_fd = "Firmware download lambda"
+
+  api_gateway_source_arn = module.api.source_arn
+  lambda_api_gw_id       = module.api.api_id
+  authorizer_id          = module.api.authorizer_id
+  authorization_type     = "JWT"
 }

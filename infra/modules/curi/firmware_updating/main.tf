@@ -11,46 +11,55 @@ resource "aws_s3_bucket" "firmware_bucket" {
   }
 }
 
-# module "lambda" {
-#   source = "../lambda"
+module "lambda_glf" {
+  source = "../lambda"
 
-#   #assume role for docker push
-#   role_arn = var.role_arn
+  #assume role for docker push
+  role_arn = var.role_arn
 
-#   # docker image
-#   image_name = var.image_name
-#   image_src  = "../../src/lambdas/get_latest_firmware"
+  # docker image
+  image_name = var.image_name_glf
+  image_src  = "../../src/lambdas/get_latest_firmware"
 
-#   # lambda
-#   function_name        = var.function_name
-#   function_description = "Get upload/analysis status of files"
+  # lambda
+  function_name        = var.function_name_glf
+  function_description = "Get latest firmware version"
 
-#   source_arn         = var.api_gateway_source_arn
-#   lambda_api_gw_id   = var.lambda_api_gw_id
-#   integration_method = "GET"
-#   route_key          = "GET /firmware_latest"
-#   authorizer_id      = var.authorizer_id
-#   authorization_type = var.authorization_type
-# }
+  source_arn         = var.api_gateway_source_arn
+  lambda_api_gw_id   = var.lambda_api_gw_id
+  integration_method = "POST"
+  route_key          = "GET /firmware_latest"
+  authorizer_id      = ""
+  authorization_type = "NONE"
 
-# module "lambda" {
-#   source = "../lambda"
+  lambda_env = {}
 
-#   #assume role for docker push
-#   role_arn = var.role_arn
+  # attach_policies = {}
+}
 
-#   # docker image
-#   image_name = var.image_name
-#   image_src  = "../../src/lambdas/get_firmware_download"
 
-#   # lambda
-#   function_name        = var.function_name
-#   function_description = "Get upload/analysis status of files"
+module "lambda_fd" {
+  source = "../lambda"
 
-#   source_arn         = var.api_gateway_source_arn
-#   lambda_api_gw_id   = var.lambda_api_gw_id
-#   integration_method = "GET"
-#   route_key          = "GET /firmware_download"
-#   authorizer_id      = var.authorizer_id
-#   authorization_type = var.authorization_type
-# }
+  #assume role for docker push
+  role_arn = var.role_arn
+
+  # docker image
+  image_name = var.image_name_fd
+  image_src  = "../../src/lambdas/firmware_download"
+
+  # lambda
+  function_name        = var.function_name_fd
+  function_description = "Download given firmware version"
+
+  source_arn         = var.api_gateway_source_arn
+  lambda_api_gw_id   = var.lambda_api_gw_id
+  integration_method = "POST"
+  route_key          = "GET /firmware_download"
+  authorizer_id      = var.authorizer_id
+  authorization_type = var.authorization_type
+
+  lambda_env = {}
+
+  # attach_policies = {}
+}

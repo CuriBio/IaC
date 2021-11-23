@@ -35,4 +35,8 @@ jump_host    = "ec2-user@jump.curibio-test.com"
 #jump_host    = "ec2-user@ec2-54-226-191-183.compute-1.amazonaws.com"
 
 # firmware updating
-firmware_bucket = "firmware-bucket"
+firmware_bucket                   = "firmware-bucket"
+get_latest_firmware_image_name    = "get_latest_firmware"
+get_latest_firmware_function_name = "get-latest-firmware"
+firmware_download_image_name      = "firmware_download"
+firmware_download_function_name   = "firmware-download"
