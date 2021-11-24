@@ -1,13 +1,13 @@
-# there likely will alreday be a hosted zone for the domain if if was
+# there likely will already be a hosted zone for the domain if it was
 # registerd through route53, if that is the case then you will have to delete
 # the existing hosted zone and then update the NS settings for the registration
 # with the new NS that are set in the hosted zone created by terraform.
-resource "aws_route53_zone" "main" {
+resource "aws_route53_zone" "main" { # TODO move this up and pass in the zone_id to other modules
   name = var.hosted_zone
 }
 
 
-resource "aws_route53_record" "cname" {
+resource "aws_route53_record" "cname" { # try just adding this to other routes for naming
   allow_overwrite = true
   zone_id         = aws_route53_zone.main.zone_id
   name            = "${var.subdomain}.${var.hosted_zone}"

@@ -32,9 +32,23 @@ module "lambda_glf" {
   authorizer_id      = ""
   authorization_type = "NONE"
 
-  lambda_env = {}
+  lambda_env = {
+    S3_BUCKET = var.firmware_bucket
+  }
 
-  # attach_policies = {}
+  attach_policies = {
+    s3_list_bucket = {
+      effect = "Allow",
+      actions = [
+        "s3:ListBucket",
+        "s3:GetObject",
+      ],
+      resources = [
+        aws_s3_bucket.firmware_bucket.arn,
+        "${aws_s3_bucket.firmware_bucket.arn}/*"
+      ]
+    },
+  }
 }
 
 
