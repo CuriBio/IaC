@@ -84,7 +84,7 @@ jobs:
       run: |
         OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace test --output)
         echo $OUTPUTS
-          
+
         export ASSUMED_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)
         export DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $OUTPUTS)
         export DB_CREDS_ARN=$(jq -r .db_creds_arn.value <<< $OUTPUTS)
@@ -102,7 +102,7 @@ jobs:
       run: |
         OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace modl --output)
         echo $OUTPUTS
-          
+
         export ASSUMED_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)
         export DB_KEY_ARN=$(jq -r .jump_ec2_arn.value <<< $OUTPUTS)
         export DB_CREDS_ARN=$(jq -r .db_creds_arn.value <<< $OUTPUTS)

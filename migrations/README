@@ -20,5 +20,3 @@ In Github:
 Run 'Dump Prod Data For Migrations' workflow on user-selected workspace.
 Run 'Run Database Migration' workflow on user-selected workspace.
     Workflow is set to call upgrade HEAD in selected workspace, but can be modified manually before running migration in ~/.github/scripts/run_migrations.sh
-
-
