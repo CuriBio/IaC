@@ -84,9 +84,9 @@ jobs:
         echo "PROD_DB_HOST=$(jq -r .db_cluster_endpoint.value <<< $PROD_OUTPUTS)" >> $GITHUB_ENV
         echo "PROD_EC2_HOST=$(jq -r .jump_host.value <<< $PROD_OUTPUTS)" >> $GITHUB_ENV
 
-    - name: Access ${{ env.WORKSPACE }} Terraform outputs
+    - name: Access selected Terraform outputs
       run: |
-          OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace ${{ env.WORKSPACE }} --output)
+          OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace ${{ env.WORKSPACE }}  --output)
           echo $OUTPUTS
 
           echo "ASSUMED_ROLE_ARN=$(jq -r .role_arn.value <<< $OUTPUTS)" >> $GITHUB_ENV
