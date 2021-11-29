@@ -75,7 +75,7 @@ jobs:
 
     - name: Access prod Terraform outputs
       run: |
-        PROD_OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace iac-329 --output)
+        PROD_OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace prod --output)
         echo $OUTPUTS
 
         echo "PROD_ASSUMED_ROLE_ARN=$(jq -r .role_arn.value <<< $PROD_OUTPUTS)" >> $GITHUB_ENV
