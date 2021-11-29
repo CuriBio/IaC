@@ -72,6 +72,7 @@ jobs:
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 0.14.7
+        terraform_wrapper: false
 
     - name: 'Terraform apply prod environment'
       if: github.event.pull_request.merged == true
