@@ -20,21 +20,22 @@ def fixture_mocked_boto3_client(mocker):
     yield mocked_s3_client
 
 
-def test_get_latest_firmware__returns_error_code_if_queryStringParameters_given_without_software_version():
-    response = get_latest_firmware.handler({"queryStringParameters": {}}, None)
-    assert response == {
-        "statusCode": 400,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"message": "Missing software_version param"}),
-    }
-
-
 def test_get_latest_firmware__logs_event(mocker):
     spied_logger_info = mocker.spy(get_latest_firmware.logger, "info")
 
     test_event = {"queryStringParameters": {}}
     get_latest_firmware.handler(test_event, None)
     spied_logger_info.assert_any_call(f"event: {test_event}")
+
+
+@pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": {}}])
+def test_get_latest_firmware__returns_error_code_if_software_version_not_given(test_event):
+    response = get_latest_firmware.handler(test_event, None)
+    assert response == {
+        "statusCode": 400,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"message": "Missing software_version param"}),
+    }
 
 
 @pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": {}}])

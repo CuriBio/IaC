@@ -38,9 +38,7 @@ def get_latest_firmware_version(software_version: str):
     for file_name in firmware_file_names:
         head_obj = s3_client.head_object(Bucket=S3_BUCKET, Key=file_name)
         max_software_version = head_obj["Metadata"].get("max-software-version", None)
-        min_software_version = head_obj["Metadata"][
-            "min-software-version"
-        ]  # TODO ask Jason or figure out how to handle this value missing
+        min_software_version = head_obj["Metadata"]["min-software-version"]
         is_firmware_version_incompatible = software_version_info < VersionInfo.parse(min_software_version)
         if max_software_version is not None:
             is_firmware_version_incompatible |= software_version_info > VersionInfo.parse(

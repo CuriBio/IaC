@@ -124,7 +124,7 @@ def process_record(record, s3_client, db_client):
             update_sdk_status(db_client, upload_id, "error generating presigned url")
 
 
-def handler(max_num_loops=0):
+def handler(max_num_loops=None):
     sqs_client = boto3.client("sqs")
     s3_client = boto3.client("s3")
     db_client = boto3.client("dynamodb")
@@ -152,11 +152,11 @@ def handler(max_num_loops=0):
         except ClientError as e:
             logger.exception(f"receive_message failed. Error: {e}")
 
-        # conditionally breaking of loop for unit testing
-        if max_num_loops > 0:
+        # conditional breaking of loop for unit testing
+        if max_num_loops is not None:
             num_loops += 1
             if num_loops >= max_num_loops:
-                break
+                return
 
         sleep(5)
 

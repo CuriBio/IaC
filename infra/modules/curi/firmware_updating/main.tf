@@ -37,7 +37,7 @@ module "lambda_glf" {
   }
 
   attach_policies = {
-    s3_list_bucket = {
+    s3 = {
       effect = "Allow",
       actions = [
         "s3:ListBucket",
@@ -73,7 +73,20 @@ module "lambda_fd" {
   authorizer_id      = var.authorizer_id
   authorization_type = var.authorization_type
 
-  lambda_env = {}
+  lambda_env = {
+    S3_BUCKET = var.firmware_bucket
+  }
 
-  # attach_policies = {}
+  attach_policies = {
+    s3 = {
+      effect = "Allow",
+      actions = [
+        "s3:GetObject",
+      ],
+      resources = [
+        aws_s3_bucket.firmware_bucket.arn,
+        "${aws_s3_bucket.firmware_bucket.arn}/*"
+      ]
+    },
+  }
 }
