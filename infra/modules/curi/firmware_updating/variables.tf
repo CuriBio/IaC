@@ -1,5 +1,10 @@
-variable "firmware_bucket" {
-  description = "Firmware file bucket"
+variable "main_firmware_bucket" {
+  description = "Main firmware file bucket"
+  type        = string
+}
+
+variable "channel_firmware_bucket" {
+  description = "Channel firmware file bucket"
   type        = string
 }
 

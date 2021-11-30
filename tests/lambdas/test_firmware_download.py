@@ -50,7 +50,7 @@ def test_firmware_download__gets_presigned_url_correctly(mocker, mocked_boto3_cl
     mocked_s3_client.generate_presigned_url.return_value = "dummy.url"
 
     expected_bucket_name = "test_bucket"
-    mocker.patch.object(firmware_download, "S3_BUCKET", expected_bucket_name)
+    mocker.patch.object(firmware_download, "S3_MAIN_BUCKET", expected_bucket_name)
 
     test_event = {"queryStringParameters": {"firmware_version": "0.0.0"}}
     firmware_download.handler(test_event, None)
@@ -99,7 +99,7 @@ def test_firmware_download__logs_error__if_presigned_url_generation_fails(mocker
     mocked_s3_client.generate_presigned_url.side_effect = expected_error
 
     expected_bucket_name = "test_bucket"
-    mocker.patch.object(firmware_download, "S3_BUCKET", expected_bucket_name)
+    mocker.patch.object(firmware_download, "S3_MAIN_BUCKET", expected_bucket_name)
 
     spied_logger_error = mocker.spy(firmware_download.logger, "error")
 
@@ -115,7 +115,7 @@ def test_firmware_download__logs_info(mocker, mocked_boto3_client):
     mocked_s3_client.generate_presigned_url.return_value = "dummy.url"
 
     expected_bucket_name = "test_bucket"
-    mocker.patch.object(firmware_download, "S3_BUCKET", expected_bucket_name)
+    mocker.patch.object(firmware_download, "S3_MAIN_BUCKET", expected_bucket_name)
 
     spied_logger_info = mocker.spy(firmware_download.logger, "info")
 

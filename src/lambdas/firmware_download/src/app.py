@@ -5,7 +5,7 @@ import sys
 
 import boto3
 
-S3_BUCKET = os.environ.get("S3_BUCKET")
+S3_MAIN_BUCKET = os.environ.get("S3_MAIN_BUCKET")
 
 # remove AWS pre-config that interferes with custom config
 root = logging.getLogger()
@@ -24,12 +24,12 @@ def get_download_url(version: str):
 
     file_name = f"{version.replace('.', '_')}.bin"
     try:
-        logger.info(f"Generating presigned url for {S3_BUCKET}/{file_name}")
+        logger.info(f"Generating presigned url for {S3_MAIN_BUCKET}/{file_name}")
         return s3_client.generate_presigned_url(
-            ClientMethod="get_object", Params={"Bucket": S3_BUCKET, "Key": file_name}, ExpiresIn=3600,
+            ClientMethod="get_object", Params={"Bucket": S3_MAIN_BUCKET, "Key": file_name}, ExpiresIn=3600,
         )
     except Exception as e:
-        logger.error(f"Unable to generate presigned url for {S3_BUCKET}/{file_name}: {repr(e)}")
+        logger.error(f"Unable to generate presigned url for {S3_MAIN_BUCKET}/{file_name}: {repr(e)}")
         return None
 
 

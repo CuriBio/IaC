@@ -50,7 +50,7 @@ def test_get_latest_firmware__gets_firmware_file_objects_from_s3_correctly(mocke
     mocked_s3_client.list_objects.return_value = {"Contents": []}
 
     expected_bucket_name = "test_bucket"
-    mocker.patch.object(get_latest_firmware, "S3_BUCKET", expected_bucket_name)
+    mocker.patch.object(get_latest_firmware, "S3_MAIN_BUCKET", expected_bucket_name)
 
     test_event = {"queryStringParameters": {"software_version": "0.0.0"}}
     get_latest_firmware.handler(test_event, None)
@@ -58,7 +58,7 @@ def test_get_latest_firmware__gets_firmware_file_objects_from_s3_correctly(mocke
     mocked_s3_client.list_objects.assert_called_once_with(Bucket=expected_bucket_name)
 
 
-def test_get_latest_firmware__retrieves_metadata_of_each_correctly_named_firmware_file_in_s3_bucket_correctly(
+def test_get_latest_firmware__retrieves_metadata_of_each_correctly_named_firmware_file_in_S3_MAIN_BUCKET_correctly(
     mocker, mocked_boto3_client
 ):
     mocked_s3_client = mocked_boto3_client
@@ -83,7 +83,7 @@ def test_get_latest_firmware__retrieves_metadata_of_each_correctly_named_firmwar
     }
 
     expected_bucket_name = "test_bucket"
-    mocker.patch.object(get_latest_firmware, "S3_BUCKET", expected_bucket_name)
+    mocker.patch.object(get_latest_firmware, "S3_MAIN_BUCKET", expected_bucket_name)
 
     test_event = {"queryStringParameters": {"software_version": "1.0.0"}}
     get_latest_firmware.handler(test_event, None)

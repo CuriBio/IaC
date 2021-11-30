@@ -1,5 +1,18 @@
-resource "aws_s3_bucket" "firmware_bucket" {
-  bucket = var.firmware_bucket
+resource "aws_s3_bucket" "main_firmware_bucket" {
+  bucket = var.main_firmware_bucket
+  acl    = "private"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
+resource "aws_s3_bucket" "channel_firmware_bucket" {
+  bucket = var.channel_firmware_bucket
   acl    = "private"
 
   server_side_encryption_configuration {
@@ -33,7 +46,8 @@ module "lambda_glf" {
   authorization_type = "NONE"
 
   lambda_env = {
-    S3_BUCKET = var.firmware_bucket
+    S3_MAIN_BUCKET    = var.main_firmware_bucket
+    S3_CHANNEL_BUCKET = var.channel_firmware_bucket
   }
 
   attach_policies = {
@@ -44,8 +58,10 @@ module "lambda_glf" {
         "s3:GetObject",
       ],
       resources = [
-        aws_s3_bucket.firmware_bucket.arn,
-        "${aws_s3_bucket.firmware_bucket.arn}/*"
+        aws_s3_bucket.main_firmware_bucket.arn,
+        "${aws_s3_bucket.main_firmware_bucket.arn}/*",
+        aws_s3_bucket.channel_firmware_bucket.arn,
+        "${aws_s3_bucket.channel_firmware_bucket.arn}/*"
       ]
     },
   }
@@ -74,7 +90,8 @@ module "lambda_fd" {
   authorization_type = var.authorization_type
 
   lambda_env = {
-    S3_BUCKET = var.firmware_bucket
+    S3_MAIN_BUCKET    = var.main_firmware_bucket
+    S3_CHANNEL_BUCKET = var.channel_firmware_bucket
   }
 
   attach_policies = {
@@ -84,8 +101,10 @@ module "lambda_fd" {
         "s3:GetObject",
       ],
       resources = [
-        aws_s3_bucket.firmware_bucket.arn,
-        "${aws_s3_bucket.firmware_bucket.arn}/*"
+        aws_s3_bucket.main_firmware_bucket.arn,
+        "${aws_s3_bucket.main_firmware_bucket.arn}/*",
+        aws_s3_bucket.channel_firmware_bucket.arn,
+        "${aws_s3_bucket.channel_firmware_bucket.arn}/*"
       ]
     },
   }

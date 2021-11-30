@@ -33,7 +33,8 @@ variable "get_auth_image_name" {}
 variable "get_auth_function_name" {}
 
 # firmware updating
-variable "firmware_bucket" {}
+variable "main_firmware_bucket" {}
+variable "channel_firmware_bucket" {}
 variable "get_latest_firmware_image_name" {}
 variable "get_latest_firmware_function_name" {}
 variable "firmware_download_image_name" {}
@@ -206,8 +207,9 @@ module "firmware_updating" {
   # assume role for docker push
   role_arn = var.role_arn
 
-  # s3 bucket
-  firmware_bucket = "${terraform.workspace}-${var.firmware_bucket}"
+  # s3 buckets
+  main_firmware_bucket    = "${terraform.workspace}-${var.main_firmware_bucket}"
+  channel_firmware_bucket = "${terraform.workspace}-${var.channel_firmware_bucket}"
 
   # docker images
   image_name_glf = "${terraform.workspace}-${var.get_latest_firmware_image_name}"
