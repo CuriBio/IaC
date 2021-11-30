@@ -113,5 +113,5 @@ jobs:
 
           echo $OUTPUTS
 
-          chmod +x ./.github/scripts/setup_db.sh
-          ./.github/scripts/setup_db.sh
+          chmod +x ./.github/scripts/db_import.sh
+          ./.github/scripts/db_import.sh
