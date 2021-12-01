@@ -18,6 +18,11 @@ output "api_id" {
   value       = aws_apigatewayv2_api.lambda_gw.id
 }
 
+output "api_stage_id" {
+  description = "api stage id"
+  value       = aws_apigatewayv2_stage.lambda_gw_stage.id
+}
+
 output "authorizer_id" {
   description = "authorizer id"
   value       = aws_apigatewayv2_authorizer.lambda_gw_auth.id

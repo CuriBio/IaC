@@ -102,7 +102,6 @@ module "jupyter_notebook" {
 
 module "sdk_analysis" {
   source = "../modules/curi/cloud_sdk"
-  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
@@ -133,7 +132,6 @@ module "sdk_analysis" {
 
 module "get_sdk_status" {
   source = "../modules/curi/get_sdk_status"
-  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
@@ -161,12 +159,8 @@ module "aurora_database" {
   db_creds_arn   = var.db_creds_arn
 }
 
-#module "lambda" {
-#  source = "../modules/curi/lambda"
-
 module "get_auth" {
   source = "../modules/curi/get_auth"
-  #depends_on = [module.api]
 
   # assume role for docker push
   role_arn = var.role_arn
@@ -191,13 +185,19 @@ module "sdk_status_db" {
 
 module "api" {
   source = "../modules/curi/api_gateway"
+}
 
-  #sdk_upload_function_name     = var.sdk_upload_function_name
-  #sdk_upload_invoke_arn        = module.sdk_analysis.invoke_arn
-  #get_sdk_status_function_name = var.get_sdk_status_function_name
-  #get_sdk_status_invoke_arn    = module.get_sdk_status.invoke_arn
-  #get_auth_function_name       = var.get_auth_function_name
-  #get_auth_invoke_arn          = module.get_auth.invoke_arn
+
+module "api_dns" {
+  source = "../modules/curi/api_gateway_dns"
+  count  = contains(["prod", "modl", "test"], terraform.workspace) ? 1 : 0
+
+  lambda_api_gw_id    = module.api.api_id
+  lambda_api_stage_id = module.api.api_stage_id
+
+  hosted_zone  = var.hosted_zone
+  subdomain    = "api"
+  ssl_cert_arn = module.downloads[0].ssl_cert_arn
 }
 
 
