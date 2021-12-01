@@ -28,7 +28,7 @@ def test_firmware_download__logs_event(mocker):
     spied_logger_info.assert_any_call(f"event: {test_event}")
 
 
-@pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": {}}])
+@pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": None}, {"queryStringParameters": {}}])
 def test_firmware_download__returns_error_code_if_firmware_version_not_given(test_event):
     response = firmware_download.handler(test_event, None)
     assert response == {
@@ -38,7 +38,7 @@ def test_firmware_download__returns_error_code_if_firmware_version_not_given(tes
     }
 
 
-@pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": {}}])
+@pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": None}, {"queryStringParameters": {}}])
 def test_firmware_download__logs_exception_if_firmware_version_not_given(test_event, mocker):
     spied_logger_exception = mocker.spy(firmware_download.logger, "exception")
     firmware_download.handler(test_event, None)

@@ -38,7 +38,7 @@ def test_get_sdk_status__returns_error_code_if_queryStringParameters_not_given()
     }
 
 
-@pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": {}}])
+@pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": None}, {"queryStringParameters": {}}])
 def test_get_sdk_status__logs_exception_if_upload_id_not_given(test_event, mocker):
     spied_logger_exception = mocker.spy(get_sdk_status.logger, "exception")
     get_sdk_status.handler(test_event, None)
