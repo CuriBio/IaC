@@ -34,8 +34,8 @@ jump_ec2_arn = "arn:aws:secretsmanager:us-east-1:245339368379:secret:db-ec2-key-
 jump_host    = "ec2-user@jump.curibio.com"
 
 # firmware updating
-main_firmware_bucket              = "main_firmware-bucket"
-channel_firmware_bucket           = "channel_firmware-bucket"
+main_firmware_bucket              = "main-firmware-bucket"
+channel_firmware_bucket           = "channel-firmware-bucket"
 get_latest_firmware_image_name    = "get_latest_firmware"
 get_latest_firmware_function_name = "get-latest-firmware"
 firmware_download_image_name      = "firmware_download"

@@ -1,5 +1,5 @@
 # there likely will already be a hosted zone for the domain if it was
-# registerd through route53, if that is the case then you will have to delete
+# registered through route53, if that is the case then you will have to delete
 # the existing hosted zone and then update the NS settings for the registration
 # with the new NS that are set in the hosted zone created by terraform.
 resource "aws_route53_zone" "main" {
