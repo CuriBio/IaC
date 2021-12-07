@@ -1,19 +1,15 @@
-name: 'Close PR into Development'
+name: 'Dump Prod Data For Migrations'
 on:
   workflow_dispatch:
     inputs:
-      randomlyseed:
-        description: 'Pytest Randomly Seed'
-        required: false
+      workspace:
+        description: 'Enter workspace to receive data'
+        required: true
         default: ''
-  pull_request:
-    types: [closed]
-    branches-ignore:
-      - 'main'
 
 jobs:
-  terraform:
-    name: 'Terraform PR Close'
+  migrations:
+    name: 'Dump prod data'
     strategy:
       fail-fast: false
       matrix:
@@ -28,6 +24,9 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_VAR_user_id: ${{ github.actor }}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_OUTPUT: json
+      WORKSPACE: ${{ github.event.inputs.workspace }}
 
     steps:
       - name: Checkout
@@ -74,35 +73,23 @@ jobs:
           terraform_version: 0.14.7
           terraform_wrapper: false
 
-      - name: 'Terraform destroy PR environment'
-        run: python ./.github/scripts/tf-deploy-env.py --workspace "iac-${{ github.event.pull_request.number }}" --destroy
-
-      - name: 'Terraform apply test environment'
-        if: github.event.pull_request.merged == true
-        run: python ./.github/scripts/tf-deploy-env.py --workspace test --apply
-
-      - name: Setup SSH and DB test ENV
+      - name: Access prod Terraform outputs
         run: |
-          export OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace test --output)
-          export FILE_PATH="./.github/schema/schema.sql"
-          export FILE_NAME="schema.sql"
+          export OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace prod --output)
+          echo $OUTPUTS
+
+          chmod +x .github/scripts/dump_prod_data.sh
+          .github/scripts/dump_prod_data.sh
+
+      - name: Access selected Terraform outputs
+        run: |
+          export OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace "${{ env.WORKSPACE }}" --output)
+          export FILE_PATH="/tmp/data_dump.sql"
+          export FILE_NAME="data_dump.sql"
 
           echo $OUTPUTS
 
           chmod +x ./.github/scripts/db_import.sh
-          ./.github/scripts/db_import.sh
+          . ./.github/scripts/db_import.sh
 
-      - name: 'Terraform apply modl environment'
-        if: github.event.pull_request.merged == true
-        run: python ./.github/scripts/tf-deploy-env.py --workspace modl --apply
-
-      - name: Setup SSH and DB for modl ENV
-        run: |
-          export OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace modl --output)
-          export FILE_PATH="./.github/schema/schema.sql"
-          export FILE_NAME="schema.sql"
-
-          echo $OUTPUTS
-
-          chmod +x ./.github/scripts/db_import.sh
-          ./.github/scripts/db_import.sh
+          rm /tmp/data_dump.sql
