@@ -7,7 +7,6 @@ from alembic import context
 import paramiko
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
-from sqlalchemy import Table
 from sshtunnel import SSHTunnelForwarder
 
 # access to the values within the .ini file in use.
@@ -48,10 +47,10 @@ with SSHTunnelForwarder(
         + "/"
         + DB_NAME
     )
-    
+
     engine = create_engine(db_url)
     metadata = MetaData()
-    
+
     def run_migrations_offline():
         """Run migrations in 'offline' mode.
 
@@ -65,10 +64,7 @@ with SSHTunnelForwarder(
 
         """
         context.configure(
-            url=db_url,
-            target_metadata=metadata,
-            literal_binds=True,
-            dialect_opts={"paramstyle": "named"},
+            url=db_url, target_metadata=metadata, literal_binds=True, dialect_opts={"paramstyle": "named"},
         )
 
         with context.begin_transaction():
