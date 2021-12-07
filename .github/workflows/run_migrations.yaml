@@ -29,59 +29,59 @@ jobs:
       WORKSPACE: ${{ github.event.inputs.workspace }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: 'Setup Python'
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: 'Setup Python'
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Display Python version
-      run: |
-        python -c "import sys; print(sys.version)"
-        python -m venv venv
+      - name: Display Python version
+        run: |
+          python -c "import sys; print(sys.version)"
+          python -m venv venv
 
-    - name: Activate virtual environment (Linux/MacOS)
-      if: runner.os == 'Linux' || runner.os == 'macOS'
-      run: . venv/bin/activate
+      - name: Activate virtual environment (Linux/MacOS)
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: . venv/bin/activate
 
-    - name: Display Pip Version and confirm environment empty
-      run: |
-        pip -V
-        pip freeze
+      - name: Display Pip Version and confirm environment empty
+        run: |
+          pip -V
+          pip freeze
 
-    - name: Cache Python dependencies
-      uses: actions/cache@v2.1.4
-      env:
-        cache-name: cache-pip
-      with:
-        path: ~/.cache/pip
-        key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('requirements*.txt') }}
-        restore-keys: |
-          ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
+      - name: Cache Python dependencies
+        uses: actions/cache@v2.1.4
+        env:
+          cache-name: cache-pip
+        with:
+          path: ~/.cache/pip
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-${{ hashFiles('requirements*.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-${{ matrix.python-version }}-build-${{ env.cache-name }}-
 
-    - name: Install Dev Dependencies
-      run: pip install -r requirements-dev.txt
+      - name: Install Dev Dependencies
+        run: pip install -r requirements-dev.txt
 
-    - name: Log full installed packages
-      run: pip freeze
+      - name: Log full installed packages
+        run: pip freeze
 
-    - name: 'Terraform setup'
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 0.14.7
-        terraform_wrapper: false
+      - name: 'Terraform setup'
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.14.7
+          terraform_wrapper: false
 
-    - name: Access ${{ env.WORKSPACE }} Terraform outputs
-      run: |
-          echo OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace iac-338 --output) >> $GITHUB_ENV
+      - name: Access ${{ env.WORKSPACE }} Terraform outputs
+        run: |
+          echo OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace ${{ env.WORKSPACE }} --output) >> $GITHUB_ENV
           echo $OUTPUTS
 
-    - name: Run migration
-      run: |
-        chmod +x .github/scripts/configure_aws.sh
-        . .github/scripts/configure_aws.sh
+      - name: Run migration
+        run: |
+          chmod +x .github/scripts/configure_aws.sh
+          . .github/scripts/configure_aws.sh
 
-        alembic upgrade head
-        alembic history --verbose
+          alembic upgrade head
+          alembic history --verbose
