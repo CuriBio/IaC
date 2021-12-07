@@ -48,23 +48,10 @@ with SSHTunnelForwarder(
         + "/"
         + DB_NAME
     )
+    
     engine = create_engine(db_url)
-
     metadata = MetaData()
-    with engine.connect() as conn:
-        uploaded_s3_objects = Table("uploaded_s3_objects", metadata, autoload_with=conn)
-        sbs_labware_barcodes = Table("sbs_labware_barcodes", metadata, autoload_with=conn)
-        s3_objects = Table("s3_objects", metadata, autoload_with=conn)
-        mantarray_recording_sessions = Table("mantarray_recording_sessions", metadata, autoload_with=conn)
-        mantarray_raw_files = Table("mantarray_raw_files", metadata, autoload_with=conn)
-        mantarray_frontend_log_files = Table("mantarray_frontend_log_files", metadata, autoload_with=conn)
-        mantarray_backend_log_files = Table("mantarray_backend_log_files", metadata, autoload_with=conn)
-        labware_definitions = Table("labware_definitions", metadata, autoload_with=conn)
-        experiment_labware = Table("experiment_labware", metadata, autoload_with=conn)
-        barcoded_sbs_labware = Table("barcoded_sbs_labware", metadata, autoload_with=conn)
-
-    target_metadata = metadata
-
+    
     def run_migrations_offline():
         """Run migrations in 'offline' mode.
 
@@ -79,7 +66,7 @@ with SSHTunnelForwarder(
         """
         context.configure(
             url=db_url,
-            target_metadata=target_metadata,
+            target_metadata=metadata,
             literal_binds=True,
             dialect_opts={"paramstyle": "named"},
         )
@@ -96,7 +83,7 @@ with SSHTunnelForwarder(
         """
         with engine.connect() as connection:
             context.configure(
-                connection=connection, target_metadata=target_metadata, version_table="alembic_version",
+                connection=connection, target_metadata=metadata, version_table="alembic_version",
             )
 
             with context.begin_transaction():
