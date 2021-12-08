@@ -196,7 +196,7 @@ module "api_dns" {
   lambda_api_stage_id = module.api.api_stage_id
 
   hosted_zone    = var.hosted_zone
-  hosted_zone_id = var.hosted_zone_id
+  hosted_zone_id = module.downloads[0].hosted_zone_id
   subdomain      = "api"
   ssl_cert_arn   = module.downloads[0].ssl_cert_arn
 }
