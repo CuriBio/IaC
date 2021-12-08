@@ -8,6 +8,11 @@ variable "hosted_zone" {
   type        = string
 }
 
+variable "hosted_zone_id" {
+  description = "AWS hosted zone id"
+  type        = string
+}
+
 variable "subdomain" {
   description = "Subdomain"
   type        = string
