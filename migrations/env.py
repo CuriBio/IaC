@@ -1,5 +1,4 @@
 from io import StringIO
-import logging
 from logging.config import fileConfig
 import os
 
