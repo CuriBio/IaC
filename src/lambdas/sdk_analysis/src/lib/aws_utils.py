@@ -24,7 +24,7 @@ def get_ssm_secrets():
         username = parsed_creds_secret["username"]
         password = parsed_creds_secret["password"]
 
-        return {"username": username, "password": password}
+        return username, password
 
 
 def get_s3_object_contents(bucket: str, key: str):
