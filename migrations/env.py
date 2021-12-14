@@ -1,5 +1,4 @@
 from io import StringIO
-import logging
 from logging.config import fileConfig
 import os
 
@@ -12,7 +11,6 @@ from sshtunnel import SSHTunnelForwarder
 # access to the values within the .ini file in use.
 config = context.config
 fileConfig(config.config_file_name)
-logger = logging.getLogger("alembic")
 
 # ssh config
 pkey = StringIO(os.environ.get("KEY"))
@@ -29,7 +27,6 @@ DB_USER = os.environ.get("DB_USERNAME")
 DB_PASSWORD = os.environ.get("DB_PASSWORD")
 DB_NAME = "mantarray_recordings"
 DB_PORT = 3306
-
 LOCAL_HOST = "127.0.0.1"
 
 with SSHTunnelForwarder(
