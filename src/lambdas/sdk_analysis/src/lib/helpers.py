@@ -10,7 +10,7 @@ def load_data_to_dataframe(file, r):
     formatted_metadata = format_data(data["metadata"], recording_length)
     formatted_well_data = format_well_data(r, recording_length)
 
-    return {"metadata": formatted_metadata, "well_data": formatted_well_data}
+    return formatted_metadata, formatted_well_data
 
 
 def format_data(meta_sheet, recording_length: int):

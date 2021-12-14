@@ -11,8 +11,9 @@ from ..test_utils import import_lambda
 sdk_analysis = import_lambda("sdk_analysis", mock_imports=["curibio.sdk", "pymysql", "pandas"])
 
 TEST_BUCKET_NAME = "test_name"
-TEST_OBJECT_KEY = "test_key"
+TEST_OBJECT_KEY = "customer_id/username/test_key"
 TEST_RECORD = {"s3": {"bucket": {"name": TEST_BUCKET_NAME}, "object": {"key": TEST_OBJECT_KEY}}}
+TEST_FILENAME = TEST_OBJECT_KEY.rsplit("/", 1)[1]
 
 
 @pytest.fixture(scope="function", name="mocked_boto3_client")
@@ -199,7 +200,7 @@ def test_process_record__correctly_downloads_file_to_temporary_directory(mocker,
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
     spied_temporary_dir.assert_called_once_with(dir="/tmp")
     mocked_s3_client.download_file.assert_called_once_with(
-        TEST_BUCKET_NAME, TEST_OBJECT_KEY, f"{spied_temporary_dir.spy_return.name}/{TEST_OBJECT_KEY}"
+        TEST_BUCKET_NAME, TEST_OBJECT_KEY, f"{spied_temporary_dir.spy_return.name}/{TEST_FILENAME}"
     )
 
 
@@ -249,7 +250,7 @@ def test_process_record__sets_file_status_to_analysis_running_then_runs_sdk_anal
     )
     mocked_pr_from_dir.assert_called_once_with(spied_temporary_dir.spy_return)
     mocked_pr_from_dir.return_value.write_xlsx.assert_called_once_with(
-        spied_temporary_dir.spy_return.name, file_name=f"{TEST_OBJECT_KEY}.xlsx"
+        spied_temporary_dir.spy_return.name, file_name=f"{TEST_FILENAME}.xlsx"
     )
 
 
@@ -294,7 +295,7 @@ def test_process_record__uploads_file_created_by_sdk_analysis_to_s3_bucket_corre
 
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
     expected_dir_name = spied_temporary_dir.spy_return.name
-    mocked_open.assert_called_with(f"{expected_dir_name}/{TEST_OBJECT_KEY}.xlsx", "rb")
+    mocked_open.assert_called_with(f"{expected_dir_name}/{TEST_FILENAME}.xlsx", "rb")
     mocked_s3_client.put_object.assert_called_once_with(
         Body=mocked_open.return_value.__enter__(),
         Bucket=expected_upload_bucket,
@@ -328,9 +329,9 @@ def test_process_record__handles_error_raised_while_uploading_file_to_s3(mocker,
 
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
     expected_dir_name = spied_temporary_dir.spy_return.name
-    expected_file_name = f"{TEST_OBJECT_KEY}.xlsx"
+    expected_file_name = f"{TEST_FILENAME}.xlsx"
     spied_logger_error.assert_called_with(
-        f"S3 Upload failed for {expected_dir_name}/{expected_file_name} to {expected_upload_bucket}/{expected_file_name}: {expected_error}"
+        f"S3 Upload failed for {expected_dir_name}/{expected_file_name} to {expected_upload_bucket}/{TEST_OBJECT_KEY}.xlsx: {expected_error}"
     )
 
     mocked_update_status.assert_called_with(
@@ -398,7 +399,7 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
         mocked_boto3_client["dynamodb"], expected_upload_id, "analysis successfully inserted into database"
     )
     spied_logger_info.assert_any_call(
-        f"Inserting {expected_dir_name}/{TEST_OBJECT_KEY}.xlsx metadata into aurora database"
+        f"Inserting {expected_dir_name}/{TEST_FILENAME}.xlsx metadata into aurora database"
     )
 
     test_args = [mocked_open.return_value.__enter__(), mocked_PR_instance.return_value, expected_md5]
@@ -415,11 +416,7 @@ def test_set_info_dict__correctly_retrieves_aws_credentials(mocker, mocked_boto3
     mocker.patch.object(hashlib, "md5")
     mocker.patch.object(base64, "b64encode")
 
-    mocker.patch.object(
-        sdk_analysis.main,
-        "get_ssm_secrets",
-        return_value={"username": "test_username", "password": "test_password"},
-    )
+    mocker.patch.object(sdk_analysis.main, "get_ssm_secrets", return_value=("test_username", "test_password"))
 
     mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
     mocker.patch("builtins.open", autospec=True)
@@ -440,11 +437,7 @@ def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_
     mocked_s3_client = mocked_boto3_client["s3"]
     mocker.patch.object(hashlib, "md5")
     mocker.patch.object(base64, "b64encode")
-    mocker.patch.object(
-        sdk_analysis.main,
-        "get_ssm_secrets",
-        return_value={"username": "test_username", "password": "test_password"},
-    )
+    mocker.patch.object(sdk_analysis.main, "get_ssm_secrets", return_value=("test_username", "test_password"))
 
     expected_db_cluster_endpoint = "test_host"
     expected_upload_bucket = "test_url"
@@ -472,7 +465,7 @@ def test_process_record__handles_info_logging(mocker, mocked_boto3_client):
     )
     spied_logger_info.assert_any_call(f"Retrieving Head Object of {TEST_BUCKET_NAME}/{TEST_OBJECT_KEY}")
     spied_logger_info.assert_any_call(
-        f"Download {TEST_BUCKET_NAME}/{TEST_OBJECT_KEY} to {spied_temporary_dir.spy_return.name}/{TEST_OBJECT_KEY}"
+        f"Download {TEST_BUCKET_NAME}/{TEST_OBJECT_KEY} to {spied_temporary_dir.spy_return.name}/{TEST_FILENAME}"
     )
 
 

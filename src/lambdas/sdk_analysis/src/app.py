@@ -66,14 +66,9 @@ def process_record(record, s3_client, db_client):
     with tempfile.TemporaryDirectory(dir="/tmp") as tmpdir:
         # handle H5 file download
         try:
-            tmp_filename = key.rsplit('/', 1)[1]
-            # tmp_user_dir = os.path.join(tmpdir, key.rsplit('/', 1)[0])
-            # if not os.path.exists(tmp_user_dir):
-            #     os.makedirs(tmp_user_dir)
-
-            logger.info(f"Download {bucket}/{key} to {tmpdir}/{tmp_filename}")
-
-            s3_client.download_file(bucket, key, f"{tmpdir}/{tmp_filename}")
+            base_filename = key.rsplit("/", 1)[1]
+            logger.info(f"Download {bucket}/{key} to {tmpdir}/{base_filename}")
+            s3_client.download_file(bucket, key, f"{tmpdir}/{base_filename}")
         except Exception as e:
             logger.error(f"Failed to download {bucket}/{key}: {e}")
             update_sdk_status(db_client, upload_id, "error accessing file")
@@ -82,7 +77,7 @@ def process_record(record, s3_client, db_client):
         # handle running sdk analysis
         try:
             update_sdk_status(db_client, upload_id, "analysis running")
-            file_name = f'{tmp_filename.split(".")[0]}.xlsx'
+            file_name = f'{base_filename.split(".")[0]}.xlsx'
             r = PlateRecording.from_directory(tmpdir)
             r.write_xlsx(tmpdir, file_name=file_name)
         except Exception as e:
@@ -92,16 +87,19 @@ def process_record(record, s3_client, db_client):
 
         # handle xlsx file upload
         try:
+            s3_analysis_key = f'{key.split(".")[0]}.xlsx'
+
             with open(f"{tmpdir}/{file_name}", "rb") as f:
                 contents = f.read()
                 md5 = hashlib.md5(contents).digest()
                 md5s = base64.b64encode(md5).decode()
-                s3_analysis_key = f'{key.split(".")[0]}.xlsx'
 
                 s3_client.put_object(Body=f, Bucket=S3_UPLOAD_BUCKET, Key=s3_analysis_key, ContentMD5=md5s)
             update_sdk_status(db_client, upload_id, "analysis complete")
         except Exception as e:
-            logger.error(f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{s3_analysis_key}: {e}")
+            logger.error(
+                f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{s3_analysis_key}: {e}"
+            )
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
             return
 
@@ -110,7 +108,9 @@ def process_record(record, s3_client, db_client):
             logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
             with open(f"{tmpdir}/{file_name}", "rb") as file:
                 args = [file, r, md5s]
-                main.handle_db_metadata_insertions(S3_UPLOAD_BUCKET, file_name, DB_CLUSTER_ENDPOINT, args)
+                main.handle_db_metadata_insertions(
+                    S3_UPLOAD_BUCKET, s3_analysis_key, DB_CLUSTER_ENDPOINT, args
+                )
             update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
         except Exception as e:
             logger.error(f"Recording metadata failed to store in aurora database: {e}")
