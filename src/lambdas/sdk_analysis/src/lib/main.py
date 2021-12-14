@@ -7,10 +7,10 @@ import pymysql
 from .aws_utils import get_s3_object_contents
 from .aws_utils import get_ssm_secrets
 from .helpers import load_data_to_dataframe
-from .queries import insert_into_mantarray_raw_files
-from .queries import insert_into_mantarray_recording_sessions
-from .queries import insert_into_s3_objects
-from .queries import insert_into_uploaded_s3_table
+from .queries import INSERT_INT0_UPLOADED_S3_OBJECTS
+from .queries import INSERT_INTO_MANTARRAY_RAW_FILES
+from .queries import INSERT_INTO_MANTARRAY_RECORDING_SESSIONS
+from .queries import INSERT_INTO_S3_OBJECTS
 
 
 # set up custom basic config
@@ -51,7 +51,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
 
     try:
         uploaded_s3_tuple = (bucket, key)
-        cur.execute(insert_into_uploaded_s3_table, uploaded_s3_tuple)
+        cur.execute(INSERT_INT0_UPLOADED_S3_OBJECTS, uploaded_s3_tuple)
 
         recording_session_tuple = (
             metadata["mantarray_recording_session_id"],
@@ -61,10 +61,10 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
             metadata["length_centimilliseconds"],
             metadata["recording_started_at"],
         )
-        cur.execute(insert_into_mantarray_recording_sessions, recording_session_tuple)
+        cur.execute(INSERT_INTO_MANTARRAY_RECORDING_SESSIONS, recording_session_tuple)
 
         s3_object_tuple = (s3_size, metadata["file_creation_timestamp"], args[2])
-        cur.execute(insert_into_s3_objects, s3_object_tuple)
+        cur.execute(INSERT_INTO_S3_OBJECTS, s3_object_tuple)
 
         logger.info("Executing queries to the database in relation to aggregated metadata")
     except Exception as e:
@@ -78,7 +78,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
                 well["recording_started_at"],
                 metadata["mantarray_recording_session_id"],
             )
-            cur.execute(insert_into_mantarray_raw_files, well_tuple)
+            cur.execute(INSERT_INTO_MANTARRAY_RAW_FILES, well_tuple)
 
         logger.info("Executing queries to the database in relation individual well data")
     except Exception as e:
