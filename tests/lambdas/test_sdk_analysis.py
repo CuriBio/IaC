@@ -8,7 +8,7 @@ import pytest
 
 from ..test_utils import import_lambda
 
-sdk_analysis = import_lambda("sdk_analysis", mock_imports=["curibio.sdk", "pymysql", "pandas"])
+sdk_analysis = import_lambda("sdk_analysis", mock_imports=["Pulse3D", "pymysql", "pandas"])
 
 TEST_BUCKET_NAME = "test_name"
 TEST_OBJECT_KEY = "customer_id/username/test_key"
