@@ -9,8 +9,8 @@ from time import sleep
 
 import boto3
 from botocore.exceptions import ClientError
-from curibio.sdk import PlateRecording
 from lib import main
+from Pulse3D import PlateRecording
 
 SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
