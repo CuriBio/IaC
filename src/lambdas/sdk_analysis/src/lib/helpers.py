@@ -1,19 +1,20 @@
 import uuid
 
 import pandas as pd
+from pulse3D.constants import UTC_BEGINNING_RECORDING_UUID
 
 
-def load_data_to_dataframe(file, r):
-    data = pd.read_excel(file, sheet_name=None, engine="openpyxl")
+def load_data_to_dataframe(file_name, pr):
+    df = pd.read_excel(file_name, sheet_name=None, engine="openpyxl")
 
-    recording_length = int(data["continuous-waveforms"]["Time (seconds)"].iloc[-1]) * 1000
-    formatted_metadata = format_data(data["metadata"], recording_length)
-    formatted_well_data = format_well_data(r, recording_length)
+    recording_length = int(df["continuous-waveforms"]["Time (seconds)"].iloc[-1]) * 1000
+    formatted_metadata = format_metadata(df["metadata"], recording_length)
+    formatted_well_data = format_well_data(pr, recording_length)
 
     return formatted_metadata, formatted_well_data
 
 
-def format_data(meta_sheet, recording_length: int):
+def format_metadata(meta_sheet, recording_length: int):
 
     return {
         "barcode": meta_sheet.iloc[0, 2],
@@ -30,14 +31,15 @@ def format_data(meta_sheet, recording_length: int):
     }
 
 
-def format_well_data(r, recording_length: int):
+def format_well_data(pr, recording_length: int):
     well_data = list()
+    for well_idx, well_file in enumerate(pr):
+        if well_file is None:
+            continue
 
-    for idx in range(24):
-        well = r.get_well_by_index(idx)
         well_dict = {
-            "well_index": idx,
-            "recording_started_at": well.get_begin_recording(),
+            "well_index": well_idx,
+            "recording_started_at": well_file[UTC_BEGINNING_RECORDING_UUID],
             "length_centimilliseconds": recording_length,
         }
         well_data.append(well_dict)

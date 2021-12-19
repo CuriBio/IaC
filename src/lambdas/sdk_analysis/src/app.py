@@ -10,7 +10,9 @@ from time import sleep
 import boto3
 from botocore.exceptions import ClientError
 from lib import main
-from Pulse3D import PlateRecording
+from pulse3D.excel_writer import write_xlsx
+from pulse3D.plate_recording import PlateRecording
+
 
 SQS_URL = os.environ.get("SQS_URL")
 S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
@@ -78,8 +80,9 @@ def process_record(record, s3_client, db_client):
         try:
             update_sdk_status(db_client, upload_id, "analysis running")
             file_name = f'{base_filename.split(".")[0]}.xlsx'
-            r = PlateRecording.from_directory(tmpdir)
-            r.write_xlsx(tmpdir, file_name=file_name)
+            recordings = PlateRecording.from_directory(tmpdir)
+            pr = next(recordings)
+            write_xlsx(pr, name=file_name)
         except Exception as e:
             logger.error(f"SDK analysis failed: {e}")
             update_sdk_status(db_client, upload_id, "error during analysis")
@@ -107,7 +110,7 @@ def process_record(record, s3_client, db_client):
         try:
             logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
             with open(f"{tmpdir}/{file_name}", "rb") as file:
-                args = [file, r, md5s]
+                args = [file, pr, md5s]
                 main.handle_db_metadata_insertions(
                     S3_UPLOAD_BUCKET, s3_analysis_key, DB_CLUSTER_ENDPOINT, args
                 )

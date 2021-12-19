@@ -79,8 +79,8 @@ resource "aws_ecs_task_definition" "aws-ecs-task" {
   family                   = "${terraform.workspace}-${var.image_name}-ecs-task-definition"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  memory                   = "512"
-  cpu                      = "256"
+  memory                   = "1024"
+  cpu                      = "512"
   execution_role_arn       = aws_iam_role.ecsTaskExecutionRole.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   depends_on               = [null_resource.docker_push]
@@ -89,8 +89,8 @@ resource "aws_ecs_task_definition" "aws-ecs-task" {
   {
     "name": "${terraform.workspace}-${var.image_name}",
     "image": "${aws_ecr_repository.ecr.repository_url}:latest",
-    "memory": 512,
-    "cpu": 256,
+    "memory": 1024,
+    "cpu": 512,
     "essential": true,
     "logConfiguration": {
       "logDriver": "awslogs",
