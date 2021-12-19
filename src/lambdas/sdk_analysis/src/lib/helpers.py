@@ -7,7 +7,7 @@ from pulse3D.constants import UTC_BEGINNING_RECORDING_UUID
 def load_data_to_dataframe(file_name, pr):
     df = pd.read_excel(file_name, sheet_name=None, engine="openpyxl")
 
-    recording_length = int(df["continuous-waveforms"]["Time (seconds)"].iloc[-1]) * 1000
+    recording_length = int(df["continuous-waveforms"]["Time (seconds)"].iloc[-1])
     formatted_metadata = format_metadata(df["metadata"], recording_length)
     formatted_well_data = format_well_data(pr, recording_length)
 
