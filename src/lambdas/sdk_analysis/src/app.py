@@ -92,24 +92,21 @@ def process_record(record, s3_client, db_client):
         try:
             s3_analysis_key = f'{key.split(".")[0]}.xlsx'
 
-            with open(f"{tmpdir}/{file_name}", "rb") as f:
+            with open(f"{file_name}", "rb") as f:
                 contents = f.read()
                 md5 = hashlib.md5(contents).digest()
                 md5s = base64.b64encode(md5).decode()
-
                 s3_client.put_object(Body=f, Bucket=S3_UPLOAD_BUCKET, Key=s3_analysis_key, ContentMD5=md5s)
             update_sdk_status(db_client, upload_id, "analysis complete")
         except Exception as e:
-            logger.error(
-                f"S3 Upload failed for {tmpdir}/{file_name} to {S3_UPLOAD_BUCKET}/{s3_analysis_key}: {e}"
-            )
+            logger.error(f"S3 Upload failed for {file_name} to {S3_UPLOAD_BUCKET}/{s3_analysis_key}: {e}")
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
             return
 
         # insert metadata into db
         try:
-            logger.info(f"Inserting {tmpdir}/{file_name} metadata into aurora database")
-            with open(f"{tmpdir}/{file_name}", "rb") as file:
+            logger.info(f"Inserting {file_name} metadata into aurora database")
+            with open(f"{file_name}", "rb") as file:
                 args = [file, pr, md5s]
                 main.handle_db_metadata_insertions(
                     S3_UPLOAD_BUCKET, s3_analysis_key, DB_CLUSTER_ENDPOINT, args

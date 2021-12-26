@@ -297,7 +297,6 @@ def test_process_record__uploads_file_created_by_sdk_analysis_to_s3_bucket_corre
     expected_md5 = mocked_base64().decode()
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
 
-    spied_temporary_dir = mocker.spy(sdk_analysis.tempfile, "TemporaryDirectory")
     mocked_open = mocker.patch("builtins.open", autospec=True)
 
     mocked_update_status = mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
@@ -305,8 +304,7 @@ def test_process_record__uploads_file_created_by_sdk_analysis_to_s3_bucket_corre
     mocker.patch.object(sdk_analysis.main, "handle_db_metadata_insertions", autospec=True)
 
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
-    expected_dir_name = spied_temporary_dir.spy_return.name
-    mocked_open.assert_called_with(f"{expected_dir_name}/{TEST_FILENAME}.xlsx", "rb")
+    mocked_open.assert_called_with(f"{TEST_FILENAME}.xlsx", "rb")
     mocked_s3_client.put_object.assert_called_once_with(
         Body=mocked_open.return_value.__enter__(),
         Bucket=expected_upload_bucket,
@@ -329,7 +327,6 @@ def test_process_record__handles_error_raised_while_uploading_file_to_s3(mocker,
     expected_upload_bucket = "test_url"
     mocker.patch.object(sdk_analysis, "S3_UPLOAD_BUCKET", expected_upload_bucket)
 
-    spied_temporary_dir = mocker.spy(sdk_analysis.tempfile, "TemporaryDirectory")
     mocker.patch("builtins.open", autospec=True)
     mocked_update_status = mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
     mocker.patch.object(sdk_analysis.PlateRecording, "from_directory", autospec=True)
@@ -339,10 +336,9 @@ def test_process_record__handles_error_raised_while_uploading_file_to_s3(mocker,
     )
 
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
-    expected_dir_name = spied_temporary_dir.spy_return.name
     expected_file_name = f"{TEST_FILENAME}.xlsx"
     spied_logger_error.assert_called_with(
-        f"S3 Upload failed for {expected_dir_name}/{expected_file_name} to {expected_upload_bucket}/{TEST_OBJECT_KEY}.xlsx: {expected_error}"
+        f"S3 Upload failed for {expected_file_name} to {expected_upload_bucket}/{TEST_OBJECT_KEY}.xlsx: {expected_error}"
     )
 
     mocked_update_status.assert_called_with(
@@ -396,7 +392,6 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     mocked_base64 = mocker.patch.object(base64, "b64encode")
     expected_md5 = mocked_base64().decode()
 
-    spied_temporary_dir = mocker.spy(sdk_analysis.tempfile, "TemporaryDirectory")
     mocked_open = mocker.patch("builtins.open", autospec=True)
     mocked_update_status = mocker.patch.object(sdk_analysis, "update_sdk_status", autospec=True)
     mocked_PR_instance = mocker.patch.object(sdk_analysis.PlateRecording, "from_directory", autospec=True)
@@ -406,14 +401,11 @@ def test_process_record__after_successful_upload_logger_handles_successful_auror
     mocker.patch.object(mocked_s3_client, "put_object")
 
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
-    expected_dir_name = spied_temporary_dir.spy_return.name
 
     mocked_update_status.assert_any_call(
         mocked_boto3_client["dynamodb"], expected_upload_id, "analysis successfully inserted into database"
     )
-    spied_logger_info.assert_any_call(
-        f"Inserting {expected_dir_name}/{TEST_FILENAME}.xlsx metadata into aurora database"
-    )
+    spied_logger_info.assert_any_call(f"Inserting {TEST_FILENAME}.xlsx metadata into aurora database")
 
     test_args = [
         mocked_open.return_value.__enter__(),
