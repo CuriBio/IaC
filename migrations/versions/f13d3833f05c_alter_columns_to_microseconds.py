@@ -7,8 +7,7 @@ Revision  by: Luci Pak
 
 """
 from alembic import op
-import sqlalchemy as sa
-
+from alembic import sa
 
 # revision identifiers, used by Alembic.
 revision = "f13d3833f05c"
@@ -19,13 +18,29 @@ depends_on = None
 
 def upgrade():
     op.alter_column(
-        "mantarray_recording_sessions", "length_centimilliseconds", new_column_name="length_microseconds"
+        "mantarray_recording_sessions",
+        "length_centimilliseconds",
+        new_column_name="length_microseconds",
+        existing_type=sa.INTEGER(),
     )
-    op.alter_column("mantarray_raw_files", "length_centimilliseconds", new_column_name="length_microseconds")
+    op.alter_column(
+        "mantarray_raw_files",
+        "length_centimilliseconds",
+        new_column_name="length_microseconds",
+        existing_type=sa.INTEGER(),
+    )
 
 
 def downgrade():
     op.alter_column(
-        "mantarray_recording_sessions", "length_microseconds", new_column_name="length_centimilliseconds"
+        "mantarray_recording_sessions",
+        "length_microseconds",
+        new_column_name="length_centimilliseconds",
+        existing_type=sa.INTEGER(),
     )
-    op.alter_column("mantarray_raw_files", "length_microseconds", new_column_name="length_centimilliseconds")
+    op.alter_column(
+        "mantarray_raw_files",
+        "length_microseconds",
+        new_column_name="length_centimilliseconds",
+        existing_type=sa.INTEGER(),
+    )
