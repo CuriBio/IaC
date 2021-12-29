@@ -7,7 +7,7 @@ Revision  by: Luci Pak
 
 """
 from alembic import op
-import sqlalchemy as sa  # noqa
+import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "f13d3833f05c"

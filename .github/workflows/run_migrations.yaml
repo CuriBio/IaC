@@ -73,7 +73,7 @@ jobs:
           terraform_version: 0.14.7
           terraform_wrapper: false
 
-      - name: Access ${{ env.WORKSPACE }} Terraform outputs
+      - name: Access selected Terraform outputs
         run: |
           echo OUTPUTS=$(python ./.github/scripts/tf-deploy-env.py --workspace ${{ env.WORKSPACE }} --output) >> $GITHUB_ENV
           echo $OUTPUTS
