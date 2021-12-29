@@ -22,12 +22,14 @@ def upgrade():
         "length_centimilliseconds",
         new_column_name="length_microseconds",
         existing_type=sa.INTEGER(),
+        type_=sa.BigInteger(),
     )
     op.alter_column(
         "mantarray_raw_files",
         "length_centimilliseconds",
         new_column_name="length_microseconds",
         existing_type=sa.INTEGER(),
+        type_=sa.BigInteger(),
     )
 
 
@@ -36,11 +38,13 @@ def downgrade():
         "mantarray_recording_sessions",
         "length_microseconds",
         new_column_name="length_centimilliseconds",
-        existing_type=sa.INTEGER(),
+        existing_type=sa.BigInteger(),
+        type_=sa.INTEGER(),
     )
     op.alter_column(
         "mantarray_raw_files",
         "length_microseconds",
         new_column_name="length_centimilliseconds",
-        existing_type=sa.INTEGER(),
+        existing_type=sa.BigInteger(),
+        type_=sa.INTEGER(),
     )
