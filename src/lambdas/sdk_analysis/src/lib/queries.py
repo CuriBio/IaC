@@ -1,6 +1,6 @@
 INSERT_INT0_UPLOADED_S3_OBJECTS = """
-    INSERT INTO uploaded_s3_objects(id, bucket, object_key, upload_started_at)
-    VALUES (NULL, %s, %s, NOW());
+    INSERT INTO uploaded_s3_objects(id, bucket, object_key, upload_started_at, uploading_computer_name)
+    VALUES (NULL, %s, %s, NOW(), %s);
     """
 
 SELECT_LAST_UPLOAD_ID = """(SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1)"""
