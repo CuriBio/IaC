@@ -5,6 +5,7 @@ from pulse3D.constants import COMPUTER_NAME_HASH_UUID
 from pulse3D.constants import MANTARRAY_SERIAL_NUMBER_UUID
 from pulse3D.constants import MICRO_TO_BASE_CONVERSION
 from pulse3D.constants import PLATE_BARCODE_UUID
+from pulse3D.constants import UTC_BEGINNING_DATA_ACQUISTION_UUID
 from pulse3D.constants import UTC_BEGINNING_RECORDING_UUID
 from pulse3D.constants import WELL_INDEX_UUID
 from pymysql import NULL
@@ -32,6 +33,7 @@ def format_metadata(meta_sheet, pr, recording_length: int):
         "file_creation_timestamp": meta_sheet.iloc[11, 2],
         "mantarray_recording_session_id": uuid.uuid4(),
         "uploading_computer_name": well_file.get(COMPUTER_NAME_HASH_UUID, NULL),
+        "acquisition_started_at": well_file[UTC_BEGINNING_DATA_ACQUISTION_UUID],
     }
 
 

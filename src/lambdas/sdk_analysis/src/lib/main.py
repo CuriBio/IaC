@@ -62,6 +62,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
             customer_account_id,
             user_account_id,
             metadata["instrument_serial_number"],
+            metadata["acquisition_started_at"],
             metadata["length_microseconds"],
             metadata["recording_started_at"],
         )
