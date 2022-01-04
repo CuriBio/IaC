@@ -24,8 +24,8 @@ INFO_DICT = {}
 
 def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: list):
     """
-        args:
-            contains <file>.xlsx, individual well data, and the md5 hash
+    args:
+        contains <file>.xlsx, individual well data, and the md5 hash
     """
 
     if not INFO_DICT:
@@ -50,7 +50,11 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
     cur = conn.cursor()
 
     try:
-        uploaded_s3_tuple = (bucket, key)
+        uploaded_s3_tuple = (
+            bucket,
+            key,
+            metadata["uploading_computer_name"],
+        )
         cur.execute(INSERT_INT0_UPLOADED_S3_OBJECTS, uploaded_s3_tuple)
 
         recording_session_tuple = (
@@ -58,7 +62,8 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
             customer_account_id,
             user_account_id,
             metadata["instrument_serial_number"],
-            metadata["length_centimilliseconds"],
+            metadata["acquisition_started_at"],
+            metadata["length_microseconds"],
             metadata["recording_started_at"],
         )
         cur.execute(INSERT_INTO_MANTARRAY_RECORDING_SESSIONS, recording_session_tuple)
@@ -74,7 +79,7 @@ def handle_db_metadata_insertions(bucket: str, key: str, db_host: str, args: lis
         for well in well_data:
             well_tuple = (
                 well["well_index"],
-                well["length_centimilliseconds"],
+                well["length_microseconds"],
                 well["recording_started_at"],
                 metadata["mantarray_recording_session_id"],
             )
