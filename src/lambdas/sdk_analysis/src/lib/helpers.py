@@ -22,8 +22,7 @@ def load_data_to_dataframe(file_name, pr):
 
 
 def format_metadata(meta_sheet, pr, recording_length: int):
-    well_file = pr.__next__()
-
+    well_file = pr.wells[0]
     return {
         "barcode": well_file.get(PLATE_BARCODE_UUID, NULL),
         "recording_started_at": well_file[UTC_BEGINNING_RECORDING_UUID],
