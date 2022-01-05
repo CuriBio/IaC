@@ -10,7 +10,7 @@ module "lambda" {
 
   # lambda
   function_name        = var.function_name
-  function_description = "Handle sdk data upload"
+  function_description = "Handle file uploads to s3"
 
   # api gateway source arn
   source_arn         = var.api_gateway_source_arn
@@ -24,9 +24,10 @@ module "lambda" {
   # depends_on = [aws_iam_role_policy_attachment.lambda-attach]
 
   lambda_env = {
-    SQS_NAME         = "${terraform.workspace}-sdk-upload-queue",
-    S3_BUCKET        = var.upload_bucket,
-    SDK_STATUS_TABLE = var.sdk_status_table_name,
+    SQS_NAME          = "${terraform.workspace}-sdk-upload-queue",
+    SDK_UPLOAD_BUCKET = var.upload_bucket,
+    LOGS_BUCKET       = var.logs_bucket,
+    SDK_STATUS_TABLE  = var.sdk_status_table_name,
     #REGION = var.aws_region
   }
 
@@ -40,7 +41,7 @@ module "lambda" {
     s3_put = {
       effect    = "Allow",
       actions   = ["s3:PutObject"],
-      resources = ["${aws_s3_bucket.upload_bucket.arn}/*"]
+      resources = ["${aws_s3_bucket.upload_bucket.arn}/*", "${aws_s3_bucket.mantarray_logs.arn}/*"]
     },
     dynamodb_put = {
       effect    = "Allow",
@@ -136,6 +137,18 @@ resource "aws_s3_bucket" "upload_bucket" {
 
 resource "aws_s3_bucket" "analyzed_bucket" {
   bucket = var.analyzed_bucket
+  acl    = "private"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+resource "aws_s3_bucket" "mantarray_logs" {
+  bucket = var.logs_bucket
   acl    = "private"
 
   server_side_encryption_configuration {
