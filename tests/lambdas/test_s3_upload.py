@@ -5,7 +5,7 @@ import pytest
 
 from ..test_utils import import_lambda
 
-sdk_upload = import_lambda("sdk_upload")
+s3_upload = import_lambda("s3_upload")
 
 
 @pytest.fixture(scope="function", name="mocked_boto3_client")
@@ -21,14 +21,14 @@ def fixture_mocked_boto3_client(mocker):
         if client_type == "dynamodb":
             return mocked_dynamodb_client
 
-    mocker.patch.object(sdk_upload.boto3, "client", autospec=True, side_effect=se)
+    mocker.patch.object(s3_upload.boto3, "client", autospec=True, side_effect=se)
 
     yield mocked_s3_client, mocked_dynamodb_client
 
 
-def test_sdk_upload__returns_error_code_if_file_name_not_given():
-    response = sdk_upload.handler(
-        {"body": json.dumps({"upload_type": "sdk_upload"}), "headers": {"Content-MD5": ""}}, None
+def test_s3_upload__returns_error_code_if_file_name_not_given():
+    response = s3_upload.handler(
+        {"body": json.dumps({"upload_type": "sdk"}), "headers": {"Content-MD5": ""}}, None
     )
     assert response == {
         "statusCode": 400,
@@ -37,15 +37,15 @@ def test_sdk_upload__returns_error_code_if_file_name_not_given():
     }
 
 
-def test_sdk_upload__logs_exception_if_file_name_not_given(mocker):
-    spied_logger_exception = mocker.spy(sdk_upload.logger, "exception")
-    sdk_upload.handler({"body": json.dumps({"upload_type": "sdk_upload"})}, None)
+def test_s3_upload__logs_exception_if_file_name_not_given(mocker):
+    spied_logger_exception = mocker.spy(s3_upload.logger, "exception")
+    s3_upload.handler({"body": json.dumps({"upload_type": "sdk"})}, None)
     spied_logger_exception.assert_called_once_with("file_name not found in request body")
 
 
-def test_sdk_upload__logs_exception_if_content_md5_header_is_not_present(mocker):
-    spied_logger_exception = mocker.spy(sdk_upload.logger, "exception")
-    response = sdk_upload.handler({"body": json.dumps({"file_name": "", "upload_type": "sdk_upload"})}, None)
+def test_s3_upload__logs_exception_if_content_md5_header_is_not_present(mocker):
+    spied_logger_exception = mocker.spy(s3_upload.logger, "exception")
+    response = s3_upload.handler({"body": json.dumps({"file_name": "", "upload_type": "sdk"})}, None)
     spied_logger_exception.assert_called_once_with("Content-MD5 header not found in request")
 
     assert response == {
@@ -55,17 +55,17 @@ def test_sdk_upload__logs_exception_if_content_md5_header_is_not_present(mocker)
     }
 
 
-def test_sdk_upload__calls_generate_presigned_post_with_correct_values(mocker, mocked_boto3_client):
+def test_s3_upload__calls_generate_presigned_post_with_correct_values(mocker, mocked_boto3_client):
     mocked_s3_client, _ = mocked_boto3_client
 
     expected_bucket_name = "test_bucket"
-    mocker.patch.object(sdk_upload, "SDK_UPLOAD_BUCKET", expected_bucket_name)
-    spied_uuid4 = mocker.spy(sdk_upload.uuid, "uuid4")
+    mocker.patch.object(s3_upload, "SDK_UPLOAD_BUCKET", expected_bucket_name)
+    spied_uuid4 = mocker.spy(s3_upload.uuid, "uuid4")
 
     test_file_name = "test_file"
-    sdk_upload.handler(
+    s3_upload.handler(
         {
-            "body": json.dumps({"file_name": test_file_name, "upload_type": "sdk_upload"}),
+            "body": json.dumps({"file_name": test_file_name, "upload_type": "sdk"}),
             "headers": {"Content-MD5": ""},
         },
         None,
@@ -83,34 +83,34 @@ def test_sdk_upload__calls_generate_presigned_post_with_correct_values(mocker, m
     )
 
 
-def test_sdk_upload__handles_info_logging(mocker, mocked_boto3_client):
+def test_s3_upload__handles_info_logging(mocker, mocked_boto3_client):
     mocked_s3_client, _ = mocked_boto3_client
 
     expected_params = {"param1": 1, "param2": "val"}
     mocked_s3_client.generate_presigned_post.return_value = expected_params
-    spied_logger_info = mocker.spy(sdk_upload.logger, "info")
+    spied_logger_info = mocker.spy(s3_upload.logger, "info")
 
     test_file_name = "test_file"
     test_event = {
-        "body": json.dumps({"file_name": test_file_name, "upload_type": "sdk_upload"}),
+        "body": json.dumps({"file_name": test_file_name, "upload_type": "sdk"}),
         "headers": {"Content-MD5": ""},
     }
-    sdk_upload.handler(test_event, None)
+    s3_upload.handler(test_event, None)
     spied_logger_info.assert_any_call(f"event: {test_event}")
     spied_logger_info.assert_any_call(f"Got presigned URL params for an sdk upload: {expected_params}")
 
 
-def test_sdk_upload__returns_correct_response_for_a_given_file_name(mocker, mocked_boto3_client):
+def test_s3_upload__returns_correct_response_for_a_given_file_name(mocker, mocked_boto3_client):
     mocked_s3_client, _ = mocked_boto3_client
 
     expected_params = {"param1": 1, "param2": "val"}
     mocked_s3_client.generate_presigned_post.return_value = expected_params
-    spied_uuid4 = mocker.spy(sdk_upload.uuid, "uuid4")
+    spied_uuid4 = mocker.spy(s3_upload.uuid, "uuid4")
 
     test_file_name = "test_file"
-    response = sdk_upload.handler(
+    response = s3_upload.handler(
         {
-            "body": json.dumps({"file_name": test_file_name, "upload_type": "sdk_upload"}),
+            "body": json.dumps({"file_name": test_file_name, "upload_type": "sdk"}),
             "headers": {"Content-MD5": ""},
         },
         None,
@@ -122,17 +122,17 @@ def test_sdk_upload__returns_correct_response_for_a_given_file_name(mocker, mock
     }
 
 
-def test_sdk_upload__puts_item_into_dynamodb_table_correctly(mocker, mocked_boto3_client):
+def test_s3_upload__puts_item_into_dynamodb_table_correctly(mocker, mocked_boto3_client):
     _, mocked_dynamodb_client = mocked_boto3_client
 
     expected_table_name = "test_table"
-    mocker.patch.object(sdk_upload, "SDK_STATUS_TABLE", expected_table_name)
-    spied_uuid4 = mocker.spy(sdk_upload.uuid, "uuid4")
+    mocker.patch.object(s3_upload, "SDK_STATUS_TABLE", expected_table_name)
+    spied_uuid4 = mocker.spy(s3_upload.uuid, "uuid4")
 
     test_file_name = "test_file"
-    sdk_upload.handler(
+    s3_upload.handler(
         {
-            "body": json.dumps({"file_name": test_file_name, "upload_type": "sdk_upload"}),
+            "body": json.dumps({"file_name": test_file_name, "upload_type": "sdk"}),
             "headers": {"Content-MD5": ""},
         },
         None,
@@ -144,35 +144,32 @@ def test_sdk_upload__puts_item_into_dynamodb_table_correctly(mocker, mocked_boto
     )
 
 
-def test_sdk_upload__logs_exception_when_generate_presigned_post_raises_ClientError(
+def test_s3_upload__logs_exception_when_generate_presigned_post_raises_ClientError(
     mocker, mocked_boto3_client
 ):
     mocked_s3_client, _ = mocked_boto3_client
 
     mocked_s3_client.generate_presigned_post.side_effect = ClientError({}, "")
-    spied_logger_exception = mocker.spy(sdk_upload.logger, "exception")
+    spied_logger_exception = mocker.spy(s3_upload.logger, "exception")
 
     with pytest.raises(ClientError):
-        sdk_upload.handler(
-            {
-                "body": json.dumps({"file_name": "", "upload_type": "sdk_upload"}),
-                "headers": {"Content-MD5": ""},
-            },
+        s3_upload.handler(
+            {"body": json.dumps({"file_name": "", "upload_type": "sdk"}), "headers": {"Content-MD5": ""}},
             None,
         )
     spied_logger_exception.assert_called_once_with("Couldn't get presigned URL params for an sdk upload")
 
 
-def test_sdk_upload__errors_if_content_md5_header_is_not_valid_format(mocked_boto3_client):
+def test_s3_upload__errors_if_content_md5_header_is_not_valid_format(mocked_boto3_client):
     mocked_s3_client, _ = mocked_boto3_client
 
     expected_params = {"param1": 1, "param2": "val", "Content-MD5": b"1B2M2Y8AsgTpgAmY7PhCfg=="}
     mocked_s3_client.generate_presigned_post.return_value = expected_params
 
     with pytest.raises(TypeError):
-        response = sdk_upload.handler(
+        response = s3_upload.handler(
             {
-                "body": json.dumps({"file_name": "", "upload_type": "sdk_upload"}),
+                "body": json.dumps({"file_name": "", "upload_type": "sdk"}),
                 "headers": {"Content-MD5": b"1B2M2Y8AsgTpgAmY7PhCfg=="},
             },
             None,
