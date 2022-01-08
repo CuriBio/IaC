@@ -6,11 +6,11 @@ data_bucket   = "test-data"
 function_name = "hello-lambda"
 
 # cloud sdk
-logs_bucket              = "mantarray-logs"
-upload_bucket            = "sdk-upload"
-analyzed_bucket          = "sdk-analyzed"
-sdk_upload_image_name    = "sdk_upload"
-sdk_upload_function_name = "sdk-upload-lambda"
+logs_bucket             = "mantarray-logs"
+upload_bucket           = "sdk-upload"
+analyzed_bucket         = "sdk-analyzed"
+s3_upload_image_name    = "s3_upload"
+s3_upload_function_name = "s3-upload-lambda"
 
 # upload/analysis status
 get_sdk_status_image_name    = "get_sdk_status"
