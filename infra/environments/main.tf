@@ -117,7 +117,7 @@ module "sdk_analysis" {
 
   # lambda
   function_name        = "${terraform.workspace}-${var.s3_upload_function_name}"
-  function_description = "SDK upload lambda"
+  function_description = "s3 upload lambda"
 
   sdk_status_table_name = module.sdk_status_db.name
   sdk_status_table_arn  = module.sdk_status_db.arn

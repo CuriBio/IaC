@@ -47,7 +47,7 @@ def format_metadata(meta_sheet, pr, recording_length: int):
         "mantarray_recording_session_id": uuid.uuid4(),
         "uploading_computer_name": well_file.get(COMPUTER_NAME_HASH_UUID, NULL),
         "acquisition_started_at": well_file[UTC_BEGINNING_DATA_ACQUISTION_UUID],
-        "log_session_uuid": log_session_uuid,
+        "session_log_id": log_session_uuid,
         "log_session_started_at": get_log_session_start_time(log_session_uuid),
         "software_version": well_file.get(SOFTWARE_RELEASE_VERSION_UUID, NULL),
     }

@@ -19,11 +19,20 @@ depends_on = None
 
 def upgrade():
     op.drop_table("mantarray_frontend_log_files")
+    op.drop_constraint(
+        "mantarray_recording_sessions_ibfk_2", "mantarray_recording_sessions", type_="foreignkey"
+    )
+    op.alter_column(
+        "mantarray_recording_sessions",
+        "backend_log_id",
+        new_column_name="session_log_id",
+        existing_type=sa.VARCHAR(255),
+    )
     op.drop_table("mantarray_backend_log_files")
     op.create_table(
         "mantarray_session_log_files",
         sa.Column("session_log_id", sa.VARCHAR(255)),
-        sa.Column("upload_id", sa.VARCHAR(255)),
+        sa.Column("upload_id", sa.INTEGER()),
         sa.Column("bucket", sa.VARCHAR(255)),
         sa.Column("object_key", sa.VARCHAR(255)),
         sa.Column("software_version", sa.VARCHAR(255)),
@@ -33,10 +42,26 @@ def upgrade():
         sa.Column("user_account_id", sa.VARCHAR(255)),
         sa.ForeignKeyConstraint(["upload_id"], ["uploaded_s3_objects.upload_id"],),
     )
+    op.create_foreign_key(
+        "mantarray_recording_sessions_ibfk_2",
+        "mantarray_session_log_files",
+        "mantarray_recording_sessions",
+        ["session_log_id"],
+        ["session_log_id"],
+    )
 
 
 def downgrade():
     op.drop_table("mantarray_session_log_files")
+    op.drop_constraint(
+        "mantarray_recording_sessions_ibfk_2", "mantarray_recording_sessions", type_="foreignkey"
+    )
+    op.alter_column(
+        "mantarray_recording_sessions",
+        "session_log_id",
+        new_column_name="backend_log_id",
+        existing_type=sa.VARCHAR(255),
+    )
     op.create_table(
         "mantarray_backend_log_files",
         sa.Column("backend_log_id", sa.VARCHAR(255), primary_key=True),
@@ -47,7 +72,7 @@ def downgrade():
         sa.Column("file_format_version", sa.VARCHAR(255)),
         sa.Column("started_at", sa.DateTime()),
         sa.Column("ended_at", sa.DateTime()),
-        sa.Column("las_used_customer_account_id", sa.VARCHAR(255)),
+        sa.Column("last_used_customer_account_id", sa.VARCHAR(255)),
         sa.Column("last_used_user_account_id", sa.VARCHAR(255)),
         sa.ForeignKeyConstraint(["upload_id"], ["uploaded_s3_objects.upload_id"],),
     )
@@ -56,4 +81,11 @@ def downgrade():
         sa.Column("frontend_log_id", sa.VARCHAR(255), primary_key=True),
         sa.Column("upload_id", sa.VARCHAR(255)),
         sa.ForeignKeyConstraint(["upload_id"], ["uploaded_s3_objects.upload_id"],),
+    )
+    op.create_foreign_key(
+        "mantarray_recording_sessions_ibfk_2",
+        "mantarray_backend_log_files",
+        "mantarray_recording_sessions",
+        ["backend_log_id"],
+        ["backend_log_id"],
     )

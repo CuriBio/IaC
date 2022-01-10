@@ -71,6 +71,7 @@ def handle_db_metadata_insertions(args: list):
             customer_account_id,
             user_account_id,
             metadata["instrument_serial_number"],
+            metadata["session_log_id"],
             metadata["acquisition_started_at"],
             metadata["length_microseconds"],
             metadata["recording_started_at"],
@@ -88,7 +89,7 @@ def handle_db_metadata_insertions(args: list):
     try:
         log_session_key = "%s/%s.zip" % (customer_account_id, metadata["log_session_uuid"])
         session_log_tuple = (
-            metadata["log_session_uuid"],
+            metadata["session_log_id"],
             LOGS_BUCKET,
             log_session_key,
             metadata["software_version"],
