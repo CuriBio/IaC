@@ -106,8 +106,12 @@ module "ecs_task" {
       "value" : aws_sqs_queue.sdk_upload_queue.url
     },
     {
-      "name" : "S3_UPLOAD_BUCKET",
+      "name" : "SDK_ANALYZED_BUCKET",
       "value" : aws_s3_bucket.analyzed_bucket.bucket
+    },
+    {
+      "name" : "LOGS_BUCKET",
+      "value" : aws_s3_bucket.mantarray_logs.bucket
     },
     {
       "name" : "SDK_STATUS_TABLE",

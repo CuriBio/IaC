@@ -115,3 +115,6 @@ jobs:
 
           chmod +x ./.github/scripts/db_import.sh
           ./.github/scripts/db_import.sh
+
+          alembic upgrade head
+          alembic history --verbose
