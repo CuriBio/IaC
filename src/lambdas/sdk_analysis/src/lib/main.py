@@ -1,4 +1,3 @@
-# from io import StringIO
 import logging
 import os
 import sys
@@ -66,21 +65,6 @@ def handle_db_metadata_insertions(args: list):
         raise Exception(f"in uploaded_s3_objects: {e}")
 
     try:
-        log_session_key = "%s/%s.zip" % (customer_account_id, metadata["session_log_id"])
-        session_log_tuple = (
-            metadata["session_log_id"],
-            LOGS_BUCKET,
-            log_session_key,
-            metadata["software_version"],
-            metadata["file_format_version"],
-            customer_account_id,
-            user_account_id,
-        )
-        cur.execute(INSERT_INTO_MANTARRAY_SESSION_LOG_FILES, session_log_tuple)
-    except Exception as e:
-        raise Exception(f"in mantarray_session_log_files: {e}")
-
-    try:
         recording_session_tuple = (
             metadata["mantarray_recording_session_id"],
             customer_account_id,
@@ -100,6 +84,22 @@ def handle_db_metadata_insertions(args: list):
         cur.execute(INSERT_INTO_S3_OBJECTS, s3_object_tuple)
     except Exception as e:
         raise Exception(f"in s3_objects: {e}")
+
+    try:
+        log_session_key = "%s/%s.zip" % (customer_account_id, metadata["session_log_id"])
+        session_log_tuple = (
+            metadata["session_log_id"],
+            LOGS_BUCKET,
+            log_session_key,
+            metadata["mantarray_recording_session_id"],
+            metadata["software_version"],
+            metadata["file_format_version"],
+            customer_account_id,
+            user_account_id,
+        )
+        cur.execute(INSERT_INTO_MANTARRAY_SESSION_LOG_FILES, session_log_tuple)
+    except Exception as e:
+        raise Exception(f"in mantarray_session_log_files: {e}")
 
     logger.info("Executing queries to the database in relation individual well data")
     try:

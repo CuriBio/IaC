@@ -21,5 +21,5 @@ INSERT_INTO_S3_OBJECTS = f"""
     """
 
 INSERT_INTO_MANTARRAY_SESSION_LOG_FILES = f"""
-    INSERT INTO mantarray_session_log_files(session_log_id, upload_id, bucket, object_key, software_version, file_format_version, customer_account_id, user_account_id) VALUES (%s, {SELECT_LAST_UPLOAD_ID}, %s, %s, %s, %s, %s, %s);
+    INSERT INTO mantarray_session_log_files(session_log_id, bucket, object_key, upload_id, mantarray_recording_session_id, software_version, file_format_version, customer_account_id, user_account_id) VALUES (%s, %s, %s, {SELECT_LAST_UPLOAD_ID}, %s, %s, %s, %s, %s);
 """
