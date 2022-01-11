@@ -26,14 +26,14 @@ logger = logging.getLogger(__name__)
 INFO_DICT = {}
 
 
-def handle_db_metadata_insertions(args: list):
+def handle_db_metadata_insertions(pr, file, analysis_key, md5s):
     """
     args:
-        contains <file>.xlsx, individual well data, and the md5 hash
+        contains PlateRecording instance, <file>.xlsx, s3 object key for analysis upload, and the md5 hash
     """
 
     if not INFO_DICT:
-        set_info_dict(args)
+        set_info_dict()
 
     try:
         conn = pymysql.connect(
@@ -46,10 +46,10 @@ def handle_db_metadata_insertions(args: list):
     except Exception as e:
         raise Exception(f"failed db connection: {e}")
 
-    metadata, well_data = load_data_to_dataframe(INFO_DICT["sdk_xlsx"], INFO_DICT["pr"])
-    s3_size = get_s3_object_contents(SDK_ANALYZED_BUCKET, INFO_DICT["sdk_analysis_key"])
-    customer_account_id = INFO_DICT["sdk_analysis_key"].split("/")[0]
-    user_account_id = INFO_DICT["sdk_analysis_key"].split("/")[1]
+    metadata, well_data = load_data_to_dataframe(file, pr)
+    s3_size = get_s3_object_contents(SDK_ANALYZED_BUCKET, analysis_key)
+    customer_account_id = analysis_key.split("/")[0]
+    user_account_id = analysis_key.split("/")[1]
 
     cur = conn.cursor()
 
@@ -57,7 +57,7 @@ def handle_db_metadata_insertions(args: list):
     try:
         uploaded_sdk_tuple = (
             SDK_ANALYZED_BUCKET,
-            INFO_DICT["sdk_analysis_key"],
+            analysis_key,
             metadata["uploading_computer_name"],
         )
         cur.execute(INSERT_INT0_UPLOADED_S3_OBJECTS, uploaded_sdk_tuple)
@@ -80,7 +80,7 @@ def handle_db_metadata_insertions(args: list):
         raise Exception(f"in mantarray_recording_sessions: {e}")
 
     try:
-        s3_object_tuple = (s3_size, metadata["file_creation_timestamp"], INFO_DICT["md5s"])
+        s3_object_tuple = (s3_size, metadata["file_creation_timestamp"], md5s)
         cur.execute(INSERT_INTO_S3_OBJECTS, s3_object_tuple)
     except Exception as e:
         raise Exception(f"in s3_objects: {e}")
@@ -117,13 +117,9 @@ def handle_db_metadata_insertions(args: list):
     conn.commit()
 
 
-def set_info_dict(args):
+def set_info_dict():
     # Retrieve DB creds
     username, password = get_ssm_secrets()
     INFO_DICT["db_username"] = username
     INFO_DICT["db_password"] = password
     INFO_DICT["db_name"] = "mantarray_recordings"
-    INFO_DICT["sdk_analysis_key"] = args[0]
-    INFO_DICT["sdk_xlsx"] = args[1]
-    INFO_DICT["pr"] = args[2]
-    INFO_DICT["md5s"] = args[3]

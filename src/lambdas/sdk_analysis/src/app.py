@@ -16,9 +16,7 @@ from pulse3D.plate_recording import PlateRecording
 
 SQS_URL = os.environ.get("SQS_URL")
 SDK_ANALYZED_BUCKET = os.environ.get("SDK_ANALYZED_BUCKET")
-# LOGS_BUCKET = os.environ.get("LOGS_BUCKET")
 SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
-# DB_CLUSTER_ENDPOINT = os.environ.get("DB_CLUSTER_ENDPOINT")
 
 # remove AWS pre-config that interferes with custom config
 root = logging.getLogger()
@@ -108,8 +106,7 @@ def process_record(record, s3_client, db_client):
         try:
             logger.info(f"Inserting {file_name} metadata into aurora database")
             with open(f"{file_name}", "rb") as file:
-                db_args = [s3_analysis_key, file, pr, md5s]
-                main.handle_db_metadata_insertions(db_args)
+                main.handle_db_metadata_insertions(pr, file, s3_analysis_key, md5s)
             update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
         except Exception as e:
             logger.error(f"Recording metadata failed to store in aurora database: {e}")
