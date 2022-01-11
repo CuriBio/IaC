@@ -38,7 +38,6 @@ def upgrade():
         sa.Column("object_key", sa.VARCHAR(255)),
         sa.Column("software_version", sa.VARCHAR(255)),
         sa.Column("file_format_version", sa.VARCHAR(255)),
-        sa.Column("started_at", sa.DateTime()),
         sa.Column("customer_account_id", sa.VARCHAR(255)),
         sa.Column("user_account_id", sa.VARCHAR(255)),
         sa.ForeignKeyConstraint(["upload_id"], ["uploaded_s3_objects.id"],),

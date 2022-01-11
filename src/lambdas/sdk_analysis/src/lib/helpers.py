@@ -1,4 +1,3 @@
-import datetime
 import uuid
 
 import pandas as pd
@@ -24,19 +23,8 @@ def load_data_to_dataframe(file_name, pr):
     return formatted_metadata, formatted_well_data
 
 
-def get_log_session_start_time(log_session_uuid):
-    if log_session_uuid is not NULL:
-        datetime_format = "%Y_%m_%d_%H%M%S"
-        log_start_time = log_session_uuid[15:-4]
-        return datetime.datetime.strptime(log_start_time, datetime_format).replace(
-            tzinfo=datetime.timezone.utc
-        )
-    return log_session_uuid
-
-
 def format_metadata(meta_sheet, pr, recording_length: int):
     well_file = pr.wells[0]
-    log_session_uuid = well_file.get(BACKEND_LOG_UUID, NULL)
     return {
         "barcode": well_file.get(PLATE_BARCODE_UUID, NULL),
         "recording_started_at": well_file[UTC_BEGINNING_RECORDING_UUID],
@@ -47,8 +35,7 @@ def format_metadata(meta_sheet, pr, recording_length: int):
         "mantarray_recording_session_id": uuid.uuid4(),
         "uploading_computer_name": well_file.get(COMPUTER_NAME_HASH_UUID, NULL),
         "acquisition_started_at": well_file[UTC_BEGINNING_DATA_ACQUISTION_UUID],
-        "session_log_id": log_session_uuid,
-        "log_session_started_at": get_log_session_start_time(log_session_uuid),
+        "session_log_id": well_file.get(BACKEND_LOG_UUID, NULL),
         "software_version": well_file.get(SOFTWARE_RELEASE_VERSION_UUID, NULL),
     }
 
