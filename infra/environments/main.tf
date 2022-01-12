@@ -14,8 +14,8 @@ variable "sqsp_verification" {}
 variable "upload_bucket" {}
 variable "analyzed_bucket" {}
 variable "logs_bucket" {}
-variable "s3_upload_image_name" {}
-variable "s3_upload_function_name" {}
+variable "sdk_upload_image_name" {}
+variable "sdk_upload_function_name" {}
 
 #database
 variable "instance_class" {}
@@ -108,7 +108,7 @@ module "sdk_analysis" {
   role_arn = var.role_arn
 
   # docker image
-  image_name = "${terraform.workspace}-${var.s3_upload_image_name}"
+  image_name = "${terraform.workspace}-${var.sdk_upload_image_name}"
 
   # s3 buckets
   upload_bucket   = "${terraform.workspace}-${var.upload_bucket}"
@@ -116,7 +116,7 @@ module "sdk_analysis" {
   logs_bucket     = "${terraform.workspace}-${var.logs_bucket}"
 
   # lambda
-  function_name        = "${terraform.workspace}-${var.s3_upload_function_name}"
+  function_name        = "${terraform.workspace}-${var.sdk_upload_function_name}"
   function_description = "s3 upload lambda"
 
   sdk_status_table_name = module.sdk_status_db.name

@@ -1,5 +1,3 @@
-import logging
-import sys
 import uuid
 
 import pandas as pd
@@ -14,24 +12,12 @@ from pulse3D.constants import UTC_BEGINNING_RECORDING_UUID
 from pulse3D.constants import WELL_INDEX_UUID
 from pymysql import NULL
 
-logging.basicConfig(
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s", level=logging.INFO, stream=sys.stdout
-)
-logger = logging.getLogger(__name__)
-
 
 def load_data_to_dataframe(file_name, pr):
-    logger.info(f"made it to load data to dataframe: {file_name}")
     df = pd.read_excel(file_name, sheet_name=None, engine="openpyxl")
-    logger.info("made after read-excel")
     recording_length = int(df["continuous-waveforms"]["Time (seconds)"].iloc[-1]) * MICRO_TO_BASE_CONVERSION
-    logger.info("made after getting recording length")
-
     formatted_metadata = format_metadata(df["metadata"], pr, recording_length)
-    logger.info("made after format_metdata")
-
     formatted_well_data = format_well_data(pr, recording_length)
-    logger.info("made after format_well_data")
 
     return formatted_metadata, formatted_well_data
 

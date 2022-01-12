@@ -6,7 +6,7 @@ module "lambda" {
 
   # docker image
   image_name = var.image_name
-  image_src  = "../../src/lambdas/s3_upload"
+  image_src  = "../../src/lambdas/sdk_upload"
 
   # lambda
   function_name        = var.function_name
@@ -16,7 +16,7 @@ module "lambda" {
   source_arn         = var.api_gateway_source_arn
   lambda_api_gw_id   = var.lambda_api_gw_id
   integration_method = "POST"
-  route_key          = "POST /s3_upload"
+  route_key          = "POST /sdk_upload"
   authorizer_id      = var.authorizer_id
   authorization_type = var.authorization_type
 

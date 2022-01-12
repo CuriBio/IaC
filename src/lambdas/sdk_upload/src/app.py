@@ -112,9 +112,10 @@ def handler(event, context):
             "body": json.dumps({"message": "Missing Content-MD5 header"}),
         }
 
-    if upload_type == "sdk":
-        response = generate_presigned_params_for_sdk(s3_client, md5s, object_key=file_name, expires_in=3600)
-    else:
-        response = generate_presigned_params_for_logs(s3_client, md5s, object_key=file_name, expires_in=3600)
+    response = (
+        generate_presigned_params_for_sdk(s3_client, md5s, object_key=file_name, expires_in=3600)
+        if upload_type == "sdk"
+        else generate_presigned_params_for_logs(s3_client, md5s, object_key=file_name, expires_in=3600)
+    )
 
     return response
