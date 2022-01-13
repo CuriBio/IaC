@@ -1,10 +1,12 @@
 import uuid
 
 import pandas as pd
+from pulse3D.constants import BACKEND_LOG_UUID
 from pulse3D.constants import COMPUTER_NAME_HASH_UUID
 from pulse3D.constants import MANTARRAY_SERIAL_NUMBER_UUID
 from pulse3D.constants import MICRO_TO_BASE_CONVERSION
 from pulse3D.constants import PLATE_BARCODE_UUID
+from pulse3D.constants import SOFTWARE_RELEASE_VERSION_UUID
 from pulse3D.constants import UTC_BEGINNING_DATA_ACQUISTION_UUID
 from pulse3D.constants import UTC_BEGINNING_RECORDING_UUID
 from pulse3D.constants import WELL_INDEX_UUID
@@ -13,7 +15,6 @@ from pymysql import NULL
 
 def load_data_to_dataframe(file_name, pr):
     df = pd.read_excel(file_name, sheet_name=None, engine="openpyxl")
-
     recording_length = int(df["continuous-waveforms"]["Time (seconds)"].iloc[-1]) * MICRO_TO_BASE_CONVERSION
     formatted_metadata = format_metadata(df["metadata"], pr, recording_length)
     formatted_well_data = format_well_data(pr, recording_length)
@@ -33,6 +34,8 @@ def format_metadata(meta_sheet, pr, recording_length: int):
         "mantarray_recording_session_id": uuid.uuid4(),
         "uploading_computer_name": well_file.get(COMPUTER_NAME_HASH_UUID, NULL),
         "acquisition_started_at": well_file[UTC_BEGINNING_DATA_ACQUISTION_UUID],
+        "session_log_id": well_file.get(BACKEND_LOG_UUID, NULL),
+        "software_version": well_file.get(SOFTWARE_RELEASE_VERSION_UUID, NULL),
     }
 
 

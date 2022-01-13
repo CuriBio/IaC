@@ -15,9 +15,8 @@ from pulse3D.plate_recording import PlateRecording
 
 
 SQS_URL = os.environ.get("SQS_URL")
-S3_UPLOAD_BUCKET = os.environ.get("S3_UPLOAD_BUCKET")
+SDK_ANALYZED_BUCKET = os.environ.get("SDK_ANALYZED_BUCKET")
 SDK_STATUS_TABLE = os.environ.get("SDK_STATUS_TABLE")
-DB_CLUSTER_ENDPOINT = os.environ.get("DB_CLUSTER_ENDPOINT")
 
 # remove AWS pre-config that interferes with custom config
 root = logging.getLogger()
@@ -96,10 +95,10 @@ def process_record(record, s3_client, db_client):
                 contents = f.read()
                 md5 = hashlib.md5(contents).digest()
                 md5s = base64.b64encode(md5).decode()
-                s3_client.put_object(Body=f, Bucket=S3_UPLOAD_BUCKET, Key=s3_analysis_key, ContentMD5=md5s)
+                s3_client.put_object(Body=f, Bucket=SDK_ANALYZED_BUCKET, Key=s3_analysis_key, ContentMD5=md5s)
             update_sdk_status(db_client, upload_id, "analysis complete")
         except Exception as e:
-            logger.error(f"S3 Upload failed for {file_name} to {S3_UPLOAD_BUCKET}/{s3_analysis_key}: {e}")
+            logger.error(f"S3 Upload failed for {file_name} to {SDK_ANALYZED_BUCKET}/{s3_analysis_key}: {e}")
             update_sdk_status(db_client, upload_id, "error during upload of analyzed file")
             return
 
@@ -107,10 +106,7 @@ def process_record(record, s3_client, db_client):
         try:
             logger.info(f"Inserting {file_name} metadata into aurora database")
             with open(f"{file_name}", "rb") as file:
-                args = [file, pr, md5s]
-                main.handle_db_metadata_insertions(
-                    S3_UPLOAD_BUCKET, s3_analysis_key, DB_CLUSTER_ENDPOINT, args
-                )
+                main.handle_db_metadata_insertions(pr, file, s3_analysis_key, md5s)
             update_sdk_status(db_client, upload_id, "analysis successfully inserted into database")
         except Exception as e:
             logger.error(f"Recording metadata failed to store in aurora database: {e}")
@@ -119,15 +115,15 @@ def process_record(record, s3_client, db_client):
 
         # generate presigned url to download .xlsx file
         try:
-            logger.info(f"Generating presigned url for {S3_UPLOAD_BUCKET}/{s3_analysis_key}")
+            logger.info(f"Generating presigned url for {SDK_ANALYZED_BUCKET}/{s3_analysis_key}")
             url = s3_client.generate_presigned_url(
                 ClientMethod="get_object",
-                Params={"Bucket": S3_UPLOAD_BUCKET, "Key": s3_analysis_key},
+                Params={"Bucket": SDK_ANALYZED_BUCKET, "Key": s3_analysis_key},
                 ExpiresIn=3600,
             )
             update_sdk_status(db_client, upload_id, url)
         except Exception as e:
-            logger.error(f"Unable to generate presigned url for {S3_UPLOAD_BUCKET}/{s3_analysis_key}: {e}")
+            logger.error(f"Unable to generate presigned url for {SDK_ANALYZED_BUCKET}/{s3_analysis_key}: {e}")
             update_sdk_status(db_client, upload_id, "error generating presigned url")
 
 

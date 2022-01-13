@@ -7,6 +7,10 @@ variable "analyzed_bucket" {
   description = "S3 analyzed data bucket"
   type        = string
 }
+variable "logs_bucket" {
+  description = "S3 mantarray logs bucket"
+  type        = string
+}
 
 variable "image_name" {
   type        = string

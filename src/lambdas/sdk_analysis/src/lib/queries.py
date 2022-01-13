@@ -6,9 +6,9 @@ INSERT_INT0_UPLOADED_S3_OBJECTS = """
 SELECT_LAST_UPLOAD_ID = """(SELECT id FROM uploaded_s3_objects ORDER BY id DESC LIMIT 1)"""
 
 INSERT_INTO_MANTARRAY_RECORDING_SESSIONS = """
-    INSERT INTO mantarray_recording_sessions(mantarray_recording_session_id, customer_account_id, user_account_id, instrument_serial_number, acquisition_started_at, length_microseconds,
+    INSERT INTO mantarray_recording_sessions(mantarray_recording_session_id, customer_account_id, user_account_id, instrument_serial_number, session_log_id, acquisition_started_at, length_microseconds,
     recording_started_at)
-    VALUES (%s, %s, %s, %s, %s, %s, %s);
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
     """
 
 INSERT_INTO_MANTARRAY_RAW_FILES = f"""
@@ -19,3 +19,7 @@ INSERT_INTO_MANTARRAY_RAW_FILES = f"""
 INSERT_INTO_S3_OBJECTS = f"""
     INSERT INTO s3_objects(upload_id, kilobytes, stored_at, md5) VALUES ({SELECT_LAST_UPLOAD_ID}, %s, %s, %s);
     """
+
+INSERT_INTO_MANTARRAY_SESSION_LOG_FILES = f"""
+    INSERT INTO mantarray_session_log_files(session_log_id, bucket, object_key, upload_id, mantarray_recording_session_id, software_version, file_format_version, customer_account_id, user_account_id) VALUES (%s, %s, %s, {SELECT_LAST_UPLOAD_ID}, %s, %s, %s, %s, %s);
+"""

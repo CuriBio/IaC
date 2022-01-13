@@ -6,6 +6,7 @@ data_bucket   = "test-data"
 function_name = "hello-lambda"
 
 # cloud sdk
+logs_bucket              = "mantarray-logs"
 upload_bucket            = "sdk-upload"
 analyzed_bucket          = "sdk-analyzed"
 sdk_upload_image_name    = "sdk_upload"
