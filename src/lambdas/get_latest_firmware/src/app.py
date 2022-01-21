@@ -9,7 +9,7 @@ from semver import VersionInfo
 
 S3_MAIN_BUCKET = os.environ.get("S3_MAIN_BUCKET")
 S3_CHANNEL_BUCKET = os.environ.get("S3_CHANNEL_BUCKET")
-FIRMWARE_FILE_REGEX = re.compile(r"^\d+\_\d+_\d+\.bin$")
+FIRMWARE_FILE_REGEX = re.compile(r"^\d+\.\d+\.\d+\.bin$")
 
 # remove AWS pre-config that interferes with custom config
 root = logging.getLogger()
@@ -23,19 +23,34 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def get_version_info(version_str):
-    return VersionInfo.parse(".".join(version_str.split("_")))
+def get_cfw_from_hw(cfw_to_hw, current_hw_version):
+    current_hw_version_info = VersionInfo.parse(current_hw_version)
+    cfw_to_hw = {VersionInfo.parse(key): VersionInfo.parse(val) for key, val in cfw_to_hw.items()}
+    try:
+        cfw_version_info = sorted(cfw for cfw, hw in cfw_to_hw.items() if hw == current_hw_version_info)[-1]
+    except IndexError:
+        cfw_version_info = sorted(cfw for cfw, hw in cfw_to_hw.items() if current_hw_version_info < hw)[0]
+    return str(cfw_version_info)
 
 
-def get_latest_firmware_versions(software_version: str, main_firmware_version: str):
-    software_version_info = VersionInfo.parse(software_version)
-    main_firmware_version_info = VersionInfo.parse(main_firmware_version)
+def resolve_versions(cfw_to_hw, cfw_to_mfw, mfw_to_sw, hardware_version):
+    cfw = get_cfw_from_hw(cfw_to_hw, hardware_version)
+    mfw = cfw_to_mfw[cfw]
+    sw = mfw_to_sw[mfw]
+    return {"sw": sw, "main-fw": mfw, "channel-fw": cfw}
 
-    latest_firmware_versions = {}
+
+def get_latest_firmware_versions(hardware_version: str):
     s3_client = boto3.client("s3")
-    for firmware_type, current_version_info, bucket, validation_type in (
-        ("main", software_version_info, S3_MAIN_BUCKET, "software"),
-        ("channel", main_firmware_version_info, S3_CHANNEL_BUCKET, "main-firmware"),
+
+    # create dependency mappings
+    cfw_to_hw = {}
+    cfw_to_mfw = {}
+    mfw_to_sw = {}
+    for bucket, metadata_prefix, dependency_mapping in (
+        (S3_CHANNEL_BUCKET, "hw", cfw_to_hw),
+        (S3_CHANNEL_BUCKET, "main-fw", cfw_to_mfw),
+        (S3_MAIN_BUCKET, "sw", mfw_to_sw),
     ):
         firmware_bucket_objs = s3_client.list_objects(Bucket=bucket)
         firmware_file_names = [
@@ -43,52 +58,34 @@ def get_latest_firmware_versions(software_version: str, main_firmware_version: s
             for item in firmware_bucket_objs["Contents"]
             if FIRMWARE_FILE_REGEX.search(item["Key"])
         ]
-        compatible_firmware_files = set(firmware_file_names)
         for file_name in firmware_file_names:
             head_obj = s3_client.head_object(Bucket=bucket, Key=file_name)
-            max_version = head_obj["Metadata"].get(f"max-{validation_type}-version", None)
-            min_version = head_obj["Metadata"][f"min-{validation_type}-version"]
-            is_firmware_version_incompatible = current_version_info < VersionInfo.parse(min_version)
-            if max_version is not None:
-                is_firmware_version_incompatible |= current_version_info > VersionInfo.parse(max_version)
-            if is_firmware_version_incompatible:
-                compatible_firmware_files.remove(file_name)
-
-        compatible_firmware_versions = [file_name.split(".")[0] for file_name in compatible_firmware_files]
-        if len(compatible_firmware_files) == 0:
-            logger.info(f"No compatible {firmware_type} firmware versions found")
-            latest_firmware_version = None
-        else:
-            latest_firmware_version = sorted(compatible_firmware_versions, key=get_version_info)[-1].replace(
-                "_", "."
-            )
-        latest_firmware_versions[firmware_type] = latest_firmware_version
-    return latest_firmware_versions
+            dependent_version = head_obj["Metadata"][f"{metadata_prefix}-version"]
+            dependency_mapping[file_name.split(".bin")[0]] = dependent_version
+    # get versions from mappings
+    try:
+        return resolve_versions(cfw_to_hw, cfw_to_mfw, mfw_to_sw, hardware_version)
+    except Exception:
+        logger.info("No compatible versions found")
+        return None
 
 
 def handler(event, context):
     logger.info(f"event: {event}")
 
     try:
-        software_version = event["queryStringParameters"]["software_version"]
-        main_firmware_version = event["queryStringParameters"]["main_firmware_version"]
-    except (KeyError, TypeError) as e:
-        if isinstance(e, TypeError):
-            missing_param = "software_version"
-        else:
-            missing_param = str(e)[1:-1]
-            if "queryStringParameters" in missing_param:
-                missing_param = "software_version"
-        logger.exception(f"Request missing {missing_param} param")
+        hardware_version = event["queryStringParameters"]["hardware_version"]
+    except (KeyError, TypeError):
+        logger.exception("Request missing hardware_version param")
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"message": f"Missing {missing_param} param"}),
+            "body": json.dumps({"message": "Missing hardware_version param"}),
         }
 
-    latest_firmware_version = get_latest_firmware_versions(software_version, main_firmware_version)
+    latest_firmware_version = get_latest_firmware_versions(hardware_version)
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"latest_firmware_versions": latest_firmware_version}),
+        "body": json.dumps({"latest_versions": latest_firmware_version}),
     }
