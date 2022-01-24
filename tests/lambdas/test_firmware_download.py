@@ -108,7 +108,7 @@ def test_firmware_download__gets_presigned_url_correctly(firmware_type, mocker, 
     )
     mocked_s3_client.generate_presigned_url.assert_called_once_with(
         ClientMethod="get_object",
-        Params={"Bucket": expected_bucket_name, "Key": "0_0_0.bin"},
+        Params={"Bucket": expected_bucket_name, "Key": "0.0.0.bin"},
         ExpiresIn=3600,
     )
 
@@ -170,7 +170,7 @@ def test_firmware_download__logs_error__if_presigned_url_generation_fails(
         expected_main_bucket_name if firmware_type == "main" else expected_channel_bucket_name
     )
     spied_logger_error.assert_called_once_with(
-        f"Unable to generate presigned url for {expected_bucket_name}/0_0_0.bin: {repr(expected_error)}"
+        f"Unable to generate presigned url for {expected_bucket_name}/0.0.0.bin: {repr(expected_error)}"
     )
 
 
@@ -192,4 +192,4 @@ def test_firmware_download__logs_info(firmware_type, mocker, mocked_boto3_client
     expected_bucket_name = (
         expected_main_bucket_name if firmware_type == "main" else expected_channel_bucket_name
     )
-    spied_logger_info.assert_any_call(f"Generating presigned url for {expected_bucket_name}/0_0_0.bin")
+    spied_logger_info.assert_any_call(f"Generating presigned url for {expected_bucket_name}/0.0.0.bin")
