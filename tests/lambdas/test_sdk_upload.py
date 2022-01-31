@@ -37,24 +37,20 @@ def test_sdk_upload__returns_error_code_if_file_name_not_given():
     }
 
 
-def test_sdk_upload__returns_error_code_if_missing_upload_type():
-    response = sdk_upload.handler({"body": json.dumps({}), "headers": {"Content-MD5": ""}}, None)
-    assert response == {
-        "statusCode": 400,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"message": "Missing upload_type"}),
-    }
+def test_sdk_upload__upload_type_defaults_to_sdk_if_not_given(mocker):
+    expected_bucket_name = "test_bucket"
+    mocker.patch.object(sdk_upload, "SDK_UPLOAD_BUCKET", expected_bucket_name)
+    spied_presigned_post = mocker.patch.object(sdk_upload, "generate_presigned_params_for_sdk", autospec=True)
 
-
-def test_sdk_upload__logs_exception_if_upload_type_not_given(mocker):
-    spied_logger_exception = mocker.spy(sdk_upload.logger, "exception")
-    sdk_upload.handler({"body": json.dumps({})}, None)
-    spied_logger_exception.assert_called_once_with("upload_type not found in request body")
+    sdk_upload.handler(
+        {"body": json.dumps({"file_name": "test_file"}), "headers": {"Content-MD5": ""},}, None,
+    )
+    spied_presigned_post.assert_called_once()
 
 
 def test_sdk_upload__logs_exception_if_file_name_not_given(mocker):
     spied_logger_exception = mocker.spy(sdk_upload.logger, "exception")
-    sdk_upload.handler({"body": json.dumps({"upload_type": "sdk"})}, None)
+    sdk_upload.handler({"body": json.dumps({})}, None)
     spied_logger_exception.assert_called_once_with("file_name not found in request body")
 
 
