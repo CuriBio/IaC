@@ -81,16 +81,7 @@ def handler(event, context):
     s3_client = boto3.client("s3")
     logger.info(f"event: {event}")
     event_body = json.loads(event["body"])
-
-    try:
-        upload_type = event_body["upload_type"]
-    except KeyError:
-        logger.exception("upload_type not found in request body")
-        return {
-            "statusCode": 400,
-            "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"message": "Missing upload_type"}),
-        }
+    upload_type = event_body.get("upload_type", "sdk")
 
     try:
         file_name = event_body["file_name"]
