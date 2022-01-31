@@ -29,20 +29,13 @@ def test_get_latest_firmware__logs_event(mocker):
 
 
 @pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": None}, {"queryStringParameters": {}}])
-def test_get_latest_firmware__returns_error_code_if_hardware_version_not_given(test_event):
+def test_get_latest_firmware__returns_error_code_if_serial_number_not_given(test_event):
     response = get_latest_firmware.handler(test_event, None)
     assert response == {
         "statusCode": 400,
         "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"message": "Missing hardware_version param"}),
+        "body": json.dumps({"message": "Missing serial_number param"}),
     }
-
-
-@pytest.mark.parametrize("test_event", [{}, {"queryStringParameters": None}, {"queryStringParameters": {}}])
-def test_get_latest_firmware__logs_exception_if_software_version_not_given(test_event, mocker):
-    spied_logger_exception = mocker.spy(get_latest_firmware.logger, "exception")
-    get_latest_firmware.handler(test_event, None)
-    spied_logger_exception.assert_called_once_with("Request missing hardware_version param")
 
 
 def test_get_latest_firmware__gets_firmware_file_objects_from_s3_correctly(mocker, mocked_boto3_client):
@@ -57,7 +50,7 @@ def test_get_latest_firmware__gets_firmware_file_objects_from_s3_correctly(mocke
     # mock to avoid errors
     mocker.patch.object(get_latest_firmware, "resolve_versions", autospec=True, return_value={})
 
-    test_event = {"queryStringParameters": {"hardware_version": "0.0.0"}}
+    test_event = {"queryStringParameters": {"serial_number": "MA2022001000"}}
     get_latest_firmware.handler(test_event, None)
 
     assert mocked_s3_client.list_objects.call_count == 3
@@ -106,7 +99,7 @@ def test_get_latest_firmware__retrieves_metadata_of_each_correctly_named_firmwar
     # mock to avoid errors
     mocker.patch.object(get_latest_firmware, "resolve_versions", autospec=True, return_value={})
 
-    test_event = {"queryStringParameters": {"hardware_version": "0.0.0"}}
+    test_event = {"queryStringParameters": {"serial_number": "MA2022001000"}}
     get_latest_firmware.handler(test_event, None)
 
     expected_calls = [
@@ -122,18 +115,37 @@ def test_get_latest_firmware__retrieves_metadata_of_each_correctly_named_firmwar
     assert mocked_s3_client.head_object.call_args_list == expected_calls
 
 
-def test_get_latest_firmware__logs_info__if_no_compatible_firmware_files_found(mocker, mocked_boto3_client):
+def test_get_latest_firmware__gets_hardware_version_correctly(mocker, mocked_boto3_client):
+    mocker.spy(get_latest_firmware, "get_hw_version_from_serial_number")
+    mocked_resolve_versions = mocker.patch.object(
+        get_latest_firmware, "resolve_versions", autospec=True, return_value=None
+    )
+    # mock to avoid errors
+    mocker.patch.object(
+        get_latest_firmware, "create_dependency_mapping", autospec=True, return_value=[None] * 3
+    )
+
+    test_event = {"queryStringParameters": {"serial_number": "MA2022001000"}}
+    get_latest_firmware.handler(test_event, None)
+
+    mocked_resolve_versions.assert_called_once_with(mocker.ANY, mocker.ANY, mocker.ANY, "2.2.0")
+
+
+def test_get_latest_firmware__logs_error__if_resolving_dependency_mapping_fails(mocker, mocked_boto3_client):
     mocked_s3_client = mocked_boto3_client
     mocked_s3_client.list_objects.return_value = {"Contents": []}
 
-    spied_logger_info = mocker.spy(get_latest_firmware.logger, "info")
+    expected_error = Exception("error msg")
+    mocker.patch.object(get_latest_firmware, "resolve_versions", autospec=True, side_effect=expected_error)
 
-    test_event = {"queryStringParameters": {"hardware_version": "1.0.0"}}
+    spied_logger_error = mocker.spy(get_latest_firmware.logger, "error")
+
+    test_event = {"queryStringParameters": {"serial_number": "MA2022001000"}}
     get_latest_firmware.handler(test_event, None)
-    spied_logger_info.assert_any_call("No compatible versions found")
+    spied_logger_error.assert_any_call(f"Unable to find compatible firmware files: {repr(expected_error)}")
 
 
-def test_get_latest_firmware__returns_correct_response__if_dependency_mapping_fails(
+def test_get_latest_firmware__returns_correct_response__if_resolving_dependency_mapping_fails(
     mocked_boto3_client, mocker
 ):
     mocked_s3_client = mocked_boto3_client
@@ -157,7 +169,7 @@ def test_get_latest_firmware__returns_correct_response__if_dependency_mapping_fa
 
     mocker.patch.object(get_latest_firmware, "resolve_versions", autospec=True, side_effect=Exception)
 
-    test_event = {"queryStringParameters": {"hardware_version": "1.0.0"}}
+    test_event = {"queryStringParameters": {"serial_number": "MA2022001000"}}
     response = get_latest_firmware.handler(test_event, None)
     assert response == {
         "statusCode": 200,
@@ -183,6 +195,10 @@ def test_get_latest_firmware__returns_correct_response__with_multiple_files_of_b
     mocker.patch.object(get_latest_firmware, "S3_MAIN_BUCKET", expected_main_bucket_name)
     expected_channel_bucket_name = "channel_test_bucket"
     mocker.patch.object(get_latest_firmware, "S3_CHANNEL_BUCKET", expected_channel_bucket_name)
+
+    mocker.patch.object(
+        get_latest_firmware, "get_hw_version_from_serial_number", autospec=True, return_value=hw_version
+    )
 
     test_main_file_names = [f"{version}.0.0.bin" for version in range(1, 7)]
     test_channel_file_names = [f"{version}.0.0.bin" for version in range(1, 6)]
@@ -218,7 +234,7 @@ def test_get_latest_firmware__returns_correct_response__with_multiple_files_of_b
         )
     }
 
-    test_event = {"queryStringParameters": {"hardware_version": hw_version}}
+    test_event = {"queryStringParameters": {"serial_number": "MA2022001000"}}
     response = get_latest_firmware.handler(test_event, None)
     assert response == {
         "statusCode": 200,

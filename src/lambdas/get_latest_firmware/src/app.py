@@ -33,14 +33,7 @@ def get_cfw_from_hw(cfw_to_hw, current_hw_version):
     return str(cfw_version_info)
 
 
-def resolve_versions(cfw_to_hw, cfw_to_mfw, mfw_to_sw, hardware_version):
-    cfw = get_cfw_from_hw(cfw_to_hw, hardware_version)
-    mfw = cfw_to_mfw[cfw]
-    sw = mfw_to_sw[mfw]
-    return {"sw": sw, "main-fw": mfw, "channel-fw": cfw}
-
-
-def get_latest_firmware_versions(hardware_version: str):
+def create_dependency_mapping():
     s3_client = boto3.client("s3")
 
     # create dependency mappings
@@ -62,11 +55,29 @@ def get_latest_firmware_versions(hardware_version: str):
             head_obj = s3_client.head_object(Bucket=bucket, Key=file_name)
             dependent_version = head_obj["Metadata"][f"{metadata_prefix}-version"]
             dependency_mapping[file_name.split(".bin")[0]] = dependent_version
+    return cfw_to_hw, cfw_to_mfw, mfw_to_sw
+
+
+def get_hw_version_from_serial_number(serial_number: str):
+    # TODO: link this to the serial number / unit tracking table in aurora once it is added
+    return "2.2.0"
+
+
+def resolve_versions(cfw_to_hw, cfw_to_mfw, mfw_to_sw, hardware_version):
+    cfw = get_cfw_from_hw(cfw_to_hw, hardware_version)
+    mfw = cfw_to_mfw[cfw]
+    sw = mfw_to_sw[mfw]
+    return {"sw": sw, "main-fw": mfw, "channel-fw": cfw}
+
+
+def get_latest_firmware_versions(serial_number: str):
+    cfw_to_hw, cfw_to_mfw, mfw_to_sw = create_dependency_mapping()
+    hardware_version = get_hw_version_from_serial_number(serial_number)
     # get versions from mappings
     try:
         return resolve_versions(cfw_to_hw, cfw_to_mfw, mfw_to_sw, hardware_version)
-    except Exception:
-        logger.info("No compatible versions found")
+    except Exception as e:
+        logger.error(f"Unable to find compatible firmware files: {repr(e)}")
         return None
 
 
@@ -74,16 +85,16 @@ def handler(event, context):
     logger.info(f"event: {event}")
 
     try:
-        hardware_version = event["queryStringParameters"]["hardware_version"]
+        serial_number = event["queryStringParameters"]["serial_number"]
     except (KeyError, TypeError):
-        logger.exception("Request missing hardware_version param")
+        logger.exception("Request missing serial_number param")
         return {
             "statusCode": 400,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"message": "Missing hardware_version param"}),
+            "body": json.dumps({"message": "Missing serial_number param"}),
         }
 
-    latest_firmware_version = get_latest_firmware_versions(hardware_version)
+    latest_firmware_version = get_latest_firmware_versions(serial_number)
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},
