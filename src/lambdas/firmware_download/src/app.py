@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 def get_download_url(version: str, bucket: str):
     s3_client = boto3.client("s3")
 
-    file_name = f"{version.replace('.', '_')}.bin"
+    file_name = f"{version}.bin"
     try:
         logger.info(f"Generating presigned url for {bucket}/{file_name}")
         return s3_client.generate_presigned_url(

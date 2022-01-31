@@ -13,6 +13,7 @@ variable "sqsp_verification" {}
 # cloud sdk
 variable "upload_bucket" {}
 variable "analyzed_bucket" {}
+variable "logs_bucket" {}
 variable "sdk_upload_image_name" {}
 variable "sdk_upload_function_name" {}
 
@@ -96,7 +97,7 @@ module "jupyter_notebook" {
   hosted_zone    = var.hosted_zone
   hosted_zone_id = module.downloads[0].hosted_zone_id
   ssl_cert_arn   = module.downloads[0].ssl_cert_arn
-  version_tag    = "v0.16.2"
+  version_tag    = "v0.20.2"
 }
 
 
@@ -112,10 +113,11 @@ module "sdk_analysis" {
   # s3 buckets
   upload_bucket   = "${terraform.workspace}-${var.upload_bucket}"
   analyzed_bucket = "${terraform.workspace}-${var.analyzed_bucket}"
+  logs_bucket     = "${terraform.workspace}-${var.logs_bucket}"
 
   # lambda
   function_name        = "${terraform.workspace}-${var.sdk_upload_function_name}"
-  function_description = "SDK upload lambda"
+  function_description = "s3 upload lambda"
 
   sdk_status_table_name = module.sdk_status_db.name
   sdk_status_table_arn  = module.sdk_status_db.arn
