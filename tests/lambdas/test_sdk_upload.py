@@ -43,7 +43,7 @@ def test_sdk_upload__upload_type_defaults_to_sdk_if_not_given(mocker):
     spied_presigned_post = mocker.patch.object(sdk_upload, "generate_presigned_params_for_sdk", autospec=True)
 
     sdk_upload.handler(
-        {"body": json.dumps({"file_name": "test_file"}), "headers": {"Content-MD5": ""},}, None,
+        {"body": json.dumps({"file_name": "test_file"}), "headers": {"Content-MD5": ""}}, None,
     )
     spied_presigned_post.assert_called_once()
 
