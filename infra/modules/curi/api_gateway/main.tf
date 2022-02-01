@@ -27,7 +27,7 @@ resource "aws_apigatewayv2_authorizer" "lambda_gw_auth" {
 }
 
 resource "aws_cloudwatch_log_group" "api_gw" {
-  name = "/aws/api_gw/${aws_apigatewayv2_api.lambda_gw.name}"
+  name = "/aws/vendedlogs/${aws_apigatewayv2_api.lambda_gw.name}"
   tags = {
     Environment = terraform.workspace
     Application = "api-gw"
