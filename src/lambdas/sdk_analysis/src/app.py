@@ -140,7 +140,6 @@ def handler(max_num_loops=None):
                 QueueUrl=SQS_URL, MaxNumberOfMessages=1, WaitTimeSeconds=10
             )
             sqs_messages = sqs_response.get("Messages", [])
-            logger.info(f"Received: {len(sqs_messages)}")
 
             for message in sqs_messages:
                 message_body = json.loads(message.get("Body", r"{}"))

@@ -174,8 +174,6 @@ def test_sdk_analysis__handles_info_logging_pertaining_to_sqs_queue(mocker, mock
 
     sdk_analysis.handler(max_num_loops=1)
     spied_logger_info.assert_any_call(f"Receiving messages on {expected_sqs_url}")
-    spied_logger_info.assert_any_call(f"Received: {len(test_message_list)}")
-    spied_logger_info.assert_any_call("Received: 0")
 
 
 def test_process_record__retrieves_metadata_of_file_correctly(mocked_boto3_client):
