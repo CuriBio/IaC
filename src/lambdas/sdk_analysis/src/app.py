@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 from time import sleep
+from urllib.parse import unquote_plus
 
 import boto3
 from botocore.exceptions import ClientError
@@ -52,8 +53,8 @@ def update_sdk_status(db_client, upload_id, new_status):
 
 def process_record(record, s3_client, db_client):
     bucket = record["s3"]["bucket"]["name"]
-    key = record["s3"]["object"]["key"]
-
+    obj_key = record["s3"]["object"]["key"]
+    key = unquote_plus(obj_key)
     # retrieve metadata of file to be analyzed
     try:
         logger.info(f"Retrieving Head Object of {bucket}/{key}")
@@ -140,7 +141,6 @@ def handler(max_num_loops=None):
                 QueueUrl=SQS_URL, MaxNumberOfMessages=1, WaitTimeSeconds=10
             )
             sqs_messages = sqs_response.get("Messages", [])
-            logger.info(f"Received: {len(sqs_messages)}")
 
             for message in sqs_messages:
                 message_body = json.loads(message.get("Body", r"{}"))
