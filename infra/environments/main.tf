@@ -43,7 +43,7 @@ variable "firmware_download_function_name" {}
 
 
 terraform {
-  required_version = ">= 0.14.7"
+  required_version = "0.14.7"
 
   required_providers {
     aws = {
