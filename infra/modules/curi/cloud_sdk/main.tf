@@ -128,42 +128,62 @@ module "ecs_task" {
 # S3 upload bucket
 resource "aws_s3_bucket" "upload_bucket" {
   bucket = var.upload_bucket
-  acl    = "private"
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_server_side_encryption_configuration" "upload_bucket" {
+  bucket = aws_s3_bucket.upload_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
 }
 
+resource "aws_s3_bucket_acl" "upload_bucket" {
+  bucket = aws_s3_bucket.upload_bucket.id
+  acl    = "private"
+}
+
+# S3 upload bucket
 resource "aws_s3_bucket" "analyzed_bucket" {
   bucket = var.analyzed_bucket
-  acl    = "private"
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_server_side_encryption_configuration" "analyzed_bucket" {
+  bucket = aws_s3_bucket.analyzed_bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
 }
+
+resource "aws_s3_bucket_acl" "analyzed_bucket" {
+  bucket = aws_s3_bucket.analyzed_bucket.id
+  acl    = "private"
+}
+
+# S3 log bucket
 resource "aws_s3_bucket" "mantarray_logs" {
   bucket = var.logs_bucket
-  acl    = "private"
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_server_side_encryption_configuration" "mantarray_logs" {
+  bucket = aws_s3_bucket.mantarray_logs.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
     }
   }
 }
 
+resource "aws_s3_bucket_acl" "mantarray_logs" {
+  bucket = aws_s3_bucket.mantarray_logs.id
+  acl    = "private"
+}
 
 # SQS
 resource "aws_sqs_queue" "sdk_queue_deadletter" {

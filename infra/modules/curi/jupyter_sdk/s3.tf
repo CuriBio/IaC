@@ -50,22 +50,32 @@ resource "aws_cloudfront_distribution" "jupyter_sdk_distribution" {
     ssl_support_method  = "sni-only"
   }
 }
+
 resource "aws_s3_bucket" "jupyter" {
   bucket = "jupyter-sdk.${var.hosted_zone}"
-  acl    = "public-read"
+}
 
-  website {
-    index_document = "index.html"
-    error_document = "error.html"
+resource "aws_s3_bucket_website_configuration" "jupyter" {
+  bucket = aws_s3_bucket.jupyter.bucket
 
-    routing_rules = <<EOF
-      [{
-          "Redirect": {
-            "HttpRedirectCode": "302",
-            "HostName": "mybinder.org",
-            "ReplaceKeyWith": "v2/gh/curibio/jupyter_sdk/${var.version_tag}?filepath=intro.ipynb"
-          }
-      }]
-      EOF
+  index_document {
+    suffix = "index.html"
   }
+
+  error_document {
+    key = "error.html"
+  }
+
+  routing_rule {
+    redirect {
+      http_redirect_code = "302"
+      host_name          = "mybinder.org"
+      replace_key_with   = "v2/gh/curibio/jupyter_sdk/${var.version_tag}?filepath=intro.ipynb"
+    }
+  }
+}
+
+resource "aws_s3_bucket_acl" "jupyter" {
+  bucket = aws_s3_bucket.jupyter.id
+  acl    = "public-read"
 }
