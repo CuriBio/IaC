@@ -141,16 +141,24 @@ def handler(max_num_loops=None):
                 QueueUrl=SQS_URL, MaxNumberOfMessages=1, WaitTimeSeconds=10
             )
             sqs_messages = sqs_response.get("Messages", [])
+            if sqs_messages:
+                log_msg = "Received {num_message} message"
+                if len(sqs_messages) > 1:
+                    log_msg += "s"
+                logger.info(log_msg)
 
             for message in sqs_messages:
                 message_body = json.loads(message.get("Body", r"{}"))
                 record_list = message_body.get("Records", [])
+                logger.info(f"Message contains {len(record_list)} records")
                 for record in record_list:
                     if (
                         record.get("eventSource") == "aws:s3"
                         and record.get("eventName") == "ObjectCreated:Post"
                     ):
                         process_record(record, s3_client, db_client)
+                    else:
+                        logger.info("Skipping record")
                 sqs_client.delete_message(QueueUrl=SQS_URL, ReceiptHandle=message["ReceiptHandle"])
         except ClientError as e:
             logger.exception(f"receive_message failed. Error: {e}")
