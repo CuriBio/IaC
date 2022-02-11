@@ -153,9 +153,8 @@ def handler(max_num_loops=None):
                 logger.info(f"Message contains {len(record_list)} records")
                 for record in record_list:
                     if (
-                        record.get("eventSource")
-                        == "aws:s3"
-                        # and record.get("eventName") == "ObjectCreated:Post"
+                        record.get("eventSource") == "aws:s3"
+                        and record.get("eventName") == "ObjectCreated:Post"
                     ):
                         process_record(record, s3_client, db_client)
                     else:
