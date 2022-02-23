@@ -85,3 +85,9 @@ jobs:
 
           alembic upgrade head
           alembic history --verbose
+
+          alembic downgrade -1
+          alembic history --verbose
+
+          alembic upgrade head
+          alembic history --verbose
