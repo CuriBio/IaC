@@ -7,8 +7,6 @@ Revision by: Luci Pak
 
 """
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision = "7785d9d74786"
