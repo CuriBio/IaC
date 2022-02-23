@@ -19,16 +19,9 @@ depends_on = None
 
 def upgrade():
     op.drop_index("instrument_serial_number", "mantarray_recording_sessions")
-    op.create_index(
-        "mantarray_recording_sessions_ikuq_1",
-        "mantarray_recording_sessions",
-        ["instrument_serial_number", "recording_started_at"],
-        unique=True,
-    )
 
 
 def downgrade():
-    op.drop_index("mantarray_recording_sessions_ikuq_1", "mantarray_recording_sessions")
     op.create_unique_constraint(
         "instrument_serial_number",
         "mantarray_recording_sessions",
