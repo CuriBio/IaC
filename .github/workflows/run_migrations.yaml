@@ -85,3 +85,13 @@ jobs:
 
           alembic upgrade head
           alembic history --verbose
+
+      - name: Test migration
+        run: |
+          chmod +x .github/scripts/configure_aws.sh
+          . .github/scripts/configure_aws.sh
+
+          alembic downgrade -1
+
+          alembic upgrade head
+          alembic history --verbose
