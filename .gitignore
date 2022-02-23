@@ -52,5 +52,6 @@ pipeline_outputs/
 *.tsv
 *.csv
 *.packaged.yaml
+*.DS_Store
 
 secrets.json
