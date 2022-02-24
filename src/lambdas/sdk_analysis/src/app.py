@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 from time import sleep
+from urllib.parse import unquote_plus
 
 import boto3
 from botocore.exceptions import ClientError
@@ -52,8 +53,8 @@ def update_sdk_status(db_client, upload_id, new_status):
 
 def process_record(record, s3_client, db_client):
     bucket = record["s3"]["bucket"]["name"]
-    key = record["s3"]["object"]["key"]
-
+    obj_key = record["s3"]["object"]["key"]
+    key = unquote_plus(obj_key)
     # retrieve metadata of file to be analyzed
     try:
         logger.info(f"Retrieving Head Object of {bucket}/{key}")
@@ -140,17 +141,24 @@ def handler(max_num_loops=None):
                 QueueUrl=SQS_URL, MaxNumberOfMessages=1, WaitTimeSeconds=10
             )
             sqs_messages = sqs_response.get("Messages", [])
-            logger.info(f"Received: {len(sqs_messages)}")
+            if sqs_messages:
+                log_msg = "Received {num_message} message"
+                if len(sqs_messages) > 1:
+                    log_msg += "s"
+                logger.info(log_msg)
 
             for message in sqs_messages:
                 message_body = json.loads(message.get("Body", r"{}"))
                 record_list = message_body.get("Records", [])
+                logger.info(f"Message contains {len(record_list)} records")
                 for record in record_list:
                     if (
                         record.get("eventSource") == "aws:s3"
                         and record.get("eventName") == "ObjectCreated:Post"
                     ):
                         process_record(record, s3_client, db_client)
+                    else:
+                        logger.info("Skipping record")
                 sqs_client.delete_message(QueueUrl=SQS_URL, ReceiptHandle=message["ReceiptHandle"])
         except ClientError as e:
             logger.exception(f"receive_message failed. Error: {e}")
