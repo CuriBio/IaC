@@ -12,6 +12,6 @@ stdlib-utils==0.4.4
 alembic==1.7.5
 semver==2.13.0
 # python-on-whales==0.16.0 # for local testing of lambda function
-paramiko==2.8.0
+paramiko==2.10.1
 sshtunnel==0.4.0
 mysqlclient==2.1.0
