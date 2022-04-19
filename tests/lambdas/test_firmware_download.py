@@ -115,7 +115,8 @@ def test_firmware_download__gets_presigned_url_correctly(firmware_type, mocker, 
 
 @pytest.mark.parametrize("firmware_type", ["main", "channel"])
 def test_firmware_download__returns_correct_response__if_presigned_url_successfully_generated(
-    firmware_type, mocked_boto3_client,
+    firmware_type,
+    mocked_boto3_client,
 ):
     mocked_s3_client = mocked_boto3_client
 

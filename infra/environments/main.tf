@@ -97,7 +97,7 @@ module "jupyter_notebook" {
   hosted_zone    = var.hosted_zone
   hosted_zone_id = module.downloads[0].hosted_zone_id
   ssl_cert_arn   = module.downloads[0].ssl_cert_arn
-  version_tag    = "v0.20.2"
+  version_tag    = "v0.23.4"
 }
 
 
