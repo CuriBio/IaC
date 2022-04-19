@@ -27,7 +27,9 @@ def get_download_url(version: str, bucket: str):
     try:
         logger.info(f"Generating presigned url for {bucket}/{file_name}")
         return s3_client.generate_presigned_url(
-            ClientMethod="get_object", Params={"Bucket": bucket, "Key": file_name}, ExpiresIn=3600,
+            ClientMethod="get_object",
+            Params={"Bucket": bucket, "Key": file_name},
+            ExpiresIn=3600,
         )
     except Exception as e:
         logger.error(f"Unable to generate presigned url for {bucket}/{file_name}: {repr(e)}")

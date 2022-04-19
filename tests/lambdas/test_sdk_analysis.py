@@ -454,7 +454,8 @@ def test_load_data_into_dataframe__successfully_gets_called_after_successful_db_
     sdk_analysis.process_record(copy.deepcopy(TEST_RECORD), mocked_s3_client, mocked_boto3_client["dynamodb"])
 
     format_data_spy.assert_any_call(
-        mocked_open.return_value.__enter__(), mocked_PR_instance.return_value.__next__(),
+        mocked_open.return_value.__enter__(),
+        mocked_PR_instance.return_value.__next__(),
     )
 
 
