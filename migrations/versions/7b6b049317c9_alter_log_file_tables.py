@@ -41,7 +41,10 @@ def upgrade():
         sa.Column("file_format_version", sa.VARCHAR(255)),
         sa.Column("customer_account_id", sa.VARCHAR(255)),
         sa.Column("user_account_id", sa.VARCHAR(255)),
-        sa.ForeignKeyConstraint(["upload_id"], ["uploaded_s3_objects.id"],),
+        sa.ForeignKeyConstraint(
+            ["upload_id"],
+            ["uploaded_s3_objects.id"],
+        ),
         sa.ForeignKeyConstraint(
             ["mantarray_recording_session_id"],
             ["mantarray_recording_sessions.mantarray_recording_session_id"],
@@ -69,13 +72,19 @@ def downgrade():
         sa.Column("ended_at", sa.DateTime()),
         sa.Column("last_used_customer_account_id", sa.VARCHAR(255)),
         sa.Column("last_used_user_account_id", sa.VARCHAR(255)),
-        sa.ForeignKeyConstraint(["upload_id"], ["uploaded_s3_objects.id"],),
+        sa.ForeignKeyConstraint(
+            ["upload_id"],
+            ["uploaded_s3_objects.id"],
+        ),
     )
     op.create_table(
         "mantarray_frontend_log_files",
         sa.Column("frontend_log_id", sa.VARCHAR(255), primary_key=True),
         sa.Column("upload_id", sa.VARCHAR(255)),
-        sa.ForeignKeyConstraint(["upload_id"], ["uploaded_s3_objects.id"],),
+        sa.ForeignKeyConstraint(
+            ["upload_id"],
+            ["uploaded_s3_objects.id"],
+        ),
     )
     op.create_foreign_key(
         "mantarray_recording_sessions_ibfk_2",

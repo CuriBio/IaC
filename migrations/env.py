@@ -61,7 +61,10 @@ with SSHTunnelForwarder(
 
         """
         context.configure(
-            url=db_url, target_metadata=metadata, literal_binds=True, dialect_opts={"paramstyle": "named"},
+            url=db_url,
+            target_metadata=metadata,
+            literal_binds=True,
+            dialect_opts={"paramstyle": "named"},
         )
 
         with context.begin_transaction():
@@ -76,7 +79,9 @@ with SSHTunnelForwarder(
         """
         with engine.connect() as connection:
             context.configure(
-                connection=connection, target_metadata=metadata, version_table="alembic_version",
+                connection=connection,
+                target_metadata=metadata,
+                version_table="alembic_version",
             )
 
             with context.begin_transaction():

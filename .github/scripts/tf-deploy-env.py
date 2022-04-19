@@ -32,7 +32,10 @@ def main():
     parser.add_argument("--output", action="store_true", help="get terraform output")
     parser.add_argument("--refresh", action="store_true")
     parser.add_argument(
-        "--infra_dir", default="./infra/environments/", type=str, help="Terraform infrastructure directory",
+        "--infra_dir",
+        default="./infra/environments/",
+        type=str,
+        help="Terraform infrastructure directory",
     )
     args = parser.parse_args()
 
