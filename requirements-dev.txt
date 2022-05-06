@@ -5,7 +5,7 @@ pytest-mock==3.5.1
 pylint==2.7.4
 pytest-pylint==0.18.0
 boto3==1.17.47
-boto3-stubs[s3,sts]==1.17.47.0
+boto3-stubs[s3,sts]==1.22.8.post1
 requests==2.25.1
 python-hcl2==2.0.3
 stdlib-utils==0.4.4
