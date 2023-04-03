@@ -1,7 +1,7 @@
 pre-commit==2.12.0 # run 'pre-commit install' initially to install the git hooks
 pytest==6.2.3
 pytest-randomly==3.6.0
-pytest-mock==3.5.1
+pytest-mock==3.10.0
 pylint==2.7.4
 pytest-pylint==0.18.0
 boto3==1.17.47
